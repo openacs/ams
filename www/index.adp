@@ -13,3 +13,10 @@
 <formtemplate id="entry"></formtemplate>
 
 
+<if @lists:rowcount@ gt 0>
+    <ul>
+      <multiple name="lists">
+      <li>@lists.first_names@ @lists.last_name@ @lists.middle_names@
+      </multiple>
+    </ul>
+</if>

@@ -19,7 +19,7 @@ set context {}
 #ad_return_error "You need to specify and valid object id in the packages/ams/www/index.tcl file" "Once done comment out this line."
 set package_key      "ams"
 set object_type      "ams_list"
-set list_name        "ams_list_demo"
+set list_name        "ams_list_demo3"
 set pretty_name      "The Fields used to Add/Edit a Contact Person"
 
 ams::define_list -package_key $package_key \
@@ -69,5 +69,30 @@ ams_form -package_key $package_key \
     -return_url "./"
 
 set attr_list [ams::object::attribute::values -object_id $object_id]
+
+
+db_multirow lists get_list { select list_id, pretty_name from ams_lists }
+
+ams::multirow::extend \
+    -package_key $package_key \
+    -object_type $object_type \
+    -list_name $list_name \
+    -multirow "lists" \
+    -key "list_id"
+#
+#template::multirow extend lists [list first_names last_name home_address first_names]
+#
+#
+#set key_id "list_id"
+#template::multirow foreach lists {
+#    set object_id [set $key_id]
+#    ams::object::attribute::values -vars -object_id $object_id
+#}
+## set attr_list $rowcount
+#template::multirow foreach lists {
+#    ns_log Notice "$first_names $last_name $home_address"
+#}
+
+
 
 ad_return_template

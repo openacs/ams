@@ -115,38 +115,25 @@ ad_from ... -on_submit {
 
 <h2>AMS and your package's UI</h2>
 
-<h3 style="color: red;">THIS SECTION NEEDS LOTS OF WORK</h3>
 
-<p>to display attributes you can call ams::object::attribute::values to get the results back as upvared variables, as an array or as a list however you want. So, if on the contact index package you do, for example
+<p>to display attributes you can call <a href="/api-doc/proc-view?proc=ams::object::attribute::values">ams::object::attribute::values</a> to get the results back as upvared variables, as an array or as a list however you want. So, if on the contact-view page you do, for example
 </p>
 <pre>
-db_multirow -extend { first_names last_name email home_phone } get_contacts { select ct_contact_id from ct_contacts order by names } {
-#      set first_names [ams::object::attribute::value object_id object_type attribute_name]
-    set first_names [ams::object::attribute::value $ct_contact_id ct_contact first_names]
-}
+ams::object::attribute::values -array "contact_info" -
 </pre>
-<p>That's it, you can also get upvared values like this</p>
+<p>To add ams_attribute_values to a multirow you call <a href="/api-doc/proc-view?proc=ams::multirow::extend">ams::multirow::extend</a> to efficiently extend your multirow with ams_attribute_values. For example:</p>
 <pre>
-db_multirow -extend { first_names last_name email home_phone } get_contacts { select ct_contact_id from ct_contacts order by names } {
-    ams::object::attributes::values -names -varenv $object_id { first_names last_name email home_phone }
-}
+db_multirow contacts get_contacts { select ct_contact_id from ct_contacts }
+
+ams::multirow::extend \
+    -package_key "contacts" \
+    -object_type "ct_contact" \
+    -list_name "contact_person" \
+    -multirow "contacts" \
+    -key "ct_contact_id"
 </pre>
 <p>
-Anyways, that's how it integrates with other packages. I've made it pretty efficient and i think the integration is pretty straight forward. If you have any questions please feel free to ask. AMS takes care of ALL content repository stuff, so what AMS does is effectively make it easy to make ANY package use the content repository without a steep learning curve. I am continuing to develop AMS since it fits our institutional priorities right now, and i don't think contacts will be too much work once ams is working correctly. I am currently working on an ETP revision that uses AMS as the attribute store for all page attributes... this way pretty much all data on a system can be housed in AMS, and other package are then in charge of relational issues. I want to work on contacts, and hope to get to it as soon as this other stuff is done. My boss went on a 2 month study leave, so once this is done i'm completely in charge of my time.
-</p>
-<hr>
-<h2>AMS Lists</h2>
-<p>You specify permissions at list object instantiation time
-by specifying the context id for the ams_list object however
-you want, only admins of the list get to modify that list. this
-is all done through the tcl api. If you want a list to belong
-to only one object you can simply program your package to
-specify list names that are the id's of the object you are using.</p>
-
-<p>this way you are assured unique list names for that object_type
-based on package_key.</p>
-
-<p>if you want a standard template for an object type you can...</p>
-
+<h2>AMS Permissions</h2>
+<h3 style="color: red;">THIS SECTION NEEDS TO BE PROGRAMMED AN DOCUMENTED</h3>
 </body>
 </html>

@@ -80,7 +80,7 @@
   </querytext>
 </fullquery>
 
-<fullquery name="ams::attribute::get_ams_attribute_id.get_ams_attribute_id">
+<fullquery name="ams::attribute::get_ams_attribute_id_not_cached.get_ams_attribute_id">
   <querytext>
         select ams.ams_attribute_id
           from ams_attributes ams, acs_attributes acs
