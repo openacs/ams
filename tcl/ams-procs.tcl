@@ -99,25 +99,41 @@ ad_proc -public ams::define_list {
 
     foreach { attribute } $attributes {
         # the attribute follows this order
-        # attribute_name widget_name pretty_name pretty_plural default_value description
+        # attribute_name widget_name pretty_name pretty_plural extra_args
         set attribute_name [lindex $attribute 0]
-        
+        set widget_name    [lindex $attribute 1]
+        set pretty_name    [lindex $attribute 2]
+        set pretty_plural  [lindex $attribute 3]
+        # we set the defaults for values that are required
+        set required_p 0
+        set default_name {}
+        set description {}
+        set default_value {}
+        set context_id {}
+        set options {}
+        # we now check for other values
+        set i 4
+        while { $i < [llength $attribute] } {
+            set arg [lindex $attribute $i]
+            switch [lindex $arg 0] {
+                required { set required_p 1 }
+                default { set [lindex $arg 0] [lindex $arg 1] }
+            }
+            incr i
+        }
         set ams_attribute_id [ams::attribute::new -object_type $object_type \
                                   -attribute_name $attribute_name \
-                                  -widget_name [lindex $attribute 1] \
-                                  -pretty_name [lindex $attribute 2] \
-                                  -pretty_plural [lindex $attribute 3] \
-                                  -default_value [lindex $attribute 4] \
-                                  -description [lindex $attribute 5] \
+                                  -widget_name $widget_name \
+                                  -pretty_name $pretty_name \
+                                  -pretty_plural $pretty_plural \
+                                  -default_value $default_value \
+                                  -description $description \
+                                  -context_id $context_id \
+                                  -options $options \
                                   -no_complain]
-        
+
         if { ![exists_and_not_null ams_attribute_id] && $reset_order_p } {
             set ams_attribute_id [ams::attribute::get_ams_attribute_id -object_type $object_type -attribute_name $attribute_name]
-        }
-        if { [lindex $attribute 6] == "required" } {
-            set required_p "t"
-        } else {
-            set required_p "f"
         }
         if { [exists_and_not_null ams_attribute_id] } {
             ams::list::attribute_map -list_id $list_id \
@@ -252,7 +268,9 @@ ad_proc -public ams::ad_form::save {
         set attribute_name   [ams::attribute::name -ams_attribute_id $ams_attribute_id]
         set attribute_value  [template::element::get_value $form_name $attribute_name]
         if { $storage_type == "ams_options" } {
-            set attribute_value [template::element::get_values $form_name $attribute_name]
+            # we always order the options_string in the order of the option_id
+            # when doing internal processing
+            set attribute_value [lsort [template::element::get_values $form_name $attribute_name]]
         }
         if { [info exists oldvalues($ams_attribute_id)] } {
             if { $attribute_value != $oldvalues($ams_attribute_id) } {
@@ -330,7 +348,7 @@ ad_proc -public ams::option::new {
     @return option_id    
 } {
 
-    set lang_key "ams.option:[ams::lang_key_encode $option]"
+    set lang_key "ams.option:[ams::lang_key_encode -string $option]"
     _mr en $lang_key $option
     set option $lang_key
 
@@ -393,7 +411,6 @@ ad_proc -public ams::attribute::widget {
     }
 
     return $attribute_widget
-
 }
 
 ad_proc -private ams::attribute::widget_not_cached { 
@@ -415,12 +432,13 @@ ad_proc -private ams::attribute::widget_not_cached {
     }
 
     if { $storage_type == "ams_options" } {
-        set options [list "options" [db_list_of_lists select_options {}]]
-        append attribute_widget " ${options}"
+        set options {}
+        db_foreach select_options {} {
+            lappend options [list [_ $option] [lindex $option_id]]
+        }
+         lappend attribute_widget [list "options" $options]
     }
-#    ns_log debug "attribute used: $attribute_widget"
     return $attribute_widget
-
 }
 
 ad_proc -private ams::attribute::widget_cached {
@@ -433,6 +451,14 @@ ad_proc -private ams::attribute::widget_cached {
 }
 
 
+ad_proc -private ams::attribute::widget_flush {
+    -ams_attribute_id:required
+} {
+    Returns an ad_form encoded attribute widget list, as used by other procs. Flush.
+    @see ams::attribute::widget_not_cached
+} {
+    return [util_memoize_flush [list ams::attribute::widget_not_cached -ams_attribute_id $ams_attribute_id]]
+}
 
 
 
@@ -454,6 +480,18 @@ ad_proc -private ams::attribute::exists_p {
     } else {
         return 0
     }
+}
+
+ad_proc -private ams::attribute::exists_p_flush {
+    -object_type:required
+    -attribute_name:required
+} {
+    
+    does an attribute with this given attribute_name for this object type exists? Flush.
+
+    @return ams_attribute_id if none exists then it returns blank
+} {
+    return [util_memoize_flush [list ams::attribute::get_ams_attribute_id_not_cached -object_type $object_type -attribute_name $attribute_name]]
 }
 
 
@@ -483,6 +521,19 @@ ad_proc -private ams::attribute::get_ams_attribute_id_not_cached {
     return [db_string get_ams_attribute_id {} -default {}]
 }
 
+ad_proc -private ams::attribute::get_ams_attribute_id_flush {
+    -object_type:required
+    -attribute_name:required
+} {
+    
+    return the ams_attribute_id for the given ams_attriubte_name belonging to this object_type. Flush.
+
+    @return ams_attribute_id if none exists then it returns blank
+} {
+
+    return [util_memoize_flush [list ams::attribute::get_ams_attribute_id_not_cached -object_type $object_type -attribute_name $attribute_name]]
+}
+
 ad_proc -public ams::attribute::new {
     {-ams_attribute_id ""}
     -object_type:required
@@ -495,6 +546,7 @@ ad_proc -public ams::attribute::new {
     {-deprecated:boolean}
     {-context_id ""}
     {-no_complain:boolean}
+    {-options}
 } {
     create a new ams_attribute
 
@@ -559,6 +611,7 @@ ad_proc -public ams::attribute::new {
 
     @param context_id defaults to package_id
     @param no_complain silently ignore attributes that already exist.
+    @param options a list of options for an ams_object that has the ams_options storage type the options will be ordered in the order of the list
     @return ams_attribute_id
 } {
 
@@ -569,7 +622,7 @@ ad_proc -public ams::attribute::new {
         address  { set widget_name "postal_address" }
         phone    { set widget_name "telecom_number" }
     }
-
+    ams::attribute::exists_p_flush -object_type $object_type -attribute_name $attribute_name
     if { [ams::attribute::exists_p -object_type $object_type -attribute_name $attribute_name] } {
         if { !$no_complain_p } {
             error "Attribute $attribute_name Already Exists" "The attribute \"$attribute_name\" already exists for object_type \"$object_type\""
@@ -603,6 +656,16 @@ ad_proc -public ams::attribute::new {
         oacs_util::vars_to_ns_set -ns_set $extra_vars -var_list {ams_attribute_id object_type attribute_name pretty_name pretty_plural default_value description widget_name deprecated_p context_id}
         set ams_attribute_id [package_instantiate_object -extra_vars $extra_vars ams_attribute]
 
+        ns_log Notice "$attribute_name storage type : [ams::attribute::storage_type -ams_attribute_id $ams_attribute_id]"
+        if { [exists_and_not_null options] } {
+            ns_log Notice "$attribute_name storage type : $options"
+        }
+        # now we define options for an attribute - if they are provided and the attribute accepts options
+        if { [string equal [ams::attribute::storage_type -ams_attribute_id $ams_attribute_id] "ams_options"] && [exists_and_not_null options] } {
+            foreach { option } $options {
+                ams::option::new -ams_attribute_id $ams_attribute_id -option $option
+            }
+        }
         return $ams_attribute_id
     }
 }
@@ -765,7 +828,7 @@ ad_proc -public ams::attribute::value::new {
             set location          [template::util::telecom_number::get_property location $attribute_value]
             set phone_type_id     [template::util::telecom_number::get_property phone_type_id $attribute_value]
 
-            set number_id [db_string create_telecom_object {}]
+            set number_id [db_string create_telecom_number_object {}]
 
             db_dml create_telecom_number {}
 
@@ -793,6 +856,12 @@ ad_proc -public ams::attribute::value::new {
         }
 
         ams_options {
+            # we need to loop through the values
+            # on the first option_map_id the option_map_id
+            # will be set.
+            foreach { option_id } $attribute_value {
+                set option_map_id [ams::option::map -option_map_id $option_map_id -option_id $option_id]
+            }
         }
 
         time {
@@ -992,7 +1061,7 @@ ad_proc -private ams::object::attribute::values_batch_process {
                     set attribute_value $address_string
                 }
                 ams_options {
-                    set attribute_value "" 
+                    set attribute_value $options_string
                 }
                 time {
                     set attribute_value $time

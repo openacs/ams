@@ -115,6 +115,7 @@
   <querytext>
         select aav.*, 
                ao.object_id,
+               ams_attribute__options_string(option_map_id) as options_string,
                ams_attribute__postal_address_string(address_id) as address_string,
                ams_attribute__telecom_number_string(number_id) as telecom_number_string
           from ams_attribute_values aav, cr_revisions cr, ams_objects ao
