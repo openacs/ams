@@ -1,0 +1,62 @@
+<html>
+<head>
+<title>AMS (Attribute Management System)</title>
+<style type="text/css">
+pre {
+      border: 1px solid #CCC;
+      background-color: #EEE;
+      padding: 10px;
+}      
+</style>
+</head>
+<body>
+<h1>AMS (Attribute Management System)</h1>
+<p>First define the elements via tcl - this could be in a package init proc:</p>
+<pre>
+ams::define_list list_name "pretty list name" package_key object_type { attributes }
+</pre>
+<p>For example</p>
+<pre>
+ams::define_list contact_person_ae "The Fields used to Add/Edit a Contact Person" contacts ct_contact {
+        {first_names textbox {First Name(s)} {First Names} required}
+        {middle_names textbox {Middle Name(s)} {Middle Names}}
+        {last_name textbox {Last Name} {Last Names} required}
+        {email email {Email Address} {Email Addresses}}
+        {url url {Website} {Websites}}
+        {home_address address {Home Address} {Home Addresses}}
+        {organization_address address {Organization Address} {Organization Addresses}}
+    }
+</pre>
+<p>Then on a object-ae page you simply call:</p>
+<pre>
+ad_form -name form_name -form [ams::ad_form::elements package_key list_name]
+</pre>
+<p>and in the ad_form -edit_request block put</p>
+<pre>
+ams::object::attribute::values -names -varenv $object_id
+</pre>
+<p>(this returns the variables upvared, i.e. first_names could be returned with a value of "Matthew"... etc.</p>
+
+<p>in the -on_submit block you put in:</p>
+<pre>
+ams::ad_form::save -name form_name package_key list_name object_id
+</pre>
+<p>This is how you interface with AMS... then to display attributes you can call ams::object::attribute::values to get the results back as upvared variables, as an array or as a list however you want. So, if on the contact index package you do, for example
+</p>
+<pre>
+db_multirow -extend { first_names last_name email home_phone } get_contacts { select ct_contact_id from ct_contacts order by names } {
+#      set first_names [ams::object::attribute::value object_id object_type attribute_name]
+    set first_names [ams::object::attribute::value $ct_contact_id ct_contact first_names]
+}
+</pre>
+<p>That's it, you can also get upvared values like this</p>
+<pre>
+db_multirow -extend { first_names last_name email home_phone } get_contacts { select ct_contact_id from ct_contacts order by names } {
+    ams::object::attributes::values -names -varenv $object_id { first_names last_name email home_phone }
+}
+</pre>
+<p>
+Anyways, that's how it integrates with other packages. I've made it pretty efficient and i think the integration is pretty straight forward. If you have any questions please feel free to ask. AMS takes care of ALL content repository stuff, so what AMS does is effectively make it easy to make ANY package use the content repository without a steep learning curve. I am continuing to develop AMS since it fits our institutional priorities right now, and i don't think contacts will be too much work once ams is working correctly. I am currently working on an ETP revision that uses AMS as the attribute store for all page attributes... this way pretty much all data on a system can be housed in AMS, and other package are then in charge of relational issues. I want to work on contacts, and hope to get to it as soon as this other stuff is done. My boss went on a 2 month study leave, so once this is done i'm completely in charge of my time.
+</p>
+</body>
+</html>
