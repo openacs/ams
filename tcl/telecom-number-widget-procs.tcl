@@ -94,36 +94,31 @@ ad_proc -public template::data::validate::telecom_number { value_ref message_ref
     set location               [template::util::telecom_number::get_property location $telecom_number_list]
     set phone_type_id          [template::util::telecom_number::get_property phone_type_id $telecom_number_list]
 
-    set code_one_p [parameter::get -parameter "ForceCountryCodeOneFormatting" -default "0"]    
-    if { !code_one_p } {
-        # we need to verify that the number is formatted correctly
-        # if yes we seperate the number into various elements
+    
+    if { ![parameter::get -parameter "ForceCountryCodeOneFormatting" -default "0"] } {
+        # the number is not required to be formatted in a country code one friendly way
+
+        # we need to verify that the number does not contain invalid characters
+        set telecom_number_temp "$itu_id$national_number$area_city_code$subscriber_number$extension$sms_enabled_p$best_contact_time"
+        regsub -all " " $telecom_number_temp "" telecom_number_temp
+        ns_log Notice $telecom_number_temp
+        if { ![regexp {^([0-9]|x|-|\)|\(){1,}$} $telecom_number_temp match telecom_number_temp] } {
+             set message [_ ams.Telecom_numbers_must_only_contain_numbers_dashes_and_x_es_and_rounded_braces]
+        }
+    } else {
+        # we have a number in country code one that must follow certain formatting guidelines
+        # the template::data::transform::telecom_number proc will have already seperated 
+        # the entry from a single entry field into the appropriate values if its formatted 
+        # correctly. This means that if values exist for area_city_code and national_number
+        # the number was formatted correctly. If not we need to reply with a message that lets
+        # users know how they are supposed to format numbers.
+        
+        if { ![exists_and_not_null area_city_code] || ![exists_and_not_null national_number] } {
+            set message [_ ams.Telecom_numbers_in_country_code_one_must_be_formatted_like_AAA-SSS-SSSSxXXXX_out_of_country_like_011-CCC-AAAA-SSSS-SSSxXXXX]
+        }
     }
 
-#    set fred_p [::string match {^[0-9][0-9][0-9]-[0-9][0-9][0-9]-[0-9][0-9][0-9][0-9]} $subscriber_number]
-
-    ns_log Notice "regnum: $fred_p :$subscriber_number"
-#    set fred_p [::string match {[0-9][0-9][0-9]-
-#                                [0-9][0-9][0-9]-
-#                                [0-9][0-9][0-9][0-9]x
-#                                [0-9]+?
-#                               } $subscriber_number]
-    ns_log Notice "numwithext: $fred_p :$subscriber_number"
-
-    set message_temp ""
-    # this is used to make sure there are no invalid characters in the telecom_number
-    set telecom_number_temp "$itu_id$national_number$area_city_code$subscriber_number$extension$sms_enabled_p$best_contact_time"
-    # we can't use string match since this is containted within the template::data::validate:: namespace
-#    if { ![string is integer $telecom_number_temp] } {
-#        append message_temp " [_ ams.Telecom_numbers_must_only_contain_numbers_dashes_and_x_es]"
-#    } elseif { $national_number == "1" } {
-        append message_temp " [_ ams.Country_code_1_telecom_numbers_must_follow_the_AAA-BBB-CCCCxDDDD_format]"
-#    } else {
-#        append message_temp "int number"
-#    }
-    ns_log Notice "TCLEVEL: [info level]"
-    if { [exists_and_not_null message_temp] } {
-        set message [string trim $message_temp]
+    if { [exists_and_not_null message] } {
         return 0
     } else {
         return 1
@@ -136,9 +131,7 @@ ad_proc -public template::data::transform::telecom_number { element_ref } {
     upvar $element_ref element
     set element_id $element(id)
 
-#    set contents [ns_queryget $element_id]
-#    set format [ns_queryget $element_id.format]
-
+    # if in the future somebody wants a widget with many individual fields this will be necessary
     set itu_id              [ns_queryget $element_id.itu_id]
     set national_number     [ns_queryget $element_id.national_number]
     set area_city_code      [ns_queryget $element_id.area_city_code]
@@ -149,18 +142,34 @@ ad_proc -public template::data::transform::telecom_number { element_ref } {
     set location            [ns_queryget $element_id.location]
     set phone_type_id       [ns_queryget $element_id.phone_type_id]
 
-    # we need to seperate out the returned value into individual elements
-    set number              [ns_queryget $element_id.summary_number]
-#    if { [parameter::get -parameter "ForceCountryCodeOneFormatting" -default "0"] } {
-        # set need to seperate number into elements - if the formatting is correct
-#        set number_main      [lindex [split $number "x"] 0]
-#        set number_extension [lindex [split $number "x"] 1]
-#        set fred_p [string match {[0-9]{1,}?} $number_extension]
-#        set subscriber_number $number
-#    } else {
-        set subscriber_number $number
-#    }
+    # we need to seperate out the returned value into individual elements for a single box entry widget
+    set number              [string trim [ns_queryget $element_id.summary_number]]
 
+    if { ![parameter::get -parameter "ForceCountryCodeOneFormatting" -default "0"] } {
+        # we need to verify that the number is formatted correctly
+        # if yes we seperate the number into various elements
+        set subscriber_number $number
+    } else {
+        # we need to verify that the number is a valid format. 
+        
+        # if the number is formatted correctly these regexp statements will automatically
+        # set the appropriate values for this string
+        set in_country_p [regexp {^(\d{3})-(\d{3}-\d{4})(x\d{1,})??$} $number match area_city_code subscriber_number extension]
+        if { [string is true $in_country_p] } {
+            set national_number "1"
+         }
+        
+        set out_of_country_p [regexp {^011-(\d{1,})-(\d{1,})-(\d[-|\d]{1,}\d)(x\d{1,})??$} $number match national_number area_city_code subscriber_number extension]
+
+        if { [string is false $in_country_p] && [string is false $out_of_country_p] } {
+            # The number is not in a valid format we pass on the 
+            # subscriber number for validation errors.
+            set subscriber_number $number
+        } else {
+            # if there was an extension we need to remove the "X" from it
+            regsub -all {^x} $extension {} extension
+        }
+    }
     if { [empty_string_p $subscriber_number] } {
         # We need to return the empty list in order for form builder to think of it 
         # as a non-value in case of a required element.
