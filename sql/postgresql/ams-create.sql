@@ -160,7 +160,7 @@ select content_type__create_type (
 --------------------------------------------------------------------
 
 
-create sequence ams_options_id_seq;
+create sequence ams_options_seq;
 create table ams_options (
         option_id               integer
                                 constraint ams_options_option_id_nn not null
@@ -170,7 +170,8 @@ create table ams_options (
                                 constraint ams_options_ams_attribute_id_nn references ams_attributes (ams_attribute_id),
         option                  varchar(200)
                                 constraint ams_options_option_nn not null,
-        sort_order              integer,
+        sort_order              integer
+                                constraint ams_options_sort_order not null,
         unique (ams_attribute_id,sort_order)
 );
 

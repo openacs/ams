@@ -324,14 +324,20 @@ declare
         p_option                alias for $2;
         p_sort_order            alias for $3;
         v_option_id             integer;
+        v_sort_order            integer;
 begin
 
         v_option_id := nextval(''ams_options_seq'');
+        if p_sort_order is null then
+                v_sort_order := nextval(''ams_options_seq'');
+        else
+                v_sort_order := p_sort_order;
+        end if;
 
         insert into ams_options
         (option_id,ams_attribute_id,option,sort_order)
         values
-        (v_option_id,p_ams_attribute_id,p_option,p_sort_order);
+        (v_option_id,p_ams_attribute_id,p_option,v_sort_order);
 
         return v_option_id;
 end;' language 'plpgsql';
@@ -353,16 +359,15 @@ declare
         p_option_map_id         alias for $1;
         p_option_id             alias for $2;
         v_option_map_id         integer;
+        v_count                 integer;
 begin
+        v_count := count(*) from ams_option_map where option_map_id = p_option_map_id;
 
-        if count(*) from ams_option_map where option_map_id = p_option_map_id = ''0'' then
-
+        if v_count = ''0'' then
                 v_option_map_id := nextval(''ams_option_map_id_seq'');
-                insert into ams_option_map_ids(option_map_id) value (v_option_map_id);
-       
+                insert into ams_option_map_ids(option_map_id) values (v_option_map_id);
         else 
                 v_option_map_id := p_option_map_id;
-
         end if;
 
         insert into ams_option_map
@@ -372,8 +377,6 @@ begin
 
         return v_option_map_id;
 end;' language 'plpgsql';
-
-
 
 
 
@@ -631,10 +634,6 @@ end;' language 'plpgsql';
 ------ Postal Address
 --------------------------------------------------------------------
 
--- postal_type needs to be entered here at the end... this is a hack
--- CASE WHEN postal_type is not null THEN postal_type ELSE '''' END || ''}''
--- it needs to be consistently recast as an integer
-
 create or replace function ams_attribute__postal_address_string (integer)
 returns varchar as '
 declare
@@ -648,8 +647,9 @@ begin
                            CASE WHEN municipality is not null THEN municipality ELSE '''' END || ''} {'' || 
                            CASE WHEN region is not null THEN region ELSE '''' END  || ''} {'' || 
                            CASE WHEN postal_code is not null THEN postal_code ELSE '''' END  || ''} {'' ||
-                           CASE WHEN country_code is not null THEN country_code::varchar ELSE '''' END  || ''} {'' ||
-                           CASE WHEN additional_text is not null THEN additional_text ELSE '''' END || ''} {}''
+                           CASE WHEN country_code::varchar is not null THEN country_code::varchar ELSE '''' END  || ''} {'' ||
+                           CASE WHEN additional_text is not null THEN additional_text ELSE '''' END || ''} {'' ||
+                           CASE WHEN postal_type::text is not null THEN postal_type::text ELSE '''' END || ''}''
                       from postal_addresses
                      where address_id = p_address_id;
         else
@@ -674,7 +674,7 @@ begin
 
         if p_number_id is not null then
                 v_name :=  ''{'' || 
-                  CASE WHEN itu_id is not null THEN itu_id ELSE '''' END || ''} {'' || 
+                  CASE WHEN itu_id::text is not null THEN itu_id::text ELSE '''' END || ''} {'' || 
                   CASE WHEN national_number is not null THEN national_number ELSE '''' END || ''} {'' || 
                   CASE WHEN area_city_code is not null THEN area_city_code ELSE '''' END  || ''} {'' || 
                   CASE WHEN subscriber_number is not null THEN subscriber_number ELSE '''' END  || ''} {'' ||
@@ -682,7 +682,7 @@ begin
                   CASE WHEN sms_enabled_p is not null THEN CASE WHEN sms_enabled_p THEN ''1'' ELSE ''0'' END ELSE '''' END || ''} {'' ||
                   CASE WHEN best_contact_time is not null THEN best_contact_time ELSE '''' END || ''} {'' ||
                   CASE WHEN location is not null THEN location ELSE '''' END || ''} {'' ||
-                  CASE WHEN phone_type_id is not null THEN phone_type_id ELSE '''' END || ''}''
+                  CASE WHEN phone_type_id::text is not null THEN phone_type_id::text ELSE '''' END || ''}''
              from telecom_numbers
              where number_id = p_number_id;
         else
@@ -692,3 +692,33 @@ begin
         return v_name;
 end;' language 'plpgsql';
 
+
+------ AMS Options
+--------------------------------------------------------------------
+
+create or replace function ams_attribute__options_string (integer)
+returns varchar as '
+declare
+        p_option_map_id    alias for $1;
+        v_name             text;
+        rec                RECORD;
+begin
+
+        v_name := NULL;
+        if p_option_map_id is not null then
+                FOR rec IN 
+                        select aom.option_id 
+                          from ams_option_map aom
+                         where aom.option_map_id = p_option_map_id
+                         order by aom.option_id
+                LOOP
+                        IF v_name is null THEN
+                                v_name := rec.option_id;
+                        ELSE
+                                v_name := v_name || '' '' || rec.option_id;
+                        END IF;
+                END LOOP;
+        end if;
+
+        return v_name;
+end;' language 'plpgsql';

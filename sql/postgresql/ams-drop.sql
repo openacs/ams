@@ -27,7 +27,7 @@ drop function ams_object_id (integer);
 select drop_package('ams_list');
 
 
-drop sequence ams_options_id_seq;
+drop sequence ams_options_seq;
 drop sequence ams_option_map_id_seq;
 drop sequence ams_list_attribute_sort_order_seq;
 
@@ -38,11 +38,53 @@ drop view ams_object_revisionsi;
 drop table ams_object_revisions cascade;
 drop table ams_objects cascade;
 
+create or replace function inline_1 ()
+returns varchar as '
+declare
+        rec                RECORD;
+begin
+
+        FOR rec IN 
+                select address_id
+                  from ams_attribute_values
+                 where address_id is not null
+        LOOP
+                delete from ams_attribute_values where address_id = rec.address_id;
+                PERFORM postal_address__del (rec.address_id); 
+        END LOOP;
+
+        return ''All Postal Addresses associated with AMS have been deleted'';
+end;' language 'plpgsql';
+
+select inline_1() as Notice;
+drop function inline_1();
+
+create or replace function inline_2 ()
+returns varchar as '
+declare
+        rec                RECORD;
+begin
+
+        FOR rec IN 
+                select number_id
+                  from ams_attribute_values
+                 where number_id is not null
+        LOOP
+                delete from ams_attribute_values where number_id = rec.number_id;
+                PERFORM telecom_number__del (rec.number_id); 
+        END LOOP;
+
+        
+        return ''All Telecom Numbers Addresses associated with AMS have been deleted'';
+end;' language 'plpgsql';
+
+select inline_2() as Notice;
+drop function inline_2();
 
 
 
-select acs_object__delete(address_id) from ams_attribute_values where address_id is not null;
-select acs_object__delete(number_id) from ams_attribute_values where number_id is not null;
+-- select acs_object__delete(address_id) from ams_attribute_values where address_id is not null;
+-- select acs_object__delete(number_id) from ams_attribute_values where number_id is not null;
 
 
 drop table ams_attribute_values cascade;
