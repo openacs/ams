@@ -243,8 +243,10 @@ ad_proc -public ams::ad_form::save {
 
     set list_id [ams::list::get_list_id -package_key $package_key -object_type $object_type -list_name $list_name]
 
-    ams::object::attribute::values -array "oldvalues" -object_id $object_id
+    ams::object::attribute::values -ids -array "oldvalues" -object_id $object_id
     set ams_attribute_ids [ams::list::ams_attribute_ids -list_id $list_id]
+    set variables {}
+
     foreach ams_attribute_id $ams_attribute_ids {
         set storage_type     [ams::attribute::storage_type -ams_attribute_id $ams_attribute_id]
         set attribute_name   [ams::attribute::name -ams_attribute_id $ams_attribute_id]
@@ -252,9 +254,6 @@ ad_proc -public ams::ad_form::save {
         if { $storage_type == "ams_options" } {
             set attribute_value [template::element::get_values $form_name $attribute_name]
         }
-
-#        ns_log Debug "Form $form_name: Attribute $attribute_name: $attribute_value"
-
         if { [info exists oldvalues($ams_attribute_id)] } {
             if { $attribute_value != $oldvalues($ams_attribute_id) } {
                 lappend variables $ams_attribute_id $attribute_value
@@ -267,7 +266,6 @@ ad_proc -public ams::ad_form::save {
     }
     if { [exists_and_not_null variables] } {
 #        ns_log Notice "$object_id changed vars: $variables"
-#        ams_attributes_save $object_id $variables
         db_transaction {
             ams::object::attribute::values_flush -object_id $object_id
             set revision_id   [ams::object::revision::new -object_id $object_id]
