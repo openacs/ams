@@ -47,6 +47,23 @@
   </querytext>
 </fullquery>
 
+<fullquery name="ams::attribute::get.select_attribute_info">
+  <querytext>
+        select ams.*,
+               acs.attribute_name,
+               acs.pretty_name,
+               acs.pretty_plural,
+               acs.object_type,
+               aw.storage_type
+          from ams_attributes ams,
+               acs_attributes acs,
+               ams_widgets aw
+         where ams.ams_attribute_id = :ams_attribute_id
+           and ams.attribute_id = acs.attribute_id
+           and ams.widget_name = aw.widget_name
+  </querytext>
+</fullquery>
+
 <fullquery name="ams::attribute::widget_not_cached.select_attribute">
   <querytext>
         select ac.attribute_name, 
@@ -258,6 +275,15 @@
   </querytext>
 </fullquery>
 
+<fullquery name="ams::list::get.select_list_info">
+  <querytext>
+        select *
+          from ams_lists
+         where list_id = :list_id
+  </querytext>
+</fullquery>
+
+
 <fullquery name="ams::list::ams_attribute_ids_not_cached.ams_attribute_ids">
   <querytext>
         select ams_attribute_id
@@ -288,7 +314,7 @@
 </fullquery>
 
 
-<fullquery name="ams::list::attribute_map.ams_list_attribute_map">
+<fullquery name="ams::list::attribute::map.ams_list_attribute_map">
   <querytext>
         select ams_list__attribute_map (
                 :list_id,
@@ -300,6 +326,41 @@
   </querytext>
 </fullquery>
 
+<fullquery name="ams::list::attribute::map.get_highest_sort_order">
+  <querytext>
+        select sort_order
+          from ams_list_attribute_map
+         where list_id = :list_id
+         order by sort_order desc
+         limit 1
+  </querytext>
+</fullquery>
+
+<fullquery name="ams::list::attribute::unmap.ams_list_attribute_unmap">
+  <querytext>
+        delete from ams_list_attribute_map
+         where list_id = :list_id
+           and ams_attribute_id = :ams_attribute_id
+  </querytext>
+</fullquery>
+
+<fullquery name="ams::list::attribute::required.ams_list_attribute_required">
+  <querytext>
+        update ams_list_attribute_map
+           set required_p = 't'
+         where list_id = :list_id
+           and ams_attribute_id = :ams_attribute_id
+  </querytext>
+</fullquery>
+
+<fullquery name="ams::list::attribute::optional.ams_list_attribute_optional">
+  <querytext>
+        update ams_list_attribute_map
+           set required_p = 'f'
+         where list_id = :list_id
+           and ams_attribute_id = :ams_attribute_id
+  </querytext>
+</fullquery>
 
 
 

@@ -136,7 +136,7 @@ ad_proc -public ams::define_list {
             set ams_attribute_id [ams::attribute::get_ams_attribute_id -object_type $object_type -attribute_name $attribute_name]
         }
         if { [exists_and_not_null ams_attribute_id] } {
-            ams::list::attribute_map -list_id $list_id \
+            ams::list::attribute::map -list_id $list_id \
                 -ams_attribute_id $ams_attribute_id \
                 -required_p $required_p
         }
@@ -384,6 +384,34 @@ ad_proc -public ams::option::map {
 
 namespace eval ams::attribute {}
 
+ad_proc -public ams::attribute::get {
+    -ams_attribute_id:required
+    -array:required
+} {
+    Get the info on an ams_attribute
+} {
+    upvar 1 $array row
+    db_1row select_attribute_info {} -column_array row
+}
+
+ad_proc -public ams::attribute::flush {
+    -ams_attribute_id:required
+} {
+    Get the info on an ams_attribute
+} {
+    ams::attribute::get -ams_attribute_id $ams_attribute_id -array attribute_info
+
+    set object_type $attribute_info(object_type)
+    set attribute_name $attribute_info(attribute_name)
+    ams::attribute::widget_flush -ams_attribute_id $ams_attribute_id
+    ams::attribute::exists_p_flush -object_type $object_type -attribute_name $attribute_name
+    ams::attribute::get_ams_attribute_id_flush -object_type $object_type -attribute_name  $attribute_name
+    ams::attribute::name_flush -ams_attribute_id $ams_attribute_id
+    ams::attribute::storage_type_flush -ams_attribute_id $ams_attribute_id
+
+}
+
+
 ad_proc -public ams::attribute::widget {
     -ams_attribute_id:required
     {-required:boolean}
@@ -552,59 +580,7 @@ ad_proc -public ams::attribute::new {
 
     <p><dt><b>widget_name</b></dt><p>
     <dd>
-       This should be a widget_name used by ams. Currently the valid widget names are:
-       <pre>
-       Text Widgets
-       ------------
-
-       textbox (shorthand for textbox_medium)
-       textbox_small
-       textbox_medium
-       textbox_large
-
-       textarea (shorthand for textarea_medium)
-       textarea_small
-       textarea_small_nospell
-       textarea_medium
-       textarea_large
-
-       richtext (shorthand for richtext_medium)
-       richtext_medium
-       richtext_large
-
-
-       Telephone Widgets
-       -----------------
-
-       phone (shorthand for telecom_number)
-       telecom_number
-
-       Postal Address Widgets
-       ----------------------
-
-       address (shorthand for postal_address)
-       postal_address
-
-
-       Multiple Choice Widgets
-       -----------------------
-
-       select             (one option allowed)
-       radio              (one option allowed)
-       checkbox           (multiple options allowed)
-       multiselect        (multiple options allowed)
-       multiselect_single (one option allowed)
-       
-
-       Other Widgets
-       -------------
-    
-       date
-       integer
-       number
-       email
-       url
-       </pre>
+       This should be a widget_name used by ams. All available widgets can be found at <a href="/ams/widgets">/ams/widgets</a>.
     </dd>
     </dl>
 
@@ -656,10 +632,6 @@ ad_proc -public ams::attribute::new {
         oacs_util::vars_to_ns_set -ns_set $extra_vars -var_list {ams_attribute_id object_type attribute_name pretty_name pretty_plural default_value description widget_name deprecated_p context_id}
         set ams_attribute_id [package_instantiate_object -extra_vars $extra_vars ams_attribute]
 
-        ns_log Notice "$attribute_name storage type : [ams::attribute::storage_type -ams_attribute_id $ams_attribute_id]"
-        if { [exists_and_not_null options] } {
-            ns_log Notice "$attribute_name storage type : $options"
-        }
         # now we define options for an attribute - if they are provided and the attribute accepts options
         if { [string equal [ams::attribute::storage_type -ams_attribute_id $ams_attribute_id] "ams_options"] && [exists_and_not_null options] } {
             foreach { option } $options {
@@ -1117,6 +1089,16 @@ ad_proc -public ams::object::revision::new {
 
 namespace eval ams::list {}
 
+ad_proc -public ams::list::get {
+    -list_id:required
+    -array:required
+} {
+    Get the info on an ams_attribute
+} {
+    upvar 1 $array row
+    db_1row select_list_info {} -column_array row
+}
+
 ad_proc -private ams::list::ams_attribute_ids_not_cached {
     -list_id:required
 } {
@@ -1167,7 +1149,7 @@ ad_proc -private ams::list::exists_p {
 
     @return 1 if the list exists for this object_type and package_key and 0 if the does not exist
 } {
-    set list_id [ams::list::get_list_id -package_key $package_key -object_type $object_type -list_name $list_name]
+    set list_id [ams::list::get_list_id_not_cached -package_key $package_key -object_type $object_type -list_name $list_name]
     if { [exists_and_not_null list_id] } {
         return 1
     } else {
@@ -1175,6 +1157,18 @@ ad_proc -private ams::list::exists_p {
     }
 }
 
+ad_proc -private ams::list::flush {
+    -package_key:required
+    -object_type:required
+    -list_name:required
+} {
+    flush all inte info we have on an ams_list
+
+    @return 1 if the list exists for this object_type and package_key and 0 if the does not exist
+} {
+    ams::list::ams_attribute_ids_flush -list_id [ams::list::get_list_id_not_cached -package_key $package_key -object_type $object_type -list_name $list_name]
+    ams::list::get_list_id_flush -package_key $package_key -object_type $object_type -list_name $list_name
+}
 
 ad_proc -private ams::list::get_list_id {
     -package_key:required
@@ -1188,6 +1182,7 @@ ad_proc -private ams::list::get_list_id {
 } {
     return [util_memoize [list ams::list::get_list_id_not_cached -package_key $package_key -object_type $object_type -list_name $list_name]]
 }
+
 
 ad_proc -private ams::list::get_list_id_not_cached {
     -package_key:required
@@ -1253,8 +1248,9 @@ ad_proc -public ams::list::new {
 }
 
 
+namespace eval ams::list::attribute {}
 
-ad_proc -public ams::list::attribute_map {
+ad_proc -public ams::list::attribute::map {
     -list_id:required
     -ams_attribute_id:required
     {-sort_order ""}
@@ -1267,11 +1263,38 @@ ad_proc -public ams::list::attribute_map {
 
     @return option_map_id
 } {
+    if { ![exists_and_not_null sort_order] } {
+        set sort_order [expr 1 + [db_string get_highest_sort_order {} -default "0"]]
+    }
     return [db_exec_plsql ams_list_attribute_map {}]
 }
 
+ad_proc -public ams::list::attribute::unmap {
+    -list_id:required
+    -ams_attribute_id:required
+} {
+    Unmap an ams option from an ams list
+} {
+    db_dml ams_list_attribute_unmap {}
+}
 
+ad_proc -public ams::list::attribute::required {
+    -list_id:required
+    -ams_attribute_id:required
+} {
+    Specify and ams_attribute as required in an ams list
+} {
+    db_dml ams_list_attribute_required {}
+}
 
+ad_proc -public ams::list::attribute::optional {
+    -list_id:required
+    -ams_attribute_id:required
+} {
+    Specify and ams_attribute as optional in an ams list
+} {
+    db_dml ams_list_attribute_optional {}
+}
 
 
 

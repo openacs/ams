@@ -195,26 +195,6 @@ insert into ams_widgets (
         datatype,
         parameters
 ) values (
-        'number',
-        '#ams.Number#',
-        '#ams.Numbers#',
-        'value',
-        'number',
-        'text',
-        'numeric',
-        '{html {size 6}}'
-);
-
-insert into ams_widgets (
-        widget_name,
-        pretty_name,
-        pretty_plural,
-        storage_type,
-        acs_datatype,
-        widget,
-        datatype,
-        parameters
-) values (
         'integer',
         '#ams.Integer#',
         '#ams.Integers#',

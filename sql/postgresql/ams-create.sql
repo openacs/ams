@@ -347,8 +347,8 @@ select acs_attribute__create_attribute (
     'ams_list',                     -- object_type
     'description_mime_type',        -- attribute_name
     'text',                         -- datatype
-    'Descriptions',                 -- pretty_name
-    'Description Mime Types',       -- pretty_plural -- default null
+    'Description Mime Type',        -- pretty_name
+    'Descriptions Mime Types',      -- pretty_plural -- default null
     null,                           -- table_name -- default null
     'description_mime_type',        -- column_name -- default null
     null,                           -- default_value -- default null

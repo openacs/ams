@@ -8,12 +8,12 @@
     <singleton-p>t</singleton-p>
     <auto-mount>ams</auto-mount>
 
-    <version name="0.1d" url="http://openacs.org/repository/download/apm/ams-0.1d.apm">
+    <version name="0.1a" url="http://openacs.org/repository/download/apm/ams-0.1a.apm">
         <owner url="mailto:openacs@geddert.com">Matthew Geddert</owner>
         <summary>Store attributes via the Content Repository, and auto generate input forms</summary>
-        <description format="text/html">AMS (Attribute Management System) uses the content repository to store attribute history for any object on the system. It has an admin interface that lets applications dynamically add fields to their forms.</description>
+        <description format="text/html">AMS (Attribute Management System) helps in customizing your website. It lets you adjust what information is collected and displayed for any package that is integrated with it. AMS allows you to easily and dynamically add attributes to forms and display pages, using a Tcl API or an admin interface. AMS uses the content repository to store attribute history for any object on the system.</description>
 
-        <provides url="ams" version="0.1d"/>
+        <provides url="ams" version="0.1a"/>
         <requires url="postal-address" version="0.1d"/>
         <requires url="ref-countries" version="0.1d"/>
         <requires url="ref-itu" version="0.1d"/>
