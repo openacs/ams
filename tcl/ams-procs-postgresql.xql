@@ -270,19 +270,19 @@
   <querytext>
         select '1' 
           from ams_lists
-         where short_name = :short_name
-           and package_key = :package_key
+         where package_key = :package_key
            and object_type = :object_type
+           and list_name = :list_name
   </querytext>
 </fullquery>
 
-<fullquery name="ams::list::get_list_id.get_list_id">
+<fullquery name="ams::list::get_list_id_not_cached.get_list_id">
   <querytext>
         select list_id
           from ams_lists
-         where short_name = :list_name
-           and package_key = :package_key
+         where package_key = :package_key
            and object_type = :object_type
+           and list_name = :list_name
   </querytext>
 </fullquery>
 

@@ -9,7 +9,20 @@ ad_library {
 }
 
 
-ad_proc -private ams_object_id_not_cached { object_id } {
+
+ad_proc -public ams_object_id { 
+    {-object_id}
+} {
+    @param object_id
+    Returns the revision controlled ams_object_id for the given openacs object_id. Cached.
+    @return ams_object_id
+} {
+    return [util_memoize [list ams_object_id_not_cached -object_id $object_id]]    
+}
+
+ad_proc -private ams_object_id_not_cached {
+    {-object_id}
+} {
     @param object_id
     Returns the revision controlled ams_object_id for the given openacs object_id.
     @return ams_object_id
@@ -25,26 +38,42 @@ ad_proc -private ams_object_id_not_cached { object_id } {
     }
 }
 
-ad_proc -public ams_object_id { object_id } {
-    @param object_id
-    Returns the revision controlled ams_object_id for the given openacs object_id. Cached.
-    @return ams_object_id
+ad_proc -public ams_form {
+    {-package_key}
+    {-object_type}
+    {-list_name}
+    {-form_name}
+    {-object_id}
+    {-return_url}
 } {
-    return [util_memoize [list ams_object_id_not_cached $object_id]]    
+    TODO DOCUMENTATION
+} {
+    
+    set edit_proc "ams::object::attribute::values -vars -object_id $object_id"
+    set submit_proc "ams::ad_form::save -package_key $package_key -object_type $object_type -list_name $list_name -form_name $form_name -object_id $object_id"
+    set after_submit_proc "ad_returnredirect $return_url"
+
+    ad_form \
+        -name $form_name \
+        -form [ams::ad_form::elements -package_key $package_key -object_type $object_type -list_name $list_name -key "object_id"] \
+        -edit_request $edit_proc \
+        -on_submit $submit_proc \
+        -after_submit $after_submit_proc
+
 }
+
 
 namespace eval ams:: {}
 
 ad_proc -public ams::define_list { 
-    {-reset_order:boolean}
-    {-object_id ""}
+    {-package_key}
+    {-object_type}
+    {-list_name} 
+    {-pretty_name} 
     {-description ""}
     {-description_mime_type ""}
-    short_name 
-    pretty_name 
-    package_key
-    object_type
-    attributes
+    {-reset_order:boolean}
+    {-attributes}
 } {
     TODO: Need Documentation
 
@@ -55,16 +84,16 @@ ad_proc -public ams::define_list {
 } {
 
     # now we check to see if this list already exists
-    if { ![ams::list::exists_p $short_name $package_key $object_type] } {
-        set list_id [ams::list::new -short_name $short_name \
-                         -pretty_name $pretty_name \
+    if { ![ams::list::exists_p  -package_key $package_key -object_type $object_type -list_name $list_name] } {
+        set list_id [ams::list::new -list_name $list_name \
                          -package_key $package_key \
                          -object_type $object_type \
+                         -pretty_name $pretty_name \
                          -description $description \
                          -description_mime_type $description_mime_type]
 
     } else {
-        set list_id [ams::list::get_list_id $short_name $package_key $object_type]
+        set list_id [ams::list::get_list_id -package_key $package_key -object_type $object_type -list_name $list_name]
     }
 
     foreach { attribute } $attributes {
@@ -82,7 +111,7 @@ ad_proc -public ams::define_list {
                                   -no_complain]
         
         if { ![exists_and_not_null ams_attribute_id] && $reset_order_p } {
-            set ams_attribute_id [ams::attribute::get_ams_attribute_id $object_type $attribute_name]
+            set ams_attribute_id [ams::attribute::get_ams_attribute_id -object_type $object_type -attribute_name $attribute_name]
         }
         if { [lindex $attribute 6] == "required" } {
             set required_p "t"
@@ -98,7 +127,10 @@ ad_proc -public ams::define_list {
 }
 
 
-ad_proc -public ams::define_attributes { object_type attributes } {
+ad_proc -public ams::define_attributes {
+    {-object_type}
+    {-attributes}
+} {
     TODO: Need Documentation
     TODO: Verify the attributes passed in
 
@@ -106,13 +138,6 @@ ad_proc -public ams::define_attributes { object_type attributes } {
     @param attributes An array of attributes, if the attribute exists for this object this proc will make sure a duplicate is not created
 
     @see ams::define_list
-
-
-
-
-
-
-
 
     <p>
     This Procedure implements a high level declarative syntax for the generation of ams_attributes
@@ -127,41 +152,36 @@ ad_proc -public ams::define_attributes { object_type attributes } {
     Here is an example of the ams::define_list proc used by the contacts package:
 
     <pre>
-    ams::define_list contact_person_ae "The Fields used to Add/Edit a Contact Person" contacts ct_contact {
-        {first_names textbox {First Name(s)} {First Names} {} {} required}
-        {middle_names textbox {Middle Name(s)} {Middle Names} {} {}}
-        {last_name textbox {Last Name} {Last Names} {} {} required}
-        {email email {Email Address} {Email Addresses} {} {}}
-        {url url {Website} {Websites} {} {}}
-        {home_address address {Home Address} {Home Addresses}}
-        {organization_address address {Organization Address} {Organization Addresses}}
-    }
+    ams::define_list -package_key "contacts" \
+        -object_type "ct_contact" \
+        -list_name "contact_person_ae" \
+        -pretty_name "The Fields used to Add/Edit a Contact Person" \
+        -attributes {
+            {first_names textbox {First Name(s)} {First Names} {} {} required}
+            {middle_names textbox {Middle Name(s)} {Middle Names} {} {}}
+            {last_name textbox {Last Name} {Last Names} {} {} required}
+            {email email {Email Address} {Email Addresses} {} {}}
+            {url url {Website} {Websites} {} {}}
+            {home_address address {Home Address} {Home Addresses}}
+            {organization_address address {Organization Address} {Organization Addresses}}
+        }
     </pre>
     
 
-    <p>
-
-    Some form builder datatypes build values that do not directly correspond to database types.  When using
+    <p>Some form builder datatypes build values that do not directly correspond to database types.  When using
     the form builder directly these are converted by calls to datatype::get_property and datatype::acquire.
     When using ad_form, "to_html(property)", "to_sql(property)" and "from_sql(property)" declare the appropriate
     properties to be retrieved or set before calling code blocks that require the converted values.  The "to_sql"
     operation is performed before any on_submit, new_data or edit_data block is executed.  The "from_sql" operation
     is performed after a select_query or select_query_name query is executed.   No automatic conversion is performed
     for edit_request blocks (which manually set form values).  The "to_html" operation is performed before execution
-    of a confirm template.
+    of a confirm template.</p>
 
-    <p>
+    <p>Currently only the date and currency datatypes require these conversion operations.</p>
 
-    Currently only the date and currency datatypes require these conversion operations.
-
-    <p>
-
-    In the future the form builder will be enhanced so that ad_form can determine the proper conversion operation
+    <p>In the future the form builder will be enhanced so that ad_form can determine the proper conversion operation
     automatically, freeing the programmer from the need to specify them.  When this is implemented the current notation
-    will be retained for backwards compatibility.
-
-    <p>
-
+    will be retained for backwards compatibility.</p>
 
 } {
     set returner ""
@@ -184,10 +204,10 @@ ad_proc -public ams::define_attributes { object_type attributes } {
 
 ad_proc -public ams::package_id {} {
 
+    TODO: Get the AMS package ID, not the connection package_id
     Get the package_id of the ams instance
 
     @return package_id
-
 } {
     return [ad_conn package_id]
 }
@@ -195,7 +215,7 @@ ad_proc -public ams::package_id {} {
 
 ad_proc -public ams::lang_key_encode {
     {-len "175"}
-    string
+    {-string}
 } {
     @param len the default value was chosen because the lang key length must be less than 200 due to a character limit on the lang_messages.message_key column and because ams depends on using some of that length for key definitions.
 
@@ -208,23 +228,29 @@ ad_proc -public ams::lang_key_encode {
 
 namespace eval ams::ad_form {}
 
-ad_proc -public ams::ad_form::save { form_name package_key object_type list_name object_id } {
+ad_proc -public ams::ad_form::save { 
+    {-package_key}
+    {-object_type}
+    {-list_name}
+    {-form_name}
+    {-object_id}
+} {
     this code saves attributes input in a form
 } {
 
-    set list_id [ams::list::get_list_id $package_key $object_type $list_name]
+    set list_id [ams::list::get_list_id -package_key $package_key -object_type $object_type -list_name $list_name]
 
-    ams::object::attribute::values -array oldvalues $object_id
-    set ams_attribute_ids [ams::list::ams_attribute_ids $list_id]
+    ams::object::attribute::values -array "oldvalues" -object_id $object_id
+    set ams_attribute_ids [ams::list::ams_attribute_ids -list_id $list_id]
     foreach ams_attribute_id $ams_attribute_ids {
-        set storage_type     [ams::attribute::storage_type $ams_attribute_id]
-        set attribute_name   [ams::attribute::name $ams_attribute_id]
+        set storage_type     [ams::attribute::storage_type -ams_attribute_id $ams_attribute_id]
+        set attribute_name   [ams::attribute::name -ams_attribute_id $ams_attribute_id]
         set attribute_value  [template::element::get_value $form_name $attribute_name]
         if { $storage_type == "ams_options" } {
             set attribute_value [template::element::get_values $form_name $attribute_name]
         }
 
-        ns_log Debug "Form $form_name: Attribute $attribute_name: $attribute_value"
+#        ns_log Debug "Form $form_name: Attribute $attribute_name: $attribute_value"
 
         if { [info exists oldvalues($ams_attribute_id)] } {
             if { $attribute_value != $oldvalues($ams_attribute_id) } {
@@ -237,33 +263,33 @@ ad_proc -public ams::ad_form::save { form_name package_key object_type list_name
         }
     }
     if { [exists_and_not_null variables] } {
-        ns_log Notice "$object_id changed vars: $variables"
+#        ns_log Notice "$object_id changed vars: $variables"
 #        ams_attributes_save $object_id $variables
         db_transaction {
-            ams::object::attribute::values_flush $object_id
-            set revision_id   [ams::object::revision::new $object_id]
-            set ams_object_id [ams_object_id $object_id]
+            ams::object::attribute::values_flush -object_id $object_id
+            set revision_id   [ams::object::revision::new -object_id $object_id]
+            set ams_object_id [ams_object_id -object_id $object_id]
             foreach { ams_attribute_id attribute_value } $variables {
-                ams::attribute::value::superseed $revision_id $ams_attribute_id $ams_object_id
+                ams::attribute::value::superseed -revision_id $revision_id -ams_attribute_id $ams_attribute_id -ams_object_id $ams_object_id
                 if { [exists_and_not_null attribute_value] } {
-                    ams::attribute::value::new $revision_id $ams_attribute_id $attribute_value
+                    ams::attribute::value::new -revision_id $revision_id -ams_attribute_id $ams_attribute_id -attribute_value $attribute_value
                 }
             }
         }
     }
-    ams::object::attribute::values $object_id
+    ams::object::attribute::values -object_id $object_id
     return 1
 }
 
 ad_proc -public ams::ad_form::elements { 
+    {-package_key}
+    {-object_type}
+    {-list_name}
     {-key ""}
-    package_key
-    object_type
-    list_name
 } {
     this code saves retrieves ad_form elements
 } {
-    set list_id [ams::list::get_list_id $package_key $object_type $list_name]
+    set list_id [ams::list::get_list_id -package_key $package_key -object_type $object_type -list_name $list_name]
 
     set element_list ""
     if { [exists_and_not_null key] } {
@@ -271,9 +297,9 @@ ad_proc -public ams::ad_form::elements {
     }
     db_foreach select_elements {} {
         if { $required_p } {
-            lappend element_list [ams::attribute::widget -required $ams_attribute_id]
+            lappend element_list [ams::attribute::widget -ams_attribute_id $ams_attribute_id -required]
         } else {
-            lappend element_list [ams::attribute::widget $ams_attribute_id]
+            lappend element_list [ams::attribute::widget -ams_attribute_id $ams_attribute_id]
         }
     }
     return $element_list
@@ -282,8 +308,6 @@ ad_proc -public ams::ad_form::elements {
 
 
 namespace eval ams::option {}
-
-
 
 ad_proc -public ams::option::new {
     {-ams_attribute_id:required}
@@ -342,12 +366,12 @@ ad_proc -public ams::option::map {
 namespace eval ams::attribute {}
 
 ad_proc -public ams::attribute::widget {
+    {-ams_attribute_id}
     {-required:boolean}
-    ams_attribute_id
 } {
     @return an ad_form encoded attribute widget
 } {
-    set attribute_widget [ams::attribute::widget_cached $ams_attribute_id]
+    set attribute_widget [ams::attribute::widget_cached -ams_attribute_id $ams_attribute_id]
 
     if { [string is false $required_p] } {
         # we need to add the optional flag
@@ -371,7 +395,9 @@ ad_proc -public ams::attribute::widget {
 
 }
 
-ad_proc -private ams::attribute::widget_not_cached { ams_attribute_id } {
+ad_proc -private ams::attribute::widget_not_cached { 
+    {-ams_attribute_id}
+} {
     Returns an ad_form encoded attribute widget list, as used by other procs.
     @see ams::attribute::widget_cached
 } {
@@ -396,11 +422,13 @@ ad_proc -private ams::attribute::widget_not_cached { ams_attribute_id } {
 
 }
 
-ad_proc -private ams::attribute::widget_cached { ams_attribute_id } {
+ad_proc -private ams::attribute::widget_cached {
+    {-ams_attribute_id}
+} {
     Returns an ad_form encoded attribute widget list, as used by other procs. Cached.
     @see ams::attribute::widget_not_cached
 } {
-    return [util_memoize [list ams::attribute::widget_not_cached $ams_attribute_id]]
+    return [util_memoize [list ams::attribute::widget_not_cached -ams_attribute_id $ams_attribute_id]]
 }
 
 
@@ -410,7 +438,10 @@ ad_proc -private ams::attribute::widget_cached { ams_attribute_id } {
 
 
 
-ad_proc -private ams::attribute::exists_p { object_type attribute_name } {
+ad_proc -private ams::attribute::exists_p {
+    {-object_type}
+    {-attribute_name}
+} {
     
     does an attribute with this given attribute_name for this object type exists?
 
@@ -424,7 +455,10 @@ ad_proc -private ams::attribute::exists_p { object_type attribute_name } {
 }
 
 
-ad_proc -private ams::attribute::get_ams_attribute_id { object_type attribute_name } {
+ad_proc -private ams::attribute::get_ams_attribute_id {
+    {-object_type}
+    {-attribute_name}
+} {
     
     return the ams_attribute_id for the given ams_attriubte_name belonging to this object_type
 
@@ -521,7 +555,7 @@ ad_proc -public ams::attribute::new {
         phone    { set widget_name "telecom_number" }
     }
 
-    if { [ams::attribute::exists_p $object_type $attribute_name] } {
+    if { [ams::attribute::exists_p -object_type $object_type -attribute_name $attribute_name] } {
         if { !$no_complain_p } {
             error "Attribute $attribute_name Already Exists" "The attribute \"$attribute_name\" already exists for object_type \"$object_type\""
         } else {
@@ -559,7 +593,9 @@ ad_proc -public ams::attribute::new {
 }
 
 
-ad_proc -private ams::attribute::name_not_cached { ams_attribute_id } {
+ad_proc -private ams::attribute::name_not_cached {
+    {-ams_attribute_id}
+} {
     get the name of an ams_attribute
 
     @return attribute_name
@@ -571,7 +607,9 @@ ad_proc -private ams::attribute::name_not_cached { ams_attribute_id } {
 }
 
 
-ad_proc -public ams::attribute::name { ams_attribute_id } {
+ad_proc -public ams::attribute::name {
+    {-ams_attribute_id}
+} {
     get the name of an ams_attribute. Cached.
 
     @return attribute pretty_name
@@ -579,11 +617,13 @@ ad_proc -public ams::attribute::name { ams_attribute_id } {
     @see ams::attribute::name_not_cached
     @see ams::attribute::name_flush
 } {
-    return [util_memoize [list ams::attribute::name_not_cached $ams_attribute_id]]
+    return [util_memoize [list ams::attribute::name_not_cached -ams_attribute_id $ams_attribute_id]]
 }
 
 
-ad_proc -private ams::attribute::name_flush { ams_attribute_id } {
+ad_proc -private ams::attribute::name_flush {
+    {-ams_attribute_id}
+} {
     Flush the storage_type of an ams_attribute.
 
     @return attribute pretty_name
@@ -606,7 +646,9 @@ ad_proc -public ams::attribute::delete {
 }
 
 
-ad_proc -private ams::attribute::storage_type_not_cached { ams_attribute_id } {
+ad_proc -private ams::attribute::storage_type_not_cached { 
+    {-ams_attribute_id}
+} {
     get the storage_type of an ams_attribute
 
     @return storage_type
@@ -618,7 +660,9 @@ ad_proc -private ams::attribute::storage_type_not_cached { ams_attribute_id } {
 }
 
 
-ad_proc -public ams::attribute::storage_type { ams_attribute_id } {
+ad_proc -public ams::attribute::storage_type {
+    {-ams_attribute_id}
+} {
     get the storage_type of an ams_attribute. Cached.
 
     @return attribute pretty_name
@@ -626,11 +670,13 @@ ad_proc -public ams::attribute::storage_type { ams_attribute_id } {
     @see ams::attribute::storage_type_not_cached
     @see ams::attribute::storage_type_flush
 } {
-    return [util_memoize [list ams::attribute::storage_type_not_cached $ams_attribute_id]]
+    return [util_memoize [list ams::attribute::storage_type_not_cached -ams_attribute_id $ams_attribute_id]]
 }
 
 
-ad_proc -private ams::attribute::storage_type_flush { ams_attribute_id } {
+ad_proc -private ams::attribute::storage_type_flush {
+    {-ams_attribute_id}
+} {
     Flush the storage_type of a cached ams_attribute.
 
     @return attribute pretty_name
@@ -641,10 +687,13 @@ ad_proc -private ams::attribute::storage_type_flush { ams_attribute_id } {
     util_memoize_flush [list ams::attribute::storage_type_not_cached -ams_attribute_id $ams_attribute_id]
 }
 
-ad_proc -public ams::attribute::value { object_id ams_attribute_id } {
+ad_proc -public ams::attribute::value {
+    {-object_id}
+    {-ams_attribute_id}
+} {
     this code returns the cached attribute value for a specific ams_attribute
 } {
-    set attribute_values_and_ids [ams::object::attributes::list_format $object_id]
+    set attribute_values_and_ids [ams::object::attributes::list_format -object_id $object_id]
     set attribute_value ""
     foreach attribute_value_and_id $attribute_values_and_ids {
         if { [lindex $attribute_value_and_id 0] == $ams_attribute_id } {
@@ -654,23 +703,27 @@ ad_proc -public ams::attribute::value { object_id ams_attribute_id } {
     return $attribute_value 
 }
 
-ad_proc -public ams::attribute::value_from_name { object_id object_type attribute_name } {
+ad_proc -public ams::attribute::value_from_name {
+    {-object_type}
+    {-attribute_name}
+    {-object_id}
+} {
     this code returns the cached attribute value for a specific ams_attribute
 } {
-    return [ams::attribute::value $object_id [ams::attribute::get_ams_attribute_id $object_type $attribute_name]]
+    return [ams::attribute::value -object_id $object_id [ams::attribute::get_ams_attribute_id -object_type $object_type -attribute_name $attribute_name]]
 }
 
 
 namespace eval ams::attribute::value {}
 
 ad_proc -public ams::attribute::value::new {
-    revision_id
-    ams_attribute_id
-    attribute_value
+    {-revision_id}
+    {-ams_attribute_id}
+    {-attribute_value}
 } {
     this code saves attributes input in a form
 } {
-    set storage_type [ams::attribute::storage_type $ams_attribute_id]
+    set storage_type [ams::attribute::storage_type -ams_attribute_id $ams_attribute_id]
     set option_map_id ""
     set address_id ""
     set number_id ""
@@ -746,9 +799,9 @@ ad_proc -public ams::attribute::value::new {
 
 
 ad_proc -public ams::attribute::value::superseed {
-    revision_id
-    ams_attribute_id
-    ams_object_id
+    {-revision_id}
+    {-ams_attribute_id}
+    {-ams_object_id}
 } {
     superseed an attribute value
 } {
@@ -763,23 +816,27 @@ namespace eval ams::object {}
 
 namespace eval ams::object::attribute {}
 
-ad_proc -private ams::object::attribute::value_memoize { object_id ams_attribute_id attribute_value } {
+ad_proc -private ams::object::attribute::value_memoize {
+    {-object_id}
+    {-ams_attribute_id}
+    {-attribute_value}
+} {
     memoize an ams::object::attribute::value
 } {
-    if { [string is true [util_memoize_cached_p [list ams::object::attribute::values_not_cached $object_id]]] } {
-        array set $object_id [util_memoize [list ams::object::attribute::values_not_cached $object_id]]        
+    if { [string is true [util_memoize_cached_p [list ams::object::attribute::values_not_cached -object_id $object_id]]] } {
+        array set $object_id [util_memoize [list ams::object::attribute::values_not_cached -object_id $object_id]]        
     }
     # if a value previously existed it will be superseeded
     set ${object_id}($ams_attribute_id) $attribute_value
-    util_memoize_seed [list ams::object::attribute::values_not_cached $object_id] [array get ${object_id}]
+    util_memoize_seed [list ams::object::attribute::values_not_cached -object_id $object_id] [array get ${object_id}]
 }
 
 ad_proc -public  ams::object::attribute::value {
-    object_id
-    ams_attribute_id
+    {-object_id}
+    {-ams_attribute_id}
 } {
 } {
-    ams::object::attribute::values -array $object_id $object_id
+    ams::object::attribute::values -array $object_id -object_id $object_id
     if { [info exists ${object_id}($ams_attribute_id)] } {
         return ${object_id}($ams_attribute_id)
     } else {
@@ -788,22 +845,22 @@ ad_proc -public  ams::object::attribute::value {
 }
 
 ad_proc -public  ams::object::attribute::values {
-    {-names:boolean}
-    {-varenv:boolean}
+    {-ids:boolean}
+    {-vars:boolean}
     {-array ""}
-    object_id
+    {-object_id}
 } {
-    @param names - if specified we will convert ams_attribute_id to the attribute_name
+    @param ids - if specified we will return the ams_attribute_id instead of the attribute_name
     @param array - if specified the attribute values are returned in the given array
-    @param varenv - if sepecified the attribute values vars are returned to the calling environment
-    
-    if neither array nor varnames are specified then a list is returned
+    @param vars - if sepecified the attribute values vars are returned to the calling environment
+
+    if neither array nor vars are specified then a list is returned
 } {
-    set attribute_values_list [util_memoize [list ams::object::attribute::values_not_cached $object_id]]
-    if { $names_p } {
+    set attribute_values_list [util_memoize [list ams::object::attribute::values_not_cached -object_id $object_id]]
+    if { !$ids_p } {
         set attribute_values_list_with_names ""
         foreach { key value } $attribute_values_list {
-            lappend attribute_values_list_with_names [ams::attribute::name $key]
+            lappend attribute_values_list_with_names [ams::attribute::name -ams_attribute_id $key]
             lappend attribute_values_list_with_names $value
         }
         set attribute_values_list $attribute_values_list_with_names
@@ -811,7 +868,7 @@ ad_proc -public  ams::object::attribute::values {
     if { [exists_and_not_null array] } {
         upvar $array row
         array set row $attribute_values_list
-    } elseif { $varenv_p } {
+    } elseif { $vars_p } {
         set attribute_value_info [ns_set create]
         foreach { key value } $attribute_values_list {
             ns_set put $attribute_value_info $key $value
@@ -825,37 +882,43 @@ ad_proc -public  ams::object::attribute::values {
 }
 
 
-ad_proc -private ams::object::attribute::values_not_cached { object_id } {
+ad_proc -private ams::object::attribute::values_not_cached {
+    {-object_id}
 } {
-    ams::object::attribute::values_batch_process $object_id
-    if { [string is true [util_memoize_cached_p [list ams::object::attribute::values_not_cached $object_id]]] } {
-        return [util_memoize [list ams::object::attribute::values_not_cached $object_id]]        
+} {
+    ams::object::attribute::values_batch_process -object_id_list $object_id
+    if { [string is true [util_memoize_cached_p [list ams::object::attribute::values_not_cached -object_id $object_id]]] } {
+        return [util_memoize [list ams::object::attribute::values_not_cached -object_id $object_id]]        
     } else {
         return {}
     }
 }
 
 
-ad_proc -private ams::object::attribute::values_flush { object_id } {
+ad_proc -private ams::object::attribute::values_flush {
+    {-object_id}
 } {
-    return [util_memoize_flush [list ams::object::attribute::values_not_cached $object_id]]
+} {
+    return [util_memoize_flush [list ams::object::attribute::values_not_cached -object_id $object_id]]
 }
 
 
-ad_proc -private ams::object::attribute::values_batch_process { object_ids } {
+ad_proc -private ams::object::attribute::values_batch_process {
+    {-object_id_list}
+} {
     @param object_ids a list of object_ids for which to save attributes in their respective caches.
     get these objects attribute values in a list format
 } {
     set objects_to_cache ""
-    foreach object_id_from_list $object_ids {
-        if { [string is false [util_memoize_cached_p [list ams::object::attribute::values $object_id_from_list]]] } {
+    foreach object_id_from_list $object_id_list {
+        if { [string is false [util_memoize_cached_p [list ams::object::attribute::values -object_id $object_id_from_list]]] } {
             lappend objects_to_cache $object_id_from_list
         }
     }
     if { [exists_and_not_null objects_to_cache] } {
-        set sql_object_id_list [ams::util::sqlify_list $objects_to_cache]
+        set sql_object_id_list [ams::util::sqlify_list -list $objects_to_cache]
         db_foreach get_attr_values "" {
-            switch [ams::attribute::storage_type $ams_attribute_id] {
+            switch [ams::attribute::storage_type -ams_attribute_id $ams_attribute_id] {
                 telecom_number {
                     set attribute_value $telecom_number_string
                 }
@@ -877,8 +940,8 @@ ad_proc -private ams::object::attribute::values_batch_process { object_ids } {
             }
             set ${object_id}($ams_attribute_id) $attribute_value
         }
-        foreach object_id_from_list $object_ids {
-            util_memoize_seed [list ams::object::attribute::values_not_cached $object_id_from_list] [array get ${object_id_from_list}]
+        foreach object_id_from_list $object_id_list {
+            util_memoize_seed [list ams::object::attribute::values_not_cached -object_id $object_id_from_list] [array get ${object_id_from_list}]
         }
     }
 }
@@ -890,7 +953,7 @@ namespace eval ams::object::revision {}
 
 ad_proc -public ams::object::revision::new {
     {-package_id ""}
-    object_id
+    {-object_id}
 } {
     create a new ams_object_revision
 
@@ -919,7 +982,9 @@ ad_proc -public ams::object::revision::new {
 
 namespace eval ams::list {}
 
-ad_proc -private ams::list::ams_attribute_ids_not_cached { list_id } {
+ad_proc -private ams::list::ams_attribute_ids_not_cached {
+    {-list_id}
+} {
     Get a list of ams_attributes.
 
     @return list of ams_attribute_ids, in the correct order
@@ -930,7 +995,9 @@ ad_proc -private ams::list::ams_attribute_ids_not_cached { list_id } {
     return [db_list ams_attribute_ids {}]
 }
 
-ad_proc -private ams::list::ams_attribute_ids { list_id } {
+ad_proc -private ams::list::ams_attribute_ids {
+    {-list_id}
+} {
     get this lists ams_attribute_ids. Cached.
 
     @return list of ams_attribute_ids, in the correct order
@@ -938,10 +1005,12 @@ ad_proc -private ams::list::ams_attribute_ids { list_id } {
     @see ams::list::ams_attribute_ids_not_cached
     @see ams::list::ams_attribute_ids_flush
 } {
-    return [util_memoize [list ams::list::ams_attribute_ids_not_cached $list_id]]
+    return [util_memoize [list ams::list::ams_attribute_ids_not_cached -list_id $list_id]]
 }
 
-ad_proc -private ams::list::ams_attribute_ids_flush { list_id } {
+ad_proc -private ams::list::ams_attribute_ids_flush {
+    {-list_id}
+} {
     Flush this lists ams_attribute_ids cache.
 
     @return list of ams_attribute_ids, in the correct order
@@ -949,13 +1018,16 @@ ad_proc -private ams::list::ams_attribute_ids_flush { list_id } {
     @see ams::list::ams_attribute_ids_not_cached
     @see ams::list::ams_attribute_ids
 } {
-    return [util_memoize_flush [list ams::list::ams_attribute_ids_not_cached $list_id]]
+    return [util_memoize_flush [list ams::list::ams_attribute_ids_not_cached -list_id $list_id]]
 }
 
 
 
-ad_proc -private ams::list::exists_p { short_name package_key object_type } {
-    
+ad_proc -private ams::list::exists_p {
+    {-package_key}
+    {-object_type}
+    {-list_name}
+} {
     does an ams list like this exist?
 
     @return 1 if the list exists for this object_type and package_key and 0 if the does not exist
@@ -969,11 +1041,23 @@ ad_proc -private ams::list::exists_p { short_name package_key object_type } {
 
 
 ad_proc -private ams::list::get_list_id {
-    package_key
-    object_type
-    list_name
+    {-package_key}
+    {-object_type}
+    {-list_name}
 } {
     
+    return the list_id for the given parameters. Chached.
+
+    @return list_id if none exists then it returns blank
+} {
+    return [util_memoize [list ams::list::get_list_id_not_cached -package_key $package_key -object_type $object_type -list_name $list_name]]
+}
+
+ad_proc -private ams::list::get_list_id_not_cached {
+    {-package_key}
+    {-object_type}
+    {-list_name}
+} {
     return the list_id for the given parameters
 
     @return list_id if none exists then it returns blank
@@ -982,15 +1066,25 @@ ad_proc -private ams::list::get_list_id {
     return [db_string get_list_id {} -default {}]
 }
 
+ad_proc -private ams::list::get_list_id_flush {
+    {-package_key}
+    {-object_type}
+    {-list_name}
+} {
+    
+    flush the memorized list_id for the given parameters.
 
+    @return list_id if none exists then it returns blank
+} {
+    return [util_memoize_flush [list ams::list::get_list_id_not_cached -package_key $package_key -object_type $object_type -list_name $list_name]]
+}
 
 ad_proc -public ams::list::new {
     {-list_id ""}
-    {-short_name:required}
-    {-pretty_name:required}
-    {-object_id ""}
     {-package_key:required}
     {-object_type:required}
+    {-list_name:required}
+    {-pretty_name:required}
     {-description ""}
     {-description_mime_type "text/plain"}
     {-context_id ""}
@@ -1005,19 +1099,18 @@ ad_proc -public ams::list::new {
     if { ![exists_and_not_null description] } {
         set description_mime_type ""
     }
-    set lang_key "ams.$package_key\:$object_type\:$short_name"
+    set lang_key "ams.$package_key\:$object_type\:$list_name"
     _mr en $lang_key $pretty_name
     set pretty_name $lang_key
 
     if { [exists_and_not_null description] } {
-        set lang_key "ams.$package_key\:$object_type\:$short_name\:description"
+        set lang_key "ams.$package_key\:$object_type\:$list_name\:description"
         _mr en $lang_key $description
         set description $lang_key
-
     }
 
     set extra_vars [ns_set create]
-    oacs_util::vars_to_ns_set -ns_set $extra_vars -var_list { list_id short_name pretty_name object_id package_key object_type description description_mime_type }
+    oacs_util::vars_to_ns_set -ns_set $extra_vars -var_list { list_id package_key object_type list_name pretty_name description description_mime_type }
     set list_id [package_instantiate_object -extra_vars $extra_vars ams_list]
 
     return $list_id
@@ -1060,13 +1153,14 @@ namespace eval ams::util {}
 
 
 ad_proc -public ams::util::sqlify_list {
-    variable_list
+    {-list}
 } {
     set output_list {}
-    foreach item $variable_list {
+    foreach item $list {
         if { [exists_and_not_null output_list] } {
             append output_list ", "
         }
+        regsub -all {'} $item {''} item
         append output_list "'$item'"
     }
     return $output_list

@@ -6,42 +6,118 @@ pre {
       border: 1px solid #CCC;
       background-color: #EEE;
       padding: 10px;
-}      
+      font-size: 0.9em;
+}
+code {
+      background-color: #EEE;
+      font-size: 0.9em;
+      padding-top: 0.05em;
+      padding-bottom: 0.05em;
+      padding-left: 2em;
+      padding-right: 2em;
+}
 </style>
 </head>
 <body>
+
+<a href="/api-doc/proc-view?proc="></a>
 <h1>AMS (Attribute Management System)</h1>
-<p>First define the elements via tcl - this could be in a package init proc:</p>
+
+<p>AMS lets developers (via tcl api) and site wide administrators (via the the ams admin UI) add attributes to acs_object. These attributes can be dynamically added at any time on a live system. AMS then helps you collect attribute information for these defined acs_objects via input forms and helps you present them to users via your website. Whenever AMS stores ams attribute information about an object it keeps track of changes made via the content repository. This way you can see who and when a user changed an object's attributes and are able to revert back to a previous state.</p>
+
+<h2>Defining an Attribute</h2>
+
+<p>Ams attributes can either be defined via the ams admin user interface or via the <a href="/api-doc/proc-view?proc=ams::attribute::new">ams::attribute::new</a> proc. Every ams_attribute has an ams_widget associated with it. ams_widgets define what type of information the attribute contains the information necessary to generate forms and save various funcationally different types of information. View the documentation for <a href="/api-doc/proc-view?proc=ams::attribute::new">ams::attribute::new</a> to see what types of widgets are available. In most cases using the <a href="/api-doc/proc-view?proc=ams::attribute::new">ams::attribute::new</a> proc will be too tedious to do, instead it would be a good idea to use the shorthand as defined in creating and ams_list.
+
+<h2>AMS Lists</h2>
+
+<p>AMS stores attributes in ams_lists. These lists are an ordered collection of attributes and can be called upon a variety of ways. Ams_lists can be used to generate ad_forms, or return attribute information for use with your packages UI. The attributes associated with your acs_object can be returned as named variables in your calling environment, as an array or as a list via the <a href="/api-doc/proc-view?proc=ams::object::attribute::values">ams::object::attribute::values</a> proc.</p>
+
+<p>To define an ams_list of the elements you use the <a href="/api-doc/proc-view?proc=ams::define_list">ams::define_list</a>. That procedure has extensive documentation about the nuances of defining an ams_list. For example, lets assume that you are developing a package called "contacts" with the object_type of "ct_contact" and you want to define a list to collect information about a contact. You might choose to run the following procedure in when your system restarts: </p>
 <pre>
-ams::define_list list_name "pretty list name" package_key object_type { attributes }
+ams::define_list -package_key "contacts" \
+        -object_type "ct_contact" \
+        -list_name "contact_person" \
+        -pretty_name "The Fields used to Add/Edit a Contact Person" \
+        -attributes {
+                {first_names textbox {First Name(s)} {First Names} required}
+                {middle_names textbox {Middle Name(s)} {Middle Names}}
+                {last_name textbox {Last Name} {Last Names} required}
+                {email email {Email Address} {Email Addresses}}
+                {url url {Website} {Websites}}
+                {home_address address {Home Address} {Home Addresses}}
+                {home_phone telecom_number {Home Phone} {Home Phones}}
+                {gender radio {Gender} {Genders} {options {{Male} {Female}}}}
+        }
 </pre>
-<p>For example</p>
+
+<p>This will create an ams_list, define any attributes that haven't previously been defined for the ct_contact object and order the list in the order the attributes are specified.</p>
+
+<h2>AMS and ad_form</h2>
+<p>You have two options when dealing with ams and ad_form. Shorthand and detailed.</p>
+<h3>Shorthand</h3>
+<p>Shorthands is a completely simple way of creating forms without many options. These forms must only contain attributes defined in an ams_list. The supplied object_id must already exist in the acs_object table. The shorthand procs is <a href="/api-doc/proc-view?proc=ams_form">ams_form</a>, which is simply a wrapper for ad_form. For example, to create and ad_form named "contact_person_ae" create a page contacts/www/contact-person-ae.tcl with the following content:</p>
 <pre>
-ams::define_list contact_person_ae "The Fields used to Add/Edit a Contact Person" contacts ct_contact {
-        {first_names textbox {First Name(s)} {First Names} required}
-        {middle_names textbox {Middle Name(s)} {Middle Names}}
-        {last_name textbox {Last Name} {Last Names} required}
-        {email email {Email Address} {Email Addresses}}
-        {url url {Website} {Websites}}
-        {home_address address {Home Address} {Home Addresses}}
-        {organization_address address {Organization Address} {Organization Addresses}}
+ad_page_contract {
+} {
+        {ct_contact_id:integer,notnull}
+}
+set title "Contact Person Add/Edit"
+set context [list $title]
+
+ams_form -package_key "contacts" \
+         -object_type "ct_contact" \
+         -list_name "contact_person" \
+         -form_name "contact_person_ae" \
+         -object_id $ct_contact_id \
+         -return_url "./"
+
+ad_return_template
+</pre>
+<p>The contacts/www/contact-person-ae.adp would contain</p>
+<pre>
+&lt;master&gt;
+&lt;property name="title">@title@&lt;/property"&gt;
+&lt;property name="context">@context@&lt;/property"&gt;
+
+&lt;formtemplate id="contact_person_ae"&gt;&lt;/formtemplate"&gt;
+</pre>
+<p>That's it. If this isn't flexible enough you can also go with the detailed method.</p>
+
+
+<h3>Detailed</h3>
+<p>For many application the AMS and ad_form shorthand will be too simplistic. For those situations, you can use ams to interface with <a href="/api-doc/proc-view?proc=ad_form">ad_form</a>. You need to define ad_from <strong>-form</strong> elements like this:
+<pre>
+ad_form ... -form [ams::ad_form::elements -package_key "contacts" -object_type "ct_contact" -list_name "contact_person"] ...
+</pre>
+<p>Note that this procedure returns an ad form appropriate element list. If you intending to define other elements you will need to <code>ad_from -extend -name form_name -form ...</code></p>
+<p>
+<p>In the ad_form <strong>-edit_request</strong> block put</p>
+<pre>
+ad_form ... -edit_request {
+        ams::object::attribute::values -vars -object_id $object_id
+    } ...
+</pre>
+<p>This returns the variables upvared into your page, i.e. the first_names attribute could be returned with a value of "Jane" and the last_name attribute with a value of "Doe"... etc. ad_from looks for all form elements and appropriately pre-fills the form with the given values.</p>
+
+<p>In the <strong>-on_submit</strong> block you enter the following:</p>
+<pre>
+ad_from ... -on_submit {
+        ams::ad_form::save \
+            -package_key "contacts" \
+            -object_type "ct_contact" \
+            -list_name "contact_person" \
+            -form_name "contact_person_ae" \
+            -object_id $ct_contact_id
     }
 </pre>
-<p>Then on a object-ae page you simply call:</p>
-<pre>
-ad_form -name form_name -form [ams::ad_form::elements package_key list_name]
-</pre>
-<p>and in the ad_form -edit_request block put</p>
-<pre>
-ams::object::attribute::values -names -varenv $object_id
-</pre>
-<p>(this returns the variables upvared, i.e. first_names could be returned with a value of "Matthew"... etc.</p>
+<p>This is how you interface with AMS and ad_form. You may also specify other code in the <strong>-form -on_submit</strong> and <strong>-on_submit</strong> blocks.</p>
 
-<p>in the -on_submit block you put in:</p>
-<pre>
-ams::ad_form::save -name form_name package_key list_name object_id
-</pre>
-<p>This is how you interface with AMS... then to display attributes you can call ams::object::attribute::values to get the results back as upvared variables, as an array or as a list however you want. So, if on the contact index package you do, for example
+<h2>AMS and your package's UI</h2>
+
+<h3 style="color: red;">THIS SECTION NEEDS LOTS OF WORK</h3>
+
+<p>to display attributes you can call ams::object::attribute::values to get the results back as upvared variables, as an array or as a list however you want. So, if on the contact index package you do, for example
 </p>
 <pre>
 db_multirow -extend { first_names last_name email home_phone } get_contacts { select ct_contact_id from ct_contacts order by names } {
@@ -58,5 +134,19 @@ db_multirow -extend { first_names last_name email home_phone } get_contacts { se
 <p>
 Anyways, that's how it integrates with other packages. I've made it pretty efficient and i think the integration is pretty straight forward. If you have any questions please feel free to ask. AMS takes care of ALL content repository stuff, so what AMS does is effectively make it easy to make ANY package use the content repository without a steep learning curve. I am continuing to develop AMS since it fits our institutional priorities right now, and i don't think contacts will be too much work once ams is working correctly. I am currently working on an ETP revision that uses AMS as the attribute store for all page attributes... this way pretty much all data on a system can be housed in AMS, and other package are then in charge of relational issues. I want to work on contacts, and hope to get to it as soon as this other stuff is done. My boss went on a 2 month study leave, so once this is done i'm completely in charge of my time.
 </p>
+<hr>
+<h2>AMS Lists</h2>
+<p>You specify permissions at list object instantiation time
+by specifying the context id for the ams_list object however
+you want, only admins of the list get to modify that list. this
+is all done through the tcl api. If you want a list to belong
+to only one object you can simply program your package to
+specify list names that are the id's of the object you are using.</p>
+
+<p>this way you are assured unique list names for that object_type
+based on package_key.</p>
+
+<p>if you want a standard template for an object type you can...</p>
+
 </body>
 </html>
