@@ -206,6 +206,81 @@ ad_proc -public ams::lang_key_encode {
 }
 
 
+namespace eval ams::ad_form {}
+
+ad_proc -public ams::ad_form::save { form_name package_key object_type list_name object_id } {
+    this code saves attributes input in a form
+} {
+
+    set list_id [ams::list::get_list_id $package_key $object_type $list_name]
+
+    ams::object::attribute::values -array oldvalues $object_id
+    set ams_attribute_ids [ams::list::ams_attribute_ids $list_id]
+    foreach ams_attribute_id $ams_attribute_ids {
+        set storage_type     [ams::attribute::storage_type $ams_attribute_id]
+        set attribute_name   [ams::attribute::name $ams_attribute_id]
+        set attribute_value  [template::element::get_value $form_name $attribute_name]
+        if { $storage_type == "ams_options" } {
+            set attribute_value [template::element::get_values $form_name $attribute_name]
+        }
+
+        ns_log Debug "Form $form_name: Attribute $attribute_name: $attribute_value"
+
+        if { [info exists oldvalues($ams_attribute_id)] } {
+            if { $attribute_value != $oldvalues($ams_attribute_id) } {
+                lappend variables $ams_attribute_id $attribute_value
+            }
+        } else {
+            if { [exists_and_not_null attribute_value] } {
+                lappend variables $ams_attribute_id $attribute_value
+            }
+        }
+    }
+    if { [exists_and_not_null variables] } {
+        ns_log Notice "$object_id changed vars: $variables"
+#        ams_attributes_save $object_id $variables
+        db_transaction {
+            ams::object::attribute::values_flush $object_id
+            set revision_id   [ams::object::revision::new $object_id]
+            set ams_object_id [ams_object_id $object_id]
+            foreach { ams_attribute_id attribute_value } $variables {
+                ams::attribute::value::superseed $revision_id $ams_attribute_id $ams_object_id
+                if { [exists_and_not_null attribute_value] } {
+                    ams::attribute::value::new $revision_id $ams_attribute_id $attribute_value
+                }
+            }
+        }
+    }
+    ams::object::attribute::values $object_id
+    return 1
+}
+
+ad_proc -public ams::ad_form::elements { 
+    {-key ""}
+    package_key
+    object_type
+    list_name
+} {
+    this code saves retrieves ad_form elements
+} {
+    set list_id [ams::list::get_list_id $package_key $object_type $list_name]
+
+    set element_list ""
+    if { [exists_and_not_null key] } {
+        lappend element_list "$key\:key"
+    }
+    db_foreach select_elements {} {
+        if { $required_p } {
+            lappend element_list [ams::attribute::widget -required $ams_attribute_id]
+        } else {
+            lappend element_list [ams::attribute::widget $ams_attribute_id]
+        }
+    }
+    return $element_list
+}
+
+
+
 namespace eval ams::option {}
 
 
@@ -803,7 +878,7 @@ ad_proc -private ams::object::attribute::values_batch_process { object_ids } {
             set ${object_id}($ams_attribute_id) $attribute_value
         }
         foreach object_id_from_list $object_ids {
-            util_memoize_seed [list ams::object::attribute::values_not_cached $object_id_from_list] [array get ${object_id}]
+            util_memoize_seed [list ams::object::attribute::values_not_cached $object_id_from_list] [array get ${object_id_from_list}]
         }
     }
 }
@@ -852,7 +927,7 @@ ad_proc -private ams::list::ams_attribute_ids_not_cached { list_id } {
     @see ams::list::ams_attribute_ids
     @see ams::list::ams_attribute_ids_flush
 } {
-    return [db_list ams_attribute_name {}]
+    return [db_list ams_attribute_ids {}]
 }
 
 ad_proc -private ams::list::ams_attribute_ids { list_id } {
@@ -893,7 +968,11 @@ ad_proc -private ams::list::exists_p { short_name package_key object_type } {
 }
 
 
-ad_proc -private ams::list::get_list_id { short_name package_key object_type } {
+ad_proc -private ams::list::get_list_id {
+    package_key
+    object_type
+    list_name
+} {
     
     return the list_id for the given parameters
 

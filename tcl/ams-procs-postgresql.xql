@@ -1,6 +1,15 @@
 <?xml version="1.0"?>
 <queryset>
 
+<fullquery name="ams::ad_form::elements.select_elements">
+  <querytext>
+        select ams_attribute_id, required_p
+          from ams_list_attribute_map
+         where list_id = :list_id
+         order by sort_order
+  </querytext>
+</fullquery>
+
 <fullquery name="ams_object_id_not_cached.select_ams_object_id">
   <querytext>
         select ams_object_id(:object_id)
@@ -248,7 +257,7 @@
   </querytext>
 </fullquery>
 
-<fullquery name="ams::list::ams_attribute_ids_not_cached">
+<fullquery name="ams::list::ams_attribute_ids_not_cached.ams_attribute_ids">
   <querytext>
         select ams_attribute_id
           from ams_list_attribute_map
@@ -271,7 +280,7 @@
   <querytext>
         select list_id
           from ams_lists
-         where short_name = :short_name
+         where short_name = :list_name
            and package_key = :package_key
            and object_type = :object_type
   </querytext>

@@ -102,7 +102,10 @@ ad_proc -public template::data::validate::address { value_ref message_ref } {
     }
     if { $country_code == "US" } {
         # this should check a cached list
-        if { ![db_0or1row validate_state {} ] } {
+        # this proc cannot for some reason go in the postgresql file...
+        if { ![db_0or1row validate_state {
+        select 1 from us_states where abbrev = upper(:region) or state_name = upper(:region)
+} ] } {
             if { [exists_and_not_null message_temp] } { append message " " }
             append message "\"$region\" [_ ams.is_not_a_valid_US_state]."
         }

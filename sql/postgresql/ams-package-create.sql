@@ -632,6 +632,8 @@ end;' language 'plpgsql';
 ------ Postal Address
 --------------------------------------------------------------------
 
+-- postal_type needs to be entered here at the end... this is a hack
+
 create or replace function ams_attribute__postal_address_string (integer)
 returns varchar as '
 declare
@@ -646,8 +648,7 @@ begin
                            CASE WHEN region is not null THEN region ELSE '''' END  || ''} {'' || 
                            CASE WHEN postal_code is not null THEN postal_code ELSE '''' END  || ''} {'' ||
                            CASE WHEN country_code is not null THEN country_code::varchar ELSE '''' END  || ''} {'' ||
-                           CASE WHEN additional_text is not null THEN additional_text ELSE '''' END || ''} {'' ||
-                           CASE WHEN postal_type is not null THEN postal_type ELSE '''' END || ''}''
+                           CASE WHEN additional_text is not null THEN additional_text ELSE '''' END || ''} {}''
                       from postal_addresses
                      where address_id = p_address_id;
         else

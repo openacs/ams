@@ -37,6 +37,14 @@ drop view ams_object_revisionsx;
 drop view ams_object_revisionsi;
 drop table ams_object_revisions cascade;
 drop table ams_objects cascade;
+
+
+
+
+select acs_object__delete(address_id) from ams_attribute_values where address_id is not null;
+select acs_object__delete(number_id) from ams_attribute_values where number_id is not null;
+
+
 drop table ams_attribute_values cascade;
 drop table ams_option_map cascade;
 drop table ams_option_map_ids cascade;
