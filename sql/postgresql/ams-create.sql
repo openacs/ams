@@ -228,34 +228,25 @@ create table ams_attribute_values (
 -- since these groupings will be used to create lists of elements
 -- for ad_form as well as lists of certain attributes to be used
 -- by other applications.
---
--- Note: the ams_lists table copies the workflows table in the
--- workflow package since it has a similar function and it helps
--- to ensure consistency amongst openacs packages. There are some
--- minor discrepencies since AMS uses acs_lang for any and all
--- human readable text in the package.
-
 
 create table ams_lists (
         list_id                 integer
                                 constraint ams_lists_list_id_fk references acs_objects(object_id)
                                 constraint ams_lists_list_id_pk primary key,
-        short_name              varchar(100)
-                                constraint ams_lists_short_name_nn not null,
-        pretty_name             varchar(200)
-                                constraint ams_lists_pretty_name_nn not null,
-        object_id               integer
-                                constraint ams_lists_object_id_fk references acs_objects(object_id),
         package_key             varchar(100)
                                 constraint ams_lists_package_key_fk references apm_package_types(package_key)
                                 constraint ams_lists_package_key_nn not null,
         object_type             varchar(1000)
                                 constraint ams_lists_object_type_fk references acs_object_types(object_type)
                                 constraint ams_lists_object_type_nn not null,
+        list_name               varchar(100)
+                                constraint ams_lists_list_name_nn not null,
+        pretty_name             varchar(200)
+                                constraint ams_lists_pretty_name_nn not null,
         description             varchar(200),
         description_mime_type   varchar(200)
                                 constraint ams_lists_description_mime_type_fk references cr_mime_types(mime_type),
-        UNIQUE(short_name,package_key,object_type)
+        UNIQUE(package_key,object_type,list_name)
 );
 
 select acs_object_type__create_type (
@@ -269,54 +260,6 @@ select acs_object_type__create_type (
     'f',                            -- abstract_p
     null,                           -- type_extension_table
     'ams_list__name'                -- name_method
-);
-
-select acs_attribute__create_attribute (
-    'ams_list',                     -- object_type
-    'short_name',                   -- attribute_name
-    'string',                       -- datatype
-    'Short Name',                   -- pretty_name
-    'Short Names',                  -- pretty_plural -- default null
-    null,                           -- table_name -- default null
-    'short_name',                   -- column_name -- default null
-    null,                           -- default_value -- default null
-    '1',                            -- min_n_values -- default 1
-    '1',                            -- max_n_values -- default 1
-    null,                           -- sort_order -- default null
-    'type_specific',                -- storage -- default 'type_specific'
-    null                            -- static_p -- default 'f'
-);
-
-select acs_attribute__create_attribute (
-    'ams_list',                     -- object_type
-    'pretty_name',                  -- attribute_name
-    'string',                       -- datatype
-    'Pretty Name',                  -- pretty_name
-    'Pretty Names',                 -- pretty_plural -- default null
-    null,                           -- table_name -- default null
-    'pretty_name',                  -- column_name -- default null
-    null,                           -- default_value -- default null
-    '1',                            -- min_n_values -- default 1
-    '1',                            -- max_n_values -- default 1
-    null,                           -- sort_order -- default null
-    'type_specific',                -- storage -- default 'type_specific'
-    null                            -- static_p -- default 'f'
-);
-
-select acs_attribute__create_attribute (
-    'ams_list',                     -- object_type
-    'object_id',                    -- attribute_name
-    'integer',                      -- datatype
-    'Object ID',                    -- pretty_name
-    'Object ID',                    -- pretty_plural -- default null
-    null,                           -- table_name -- default null
-    'object_type',                  -- column_name -- default null
-    null,                           -- default_value -- default null
-    '1',                            -- min_n_values -- default 1
-    '1',                            -- max_n_values -- default 1
-    null,                           -- sort_order -- default null
-    'type_specific',                -- storage -- default 'type_specific'
-    null                            -- static_p -- default 'f'
 );
 
 select acs_attribute__create_attribute (
@@ -343,6 +286,38 @@ select acs_attribute__create_attribute (
     'Object Types',                 -- pretty_plural -- default null
     null,                           -- table_name -- default null
     'object_type',                  -- column_name -- default null
+    null,                           -- default_value -- default null
+    '1',                            -- min_n_values -- default 1
+    '1',                            -- max_n_values -- default 1
+    null,                           -- sort_order -- default null
+    'type_specific',                -- storage -- default 'type_specific'
+    null                            -- static_p -- default 'f'
+);
+
+select acs_attribute__create_attribute (
+    'ams_list',                     -- object_type
+    'list_name',                    -- attribute_name
+    'string',                       -- datatype
+    'List Name',                    -- pretty_name
+    'List Names',                   -- pretty_plural -- default null
+    null,                           -- table_name -- default null
+    'list_name',                    -- column_name -- default null
+    null,                           -- default_value -- default null
+    '1',                            -- min_n_values -- default 1
+    '1',                            -- max_n_values -- default 1
+    null,                           -- sort_order -- default null
+    'type_specific',                -- storage -- default 'type_specific'
+    null                            -- static_p -- default 'f'
+);
+
+select acs_attribute__create_attribute (
+    'ams_list',                     -- object_type
+    'pretty_name',                  -- attribute_name
+    'string',                       -- datatype
+    'Pretty Name',                  -- pretty_name
+    'Pretty Names',                 -- pretty_plural -- default null
+    null,                           -- table_name -- default null
+    'pretty_name',                  -- column_name -- default null
     null,                           -- default_value -- default null
     '1',                            -- min_n_values -- default 1
     '1',                            -- max_n_values -- default 1

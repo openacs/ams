@@ -550,23 +550,22 @@ end;' language 'plpgsql';
 
 
 
-select define_function_args('ams_list__new','list_id,short_name,pretty_name,object_id,package_key,object_type,description,description_mime_type,creation_date,creation_user,creation_ip,context_id');
+select define_function_args('ams_list__new','list_id,package_key,object_type,list_name,pretty_name,description,description_mime_type,creation_date,creation_user,creation_ip,context_id');
 
-create or replace function ams_list__new (integer,varchar,varchar,integer,varchar,varchar,varchar,varchar,timestamptz,integer,varchar,integer)
+create or replace function ams_list__new (integer,varchar,varchar,varchar,varchar,varchar,varchar,timestamptz,integer,varchar,integer)
 returns integer as '
 declare
         p_list_id               alias for $1;
-        p_short_name            alias for $2;
-        p_pretty_name           alias for $3;
-        p_object_id             alias for $4;
-        p_package_key           alias for $5;
-        p_object_type           alias for $6;
-        p_description           alias for $7;
-        p_description_mime_type alias for $8; 
-        p_creation_date         alias for $9; 
-        p_creation_user         alias for $10;
-        p_creation_ip           alias for $11;
-        p_context_id            alias for $12;
+        p_package_key           alias for $2;
+        p_object_type           alias for $3;
+        p_list_name             alias for $4;
+        p_pretty_name           alias for $5;
+        p_description           alias for $6;
+        p_description_mime_type alias for $7;
+        p_creation_date         alias for $8;
+        p_creation_user         alias for $9;
+        p_creation_ip           alias for $10;
+        p_context_id            alias for $11;
         v_list_id               integer;
 begin
 
@@ -580,9 +579,9 @@ begin
         );
 
         insert into ams_lists
-        (list_id,short_name,pretty_name,object_id,package_key,object_type,description,description_mime_type)
+        (list_id,package_key,object_type,list_name,pretty_name,description,description_mime_type)
         values
-        (v_list_id,p_short_name,p_pretty_name,p_object_id,p_package_key,p_object_type,p_description,p_description_mime_type);
+        (v_list_id,p_package_key,p_object_type,p_list_name,p_pretty_name,p_description,p_description_mime_type);
 
         return v_list_id;
 end;' language 'plpgsql';
@@ -633,6 +632,8 @@ end;' language 'plpgsql';
 --------------------------------------------------------------------
 
 -- postal_type needs to be entered here at the end... this is a hack
+-- CASE WHEN postal_type is not null THEN postal_type ELSE '''' END || ''}''
+-- it needs to be consistently recast as an integer
 
 create or replace function ams_attribute__postal_address_string (integer)
 returns varchar as '
