@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <queryset>
 
+<rdbms><type>postgresql</type><version>7.2</version></rdbms>
 
 <fullquery name="template::util::address::country_options_not_cached.get_countries">
   <querytext>
