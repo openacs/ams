@@ -116,10 +116,10 @@ ad_from ... -on_submit {
 <h2>AMS and your package's UI</h2>
 
 
-<p>to display attributes you can call <a href="/api-doc/proc-view?proc=ams::object::attribute::values">ams::object::attribute::values</a> to get the results back as upvared variables, as an array or as a list however you want. So, if on the contact-view page you do, for example
+<p>to display attributes you can call <a href="/api-doc/proc-view?proc=ams::object::attribute::values">ams::object::attribute::values</a> to get the results back as upvared variables, as an array or as a list however you want. So, if on the contact-view page you do, for example to get an array with all attribute_values that are not null represented in.
 </p>
 <pre>
-ams::object::attribute::values -array "contact_info" -
+ams::object::attribute::values -array "contact_info" -object_id $ct_contact_id
 </pre>
 <p>To add ams_attribute_values to a multirow you call <a href="/api-doc/proc-view?proc=ams::multirow::extend">ams::multirow::extend</a> to efficiently extend your multirow with ams_attribute_values. For example:</p>
 <pre>
