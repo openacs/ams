@@ -6,11 +6,38 @@ ad_page_contract {
 
 
 } {
+    list_id:integer,notnull
 }
 
-set title "Attribute Management System"
-set context {}
 
+ams::list::get -list_id $list_id -array list_info
+set list_name $list_info(list_name)
+set object_type $list_info(object_type)
+set package_key $list_info(package_key)
+set pretty_name [_ $list_info(pretty_name)]
+
+set title "Form Preview"
+set context [list [list lists Lists] [list [export_vars -base "list" -url {package_key object_type list_name}] $pretty_name] $title]
+#ams::widget_options -attribute_id "130"
+ad_form -name form_preview \
+    -form [ams::ad_form::elements -package_key $package_key \
+               -object_type $object_type \
+               -list_name $list_name -key list_id] \
+    -edit_request {
+#        ams::ad_form::values -package_key $package_key \
+#            -object_type $object_type \
+#            -list_name $list_name \
+#            -form_name "form_preview" \
+#            -object_id $list_id
+    } -on_submit {
+#        ams::ad_form::save -package_key $package_key \
+#            -object_type $object_type \
+#            -list_name $list_name \
+#            -form_name "form_preview" \
+#            -object_id $list_id
+    } -after_submit {
+        ad_returnredirect -message "Submitting the preview form does not save any information." [export_vars -base "list" -url {list_name object_type package_key}]
+    }
 
 
 # Once done comment out the error line
@@ -98,15 +125,15 @@ set context {}
 #}
 
 
-set fred ""
+#set fred ""
 
-foreach { arg_parser procedure } [info procs "::ams::widget::*"] {
-    regsub "::ams::widget::" $procedure "" widget
-    if { [exists_and_not_null widget] } {
-	lappend fred $widget
-    }
-}
-set fred "date"
-set fred [info procs "::ams::widget::${fred}"]
+#foreach { arg_parser procedure } [info procs "::ams::widget::*"] {
+#    regsub "::ams::widget::" $procedure "" widget
+#    if { [exists_and_not_null widget] } {
+#	lappend fred $widget
+#    }
+#}
+#set fred "date"
+#set fred [info procs "::ams::widget::${fred}"]
 
 ad_return_template

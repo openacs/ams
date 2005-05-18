@@ -6,12 +6,12 @@ ad_page_contract {
     @cvs-id $Id$
 
 } {
-    {ams_attribute_id:integer,multiple,notnull}
+    {attribute_id:integer,multiple,notnull}
     {list_id:integer,notnull}
 }
 
-foreach ams_attribute_id $ams_attribute_id {
-    ams::list::attribute::required -list_id $list_id -ams_attribute_id $ams_attribute_id
+foreach attribute_id $attribute_id {
+    ams::list::attribute::required -list_id $list_id -attribute_id $attribute_id
 }
 
 ams::list::get -list_id $list_id -array "list_info"

@@ -4,23 +4,20 @@ ad_page_contract {
     @creation-date 2004-07-28
     @cvs-id $Id$
 
-
 } {
-    {ams_attribute_id:notnull}
+    {attribute_id:notnull}
     orderby:optional
 }
 
-ams::attribute::get -ams_attribute_id $ams_attribute_id -array "attribute_info"
+#db_1row get_attribute_info {}
+ams::attribute::get -attribute_id $attribute_id -array "attribute_info"
 acs_object_type::get -object_type $attribute_info(object_type) -array "object_info"
 
 
-set pretty_name [_ $attribute_info(pretty_name)]
-set pretty_plural [_ $attribute_info(pretty_plural)]
+set pretty_name $attribute_info(pretty_name)
+set pretty_plural $attribute_info(pretty_plural)
 set title $pretty_name
 set context [list [list objects Objects] [list "object?object_type=$attribute_info(object_type)" $object_info(pretty_name)] $title]
-
-
-
 
 list::create \
     -name options \
@@ -35,7 +32,7 @@ list::create \
     -pass_properties {
     } -actions {
     } -bulk_action_export_vars { 
-        ams_attribute_id
+        attribute_id
     } -bulk_actions {
 	"Update" "attribute-options-update" "Update Options"        
     } -elements {
@@ -90,40 +87,22 @@ set sort_count 10
 set sort_key_count 10000
 db_multirow -extend { sort_order sort_key } options select_options {
     select option_id, option,
-           CASE WHEN ( select '1' from ams_option_map where ams_option_map.option_id = ams_options.option_id limit 1 ) IS NULL THEN 0 ELSE 1 END as in_use_p
-      from ams_options
-     where ams_attribute_id = :ams_attribute_id
+           CASE WHEN ( select '1' from ams_options where ams_options.option_id = ams_option_types.option_id limit 1 ) IS NULL THEN 0 ELSE 1 END as in_use_p
+      from ams_option_types
+     where attribute_id = :attribute_id
      order by sort_order
 } {
-    set option [_ $option]
     set sort_order $sort_count
     set sort_key $sort_key_count
     incr sort_count 10
     incr sort_key_count 1
 }
 
-
-set sort_order $sort_count
-set sort_key $sort_key_count
-template::multirow append options {new1} {} 1 $sort_count $sort_key
-template::multirow append options {new2} {} 1 [incr sort_count 10] [incr sort_key 1]
-template::multirow append options {new3} {} 1 [incr sort_count 10] [incr sort_key 1]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+if { [template::multirow size options] > 0 } {
+    set sort_order $sort_count
+    set sort_key $sort_key_count
+    template::multirow append options {new1} {} 1 $sort_count $sort_key
+    template::multirow append options {new2} {} 1 [incr sort_count 10] [incr sort_key 1]
+    template::multirow append options {new3} {} 1 [incr sort_count 10] [incr sort_key 1]
+}
 ad_return_template

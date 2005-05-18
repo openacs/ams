@@ -6,6 +6,11 @@ ad_page_contract {
 } {
     {object_type:notnull}
     {package_key ""}
+    {list_name ""}
+    {pretty_name ""}
+    {description ""}
+    {return_url ""}
+    {return_url_label ""}
 }
 
 acs_object_type::get -object_type $object_type -array "object_info"
@@ -25,9 +30,37 @@ ad_form -name list_form -form {
     {object_type:text(inform) {label "Object Type"}}
     {list_name:text {label "List Name"} {html {size 30 maxlength 100}} {help_text {This name must be lower case, contain only letters and underscores, and contain no spaces}}}
     {pretty_name:text {label "Pretty Name"} {html {size 30 maxlength 100}}}
-    {pretty_plural:text {label "Pretty Plural"} {html {size 30 maxlength 100}}}
     {description:text(textarea),optional {label "Description"} {html {cols 55 rows 4}}}
+    return_url:text(hidden),optional
+    return_url_label:text(hidden),optional
 } -new_request {
+    set uneditable_attributes [list package_key object_type list_name pretty_name description]
+    set blank_required_attributes [list]
+    foreach attribute $uneditable_attributes {
+	if { [set $attribute] != "" } {
+	    template::element::set_properties list_form $attribute mode display
+	} else {
+	    if { $attribute != "description" } {
+		lappend blank_required_attributes $attribute
+	    }
+	}
+    }
+    # if the only blank attribute is description we can create this list (since all the data was
+    # provided by the request of this page
+    if { [string is false [exists_and_not_null blank_required_attributes]] } {
+	util_user_message -replace
+	ams::list::flush -package_key $package_key -object_type $object_type -list_name $list_name
+	ams::list::new -package_key $package_key \
+	    -object_type $object_type \
+	    -list_name $list_name \
+	    -pretty_name $pretty_name \
+	    -description $description \
+	    -description_mime_type "text/plain" \
+	    -context_id ""
+	ams::list::flush -package_key $package_key -object_type $object_type -list_name $list_name
+	ad_returnredirect "list?[export_vars -url {package_key object_type list_name return_url return_url_label}]"
+	ad_script_abort
+    }
 } -edit_request {
 } -validate {
     # i need to add validation that the attribute isn't already in the database
@@ -57,7 +90,7 @@ ad_form -name list_form -form {
 
 } -edit_data {
 } -after_submit {
-    ad_returnredirect "list?[export_vars -url {package_key object_type list_name}]"
+    ad_returnredirect "list?[export_vars -url {package_key object_type list_name return_url return_url_label}]"
     ad_script_abort
 }
 

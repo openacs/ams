@@ -2,7 +2,7 @@
 <property name="title">@title@</property>
 <property name="context">@context@</property>
 
-<formtemplate id="attribute_form"></formtemplate>
+<formtemplate id="form_preview"></formtemplate>
 
 
 

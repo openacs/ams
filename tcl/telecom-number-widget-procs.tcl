@@ -47,7 +47,18 @@ ad_proc -public template::util::telecom_number::html_view {
     {location {}}
     {phone_type_id {}}
 } {
-    set telecom_number "$national_number $area_city_code-$subscriber_number\x$extension"
+    set telecom_number $national_number
+    ns_log notice "mgeddert natnum \"$telecom_number\""
+    if { [exists_and_not_null telecom_number] } { append telecom_number " " }
+    ns_log notice "mgeddert bacity \"$telecom_number\""
+    append telecom_number $area_city_code
+    ns_log notice "mgeddert aacity \"$telecom_number\""
+    if { [exists_and_not_null telecom_number] } { append telecom_number "-" }
+    ns_log notice "mgeddert bsubnu \"$telecom_number\""
+    append telecom_number $subscriber_number
+    ns_log notice "mgeddert asubnu \"$telecom_number\""
+    if { [exists_and_not_null extension] } { append telecom_number "&nbsp;x$extension" }
+    ns_log notice "mgeddert aextnu \"$telecom_number\""
     return [ad_text_to_html $telecom_number]
 }
 
@@ -202,9 +213,9 @@ ad_proc -public template::util::telecom_number::set_property { what telecom_numb
 } {
 
     set itu_id                 [template::util::telecom_number::get_property itu_id $telecom_number_list]
-    set subscriber_number      [template::util::telecom_number::get_property subscriber_number $telecom_number_list]
     set national_number        [template::util::telecom_number::get_property national_number $telecom_number_list]
     set area_city_code         [template::util::telecom_number::get_property area_city_code $telecom_number_list]
+    set subscriber_number      [template::util::telecom_number::get_property subscriber_number $telecom_number_list]
     set extension              [template::util::telecom_number::get_property extension $telecom_number_list]
     set sms_enabled_p          [template::util::telecom_number::get_property sms_enabled_p $telecom_number_list]
     set best_contact_time      [template::util::telecom_number::get_property best_contact_time $telecom_number_list]
@@ -252,12 +263,15 @@ ad_proc -public template::util::telecom_number::get_property { what telecom_numb
     @param what the name of the property. Must be one of:
     <ul>
     <li>itu_id (synonyms street_telecom_number, street)
-    <li>subscriber_number (synonyms zip_code, zip)
     <li>national_number (synonyms city, town)
     <li>area_city_code (synonyms state, province)
+    <li>subscriber_number (synonyms zip_code, zip)
     <li>extension (synonym country)
     <li>addtional_text (this is not implemented in the default US widget)
     <li>best_contact_time (this is not implemented in the default US widget)
+    <li>sms_enabled_p (this is not implemented in the default US widget)
+    <li>location (this is not implemented in the default US widget)
+    <li>phone_type_id (this is not implemented in the default US widget)
     <li>html_view - this returns an nice html formatted view of the telecom_number
     </ul>
     @param telecom_number_list a telecom_number datatype value, usually created with ad_form.
@@ -301,7 +315,7 @@ ad_proc -public template::util::telecom_number::get_property { what telecom_numb
             set best_contact_time      [template::util::telecom_number::get_property best_contact_time $telecom_number_list]
             set location               [template::util::telecom_number::get_property location $telecom_number_list]
             set phone_type_id          [template::util::telecom_number::get_property phone_type_id $telecom_number_list]
-            return [template::util::telecom_number::html_view $itu_id $subscriber_number $national_number $area_city_code $extension $sms_enabled_p $best_contact_time $location $phone_type_id]
+            return [template::util::telecom_number::html_view $itu_id $national_number $area_city_code $subscriber_number $extension $sms_enabled_p $best_contact_time $location $phone_type_id]
         }
         default {
             error "Parameter supplied to util::telecom_number::get_property 'what' must be one of: 'itu_id', 'subscriber_number', 'national_number', 'area_city_code', 'extension', 'sms_enabled_p', 'best_contact_time', 'location', 'phone_type_id'. You specified: '$what'."
@@ -325,9 +339,9 @@ ad_proc -public template::widget::telecom_number { element_reference tag_attribu
 
   if { [info exists element(value)] } {
       set itu_id                 [template::util::telecom_number::get_property itu_id $element(value)]
-      set subscriber_number      [template::util::telecom_number::get_property subscriber_number $element(value)]
       set national_number        [template::util::telecom_number::get_property national_number $element(value)]
       set area_city_code         [template::util::telecom_number::get_property area_city_code $element(value)]
+      set subscriber_number      [template::util::telecom_number::get_property subscriber_number $element(value)]
       set extension              [template::util::telecom_number::get_property extension $element(value)]
       set sms_enabled_p          [template::util::telecom_number::get_property sms_enabled_p $element(value)]
       set best_contact_time      [template::util::telecom_number::get_property best_contact_time $element(value)]

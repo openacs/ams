@@ -4,8 +4,12 @@ ad_page_contract {
     @creation-date 2004-07-28
     @cvs-id $Id$
 } {
+    {return_url:optional ""}
+    {return_url_label:optional ""}
+    {list_id:optional ""}
     {object_type:notnull}
-    {list_id:integer}
+    {widget:optional ""}
+    {attribute_name:optional ""}
 }
 
 acs_object_type::get -object_type $object_type -array "object_info"
@@ -13,35 +17,177 @@ acs_object_type::get -object_type $object_type -array "object_info"
 set title "Add Attribute"
 set context [list [list objects Objects] [list "object?object_type=$object_type" $object_info(pretty_name)] "Add Attribute"]
 
-set widget_options " [db_list_of_lists select_widgets { select widget_name, widget_name from ams_widgets order by widget_name } ]"
-
-
 ad_form -name attribute_form -form {
     {ams_attribute_id:key}
-    {list_id:integer(hidden)}
+    {return_url:text(hidden),optional}
+    {return_url_label:text(hidden),optional}
+    {list_id:integer(hidden),optional}
     {object_type:text(hidden)}
-    {widget_name:text(multiselect) {label "Widget"} {options $widget_options } {help_text {<a href="widgets">Widgets descriptions</a> are available}}}
-    {attribute_name:text {label "Attribute Name"} {html {size 30 maxlength 100}} {help_text {This name must be lower case, contain only letters and underscores, and contain no spaces}}}
-    {pretty_name:text {label "Pretty Name"} {html {size 30 maxlength 100}}}
-    {pretty_plural:text {label "Pretty Plural"} {html {size 30 maxlength 100}}}
-    {description:text(textarea),optional {label "Description"} {html {cols 55 rows 4}}}
-} -new_request {
-} -edit_request {
-} -validate {
-    # i need to add validation that the attribute isn't already in the database
-    { attribute_name 
-        { [::regexp {^([0-9]|[a-z]|\_){1,}$} $attribute_name match attribute_name_validate] } 
-        "You have used invalid characters."
+    {mode:text(hidden),optional}
+    {widget:text(radio),optional {label "Widget"} {options {[lsort [::ams::widget_list]]}}}
+    {attribute_name:text,optional {label "Attribute Name"} {html {size 30 maxlength 100}} {help_text {This name must be lower case, contain only letters and underscores, and contain no spaces. If not specified one will be generated for you.}}}
+    {pretty_name:text,optional {label "Pretty Name"} {html {size 30 maxlength 100}}}
+    {pretty_plural:text,optional {label "Pretty Plural"} {html {size 30 maxlength 100}}}
+}
+
+
+#if { [ams::widget_has_options_p -widget $widget] } {
+#    foreach elemement [list option1 option2 option3 option4 option4] {
+#	::template::element::set_properties attribute_form $element -widget text
+#    }
+#}
+if { [ams::widget_has_options_p -widget $widget] } {
+    set default_number_of_options 5
+    set option_fields_count $default_number_of_options
+    set i 1
+    set elements [list]
+    lappend elements [list option_fields_count:integer(hidden) [list value $option_fields_count]]
+#    lappend elements [list options_on_last_screen:integer(hidden),optional]
+    while { $i <= $option_fields_count } {
+	set element [list option${i}:text(text),optional [list label "Option $i"] [list html [list size 50]]]
+        if { $i == $option_fields_count } {
+	    lappend element [list help_text "If you need to add more options you will be able to do so by editing this attributes again ($default_number_of_options new fields are added to the preexisting count each time you edit an attribute)"]
+	}
+        if { $i == 1 } {
+	    lappend element [list section "Predefined Options"]
+	}
+	lappend elements $element
+        incr i
     }
-    { attribute_name 
-        { ![::attribute::exists_p $object_type $attribute_name] } 
-        "Attribute $attribute_name already exists for <a href=\"object?[export_vars -url {object_type}]\">$object_info(pretty_name)</a>."
+    ad_form -extend -name attribute_form -form $elements
+}
+
+
+
+ad_form -extend -name attribute_form -on_request {
+    set mode "new"
+    if { [::attribute::exists_p -convert_p 0 $object_type $attribute_name] } {
+	# this attribute already exists - so we are in "edit" mode for
+	::template::element::set_properties attribute_form attribute_name -mode display
+        db_1row get_attr_info { select pretty_name, pretty_plural from acs_attributes where attribute_name = :attribute_name and object_type = :object_type }
+        set mode "edit"
     }
+    if { [exists_and_not_null widget] } {
+	if { [string is false [ams::widget_proc_exists_p -widget $widget]] } {
+	    ad_return_error "There was a problem with your input" "The widget specified does not exist"
+	}
+        ::template::element::set_properties attribute_form widget -widget select -mode display
+    }
+    set option_on_last_screen 1
+#::template::element set_properties attribute_form pretty_plural -widget hidden
+#    foreach field [list attribute_name pretty_name pretty_plural] {
+#	::template::element set_properties attribute_form $field -mode display
+#    }
 } -on_submit {
-} -new_data {
-} -edit_data {
+    ams::widgets_init
+    if { [exists_and_not_null attribute_name] } {
+        if { [string is false [::regexp {^([0-9]|[a-z]|\_){1,}$} $attribute_name match attribute_name_matcher]] } {
+	    ::template::form::set_error attribute_form attribute_name "You have used invalid characters."
+	} else {
+	    ::template::element::set_properties attribute_form attribute_name -mode display
+	}
+    } else {
+	if { [exists_and_not_null pretty_name] } {
+	    set attribute_name [util_text_to_url -replacement "_" -text $pretty_name]
+	    set attribute_name_generated_p 1
+	    ::template::element::set_value attribute_form attribute_name $attribute_name
+	}
+    }
+    set required_fields [list widget pretty_name pretty_plural]
+    if { [exists_and_not_null option_fields_count] } {
+	lappend required_fields "option1"
+    }
+    foreach required_field $required_fields {
+	if { [string is false [exists_and_not_null ${required_field}]] } {
+	    ::template::form::set_error attribute_form $required_field "[::template::element::get_property attribute_form $required_field label] is required"
+	}
+    }
+
+
+
+    if { [exists_and_not_null widget] } {
+	::template::element::set_properties attribute_form widget -widget select -mode display
+    }
+    if { $mode == "new" } {
+	    if { [::attribute::exists_p -convert_p 0 $object_type $attribute_name] } {
+		if { [exists_and_not_null attribute_name_generated_p] } {
+		    set message "The attribute name automatically generated for conflicts with an attribute that is already in the database. Please make sure you are not creating a duplicate attribute and change the name if not."
+		} else {
+		    set message "This attribute name already exists. Please make sure you are not creating a duplicate attribute and change the name if not."
+		}
+		::template::element::set_error attribute_form attribute_name $message 
+		::template::element::set_properties attribute_form attribute_name -mode edit 
+	    }
+    }
+#    ::template::form::set_error attribute_form attribute_name "$mode $attribute_name $object_type"
+
+#    element::create attribute_form change_widget -datatype text -widget submit -label "Change Widget"
+#        { ![::attribute::exists_p $object_type $attribute_name] } 
+#        "Attribute $attribute_name already exists for <a href=\"object?[export_vars -url {object_type}]\">$object_info(pretty_name)</a>."
+
+#    if { [exists_and_not_null option_fields_count] } {
+#        if { xists_and_not_null options_on_last_screen] && [string is false [exists_and_not_null option1]] } {
+#	    ::template::form::set_error attribute_form option1 "Option 1 is required"
+#       } else {
+#	    ::template::element::set_value attribute_form options_on_last_screen 1
+#	}
+#    }
+
+
+    if { [::template::form::is_valid attribute_form] } {
+
+
+	db_transaction {
+	# the form has passed all validation blocks
+#        ::template::element::set_error attribute_form attribute_name "valid"
+	    if { $mode == "new" } {
+		set attribute_id [attribute::new \
+				      -object_type $object_type \
+				      -attribute_name $attribute_name \
+				      -datatype [::ams::widget -widget $widget -request "widget_datatypes"] \
+				      -pretty_name $pretty_name \
+				      -pretty_plural $pretty_plural]
+		set dynamic_p 1
+	    } else {
+		set attribute_id [attribute::id \
+				      -object_type $object_type \
+				      -attribute_name $attribute_name]
+		set dynamic_p 0
+	    }
+	    ams::attribute::new \
+		-attribute_id $attribute_id \
+		-ams_attribute_id $ams_attribute_id \
+		-widget $widget \
+		-dynamic_p $dynamic_p
+	    
+	    if { [ams::widget_has_options_p -widget $widget] && [exists_and_not_null option_fields_count] } {
+                set i 1
+		while { $i <= $option_fields_count } {
+		    set option [set "option${i}"]
+		    if { [exists_and_not_null option] } {
+			ams::option::new \
+			    -attribute_id $attribute_id \
+			    -option $option
+		    }
+		    incr i
+		}
+	    }
+	}
+    } else {
+        break
+    }
 } -after_submit {
-    ad_returnredirect "attribute-add-2?[export_vars -url {ams_attribute_id object_type widget_name attribute_name pretty_name pretty_plural description list_id}]"
+    if { [exists_and_not_null list_id] } {
+	ams::list::attribute::map -list_id $list_id -attribute_id $attribute_id
+	ams::list::get -list_id $list_id -array list_info
+	set list_name $list_info(list_name)
+	set object_type $list_info(object_type)
+	set package_key $list_info(package_key)
+	set return_url [export_vars -base "list" -url {list_name object_type package_key return_url return_url_label}]
+    } else {
+	set return_url [export_vars -base "object" -url {object_type return_url return_url_label}]
+    }
+    ad_returnredirect -message "$pretty_name has been added as an attribute to $object_type" $return_url
     ad_script_abort
 }
 

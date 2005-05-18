@@ -5,8 +5,9 @@
 
 <p><strong>Pretty Name:</strong> @pretty_name@</p>
 <p><strong>Pretty Plural:</strong> @pretty_plural@</p>
-<p><strong>Widget:</strong> <a href="widgets">@attribute_info.widget_name@</a></p>
+<p><strong>Widget:</strong> <a href="widgets">@attribute_info.widget@</a></p>
 
-<if @attribute_info.storage_type@ eq ams_options>
+
+<if @options:rowcount@ gt 0>
 <listtemplate name="options"></listtemplate>
 </if>

@@ -6,62 +6,72 @@
 -- @cvs-id $Id$
 --
 --
+-- object_id          | integer                  | not null
+-- object_type        | character varying(100)   | not null
+-- context_id         | integer                  |
+-- security_inherit_p | boolean                  | not null default true
+-- creation_user      | integer                  |
+-- creation_date      | timestamp with time zone | not null default ('now'::text)::timestamp(6) with time zone
+-- creation_ip        | character varying(50)    |
+-- last_modified      | timestamp with time zone | not null default ('now'::text)::timestamp(6) with time zone
+-- modifying_user     | integer                  |
+-- modifying_ip       | character varying(50)    |
+-- tree_sortkey       | bit varying              | not null
+-- max_child_sortkey  | bit varying              |
+
+------ Widgets 
+--------------------------------------------------------------------
+
+create or replace function ams_widget__save (varchar,varchar,varchar,boolean)
+returns integer as '
+declare
+        p_widget             alias for $1;
+        p_pretty_name        alias for $2;
+        p_value_method       alias for $3;
+        p_active_p           alias for $4;
+        v_exists_p           boolean;
+begin
+	v_exists_p := ''1'' from ams_widgets where widget = p_widget;
+
+        if v_exists_p then
+
+         	update ams_widgets
+                   set pretty_name = p_pretty_name,
+                       value_method = p_value_method,
+                       active_p = p_active_p
+                 where widget = p_widget;        
+
+        else
+                insert into ams_widgets 
+                (widget,pretty_name,value_method,active_p)
+                values
+                (p_widget,p_pretty_name,p_value_method,p_active_p);
+	end if;
+
+        return ''1'';
+end;' language 'plpgsql';
+
 
 
 ------ Attributes
 --------------------------------------------------------------------
 
+select define_function_args('ams_attribute__new','attribute_id,ams_attribute_id,widget,dynamic_p;f,deprecated_p;f,creation_date;now(),creation_user,creation_ip,context_id');
 
-
-select define_function_args('ams_attribute__new','ams_attribute_id,object_type,attribute_name,pretty_name,pretty_plural,default_value,description,widget_name,deprecated_p;f,creation_date,creation_user,creation_ip,context_id');
-
-create or replace function ams_attribute__new (integer,varchar,varchar,varchar,varchar,varchar,text,varchar,boolean,timestamptz,integer,varchar,integer)
+create or replace function ams_attribute__new (integer,integer,varchar,boolean,boolean,timestamptz,integer,varchar,integer)
 returns integer as '
 declare
-        p_ams_attribute_id   alias for $1; -- the AMS Attribute ID
-        p_object_type        alias for $2;
-        p_attribute_name     alias for $3;
-        p_pretty_name        alias for $4; 
-        p_pretty_plural      alias for $5; 
-        p_default_value      alias for $6; 
-        p_description        alias for $7; 
-        p_widget_name        alias for $8; 
-        p_deprecated_p       alias for $9; 
-        p_creation_date      alias for $10;
-        p_creation_user      alias for $11;
-        p_creation_ip        alias for $12;
-        p_context_id         alias for $13;
-        v_attribute_id       integer;
-        v_acs_datatype       varchar;
+        p_attribute_id       alias for $1;
+        p_ams_attribute_id   alias for $2; -- the Permissable AMS Attribute ID
+        p_widget             alias for $3;
+        p_dynamic_p          alias for $4;
+        p_deprecated_p       alias for $5;
+        p_creation_date      alias for $6;
+        p_creation_user      alias for $7;
+        p_creation_ip        alias for $8;
+        p_context_id         alias for $9;
         v_ams_attribute_id   integer;
 begin
-
-        v_acs_datatype := acs_datatype from ams_widgets where widget_name = p_widget_name;
-
-        v_attribute_id := acs_attribute__create_attribute (
-                p_object_type,
-                p_attribute_name,
-                v_acs_datatype,
-                p_pretty_name,
-                p_pretty_plural,
-                null,               -- p_table_name
-                null,               -- p_column_name
-                p_default_value,
-                ''0'',              -- p_min_n_values
-                ''1'',              -- p_max_n_values
-                null,               -- p_sort_order
-                ''type_specific'',  -- p_storage
-                ''f''               -- p_static_p
-        );
-
-        if p_description is not null then
-                PERFORM acs_attribute__add_description (
-                                p_object_type,
-                                p_attribute_name,
-                                ''ams_attribute_description'',
-                                p_description
-                );
-        end if;
 
         v_ams_attribute_id := acs_object__new (
                 p_ams_attribute_id,
@@ -72,10 +82,10 @@ begin
                 p_context_id
         );
 
-        insert into ams_attributes
-                (ams_attribute_id,attribute_id,widget_name,deprecated_p)
+        insert into ams_attribute_items
+                (attribute_id,ams_attribute_id,widget,dynamic_p,deprecated_p)
         values
-                (v_ams_attribute_id,v_attribute_id,p_widget_name,p_deprecated_p);
+                (p_attribute_id,v_ams_attribute_id,p_widget,p_dynamic_p,p_deprecated_p);
 
         return v_ams_attribute_id;
 end;' language 'plpgsql';
@@ -86,26 +96,11 @@ create or replace function ams_attribute__name (integer)
 returns varchar as '
 declare
         p_ams_attribute_id  alias for $1;
-        v_name          varchar;
+        v_name              varchar;
 begin
-        v_name := acs_attributes.attribute_name 
-             from acs_attributes, ams_attributes
-            where ams_attributes.ams_attribute_id = p_ams_attribute_id
-              and ams_attributes.attribute_id = acs_attributes.attribute_id;
-
-        return v_name;
-end;' language 'plpgsql';
-
-create or replace function ams_attribute__pretty_name (integer)
-returns varchar as '
-declare
-        p_ams_attribute_id  alias for $1;
-        v_name          varchar;
-begin
-        v_name := acs_attributes.pretty_name 
-             from acs_attributes, ams_attributes
-            where ams_attributes.ams_attribute_id = p_ams_attribute_id
-              and ams_attributes.attribute_id = acs_attributes.attribute_id;
+        v_name := attribute_name 
+             from ams_attributes
+            where ams_attribute_id = p_ams_attribute_id;
 
         return v_name;
 end;' language 'plpgsql';
@@ -114,30 +109,30 @@ create or replace function ams_attribute__delete (integer)
 returns integer as '
 declare
         p_ams_attribute_id      alias for $1;
-        v_object_type       varchar;
-        v_attribute_name    varchar;
+        v_attribute_id          integer;
+        v_object_type           varchar;
+        v_attribute_name        varchar;
+        v_dynamic_p             boolean;
 begin
-        select acs_attributes.attribute_name, acs_attributes.object_type
-          into v_object_type, v_attribute_name
-          from acs_attributes, ams_attributes
-         where ams_attributes.attribute_id = acs_attributes.attribute_id;
+        select attribute_id, attribute_name, object_type, dynamic_p
+          info v_attribute_id, v_object_type, v_attribute_name, v_dynamic_p
+          from ams_attributes
+         where ams_attribute_id = :ams_attribute_id;
 
-        delete from ams_attribute_values where ams_attribute_id = p_ams_attribute_id;
+        delete from ams_attribute_values where attribute_id = v_attribute_id;
 
         PERFORM acs_object__delete (
                         p_ams_attribute_id
                 );
 
-        PERFORM acs_attribute__drop_description (
-                        v_object_type,
-                        v_attribute_name,
-                        ''ams_attribute_description''
-                );
+        if v_dynamic_p then
 
         PERFORM acs_attribute__drop_attribute (
                         v_object_type,
                         v_attribute_name
                 );
+
+        end if;
 
         return 0;
 end;' language 'plpgsql';
@@ -147,197 +142,104 @@ end;' language 'plpgsql';
 
 
 
------- Objects
+
+
+
+
+------ Attribute Values
 --------------------------------------------------------------------
 
-
-create or replace function ams_object_revision__root_folder (integer)
+create or replace function ams_attribute_value__save (integer,integer,integer)
 returns integer as '
 declare
-        p_package_id            alias for $1;
-        v_folder_id             integer;
-        v_count                 integer;
-        v_folder_name           varchar;
+        p_object_id                  alias for $1;
+        p_attribute_id               alias for $2;
+        p_value_id                   alias for $3;
+        v_count                      integer;
 begin
-        v_count := count(*) from cr_folders where package_id = p_package_id;
 
-        if v_count = 0 then
+        delete from ams_attribute_values
+         where object_id = p_object_id
+           and attribute_id = p_attribute_id; 
 
-                v_folder_name := package_key || ''_'' || p_package_id from apm_packages
-                           where package_id = p_package_id;
-
-                -- create a new root folder
-                v_folder_id := content_folder__new (
-                        v_folder_name,                  -- name
-                        ''AMS Objects'',                -- label
-                        ''AMS Object Repository'',      -- description
-                        null,                           -- parent_id
-                        p_package_id,                   -- parent_id
-                        null,                           -- folder_id
-                        null,                           -- creation_date
-                        null,                           -- creation_user
-                        null                            -- creation_ip
-                );
-
-                -- register folder content types
-                PERFORM content_folder__register_content_type (
-                        v_folder_id,                    -- folder_id
-                        ''ams_object_revision'',        -- content_type
-                        ''f''                           -- include_subtypes
-                );
-
-                -- there is no facility in the API for adding in the package_id,
-                -- so we have to do it ourselves
-
-                update cr_folders 
-                   set package_id = p_package_id 
-                 where folder_id = v_folder_id;
-
-        else
-                v_folder_id := folder_id from cr_folders where package_id = p_package_id;
-        end if;
-
-        return v_folder_id;
-
-end; ' language 'plpgsql';
-
-
-
--- select define_function_args('ams_object_id','object_id,package_id,creation_date;now(),creation_user,creation_ip');
--- get the ams_object_id, and none exists create a new content item
-
-create or replace function ams_object__new (integer,integer,timestamptz,integer,varchar)
-returns integer as '
-declare
-        p_object_id          alias for $1;
-        p_package_id         alias for $2;
-        p_creation_date      alias for $3;
-        p_creation_user      alias for $4;
-        p_creation_ip        alias for $5;
-        v_ams_object_id      integer;
-        v_count              integer;
-begin
-        v_count := count(*) from ams_objects where object_id = p_object_id;
-
-        if v_count = 0 then
-
-                -- create a new item
-                v_ams_object_id := content_item__new (
-                        p_object_id::varchar,                   -- name
-                        ams_object_revision__root_folder(p_package_id),  -- parent_id
-                        null,                                   -- item_id
-                        null,                                   -- locale
-                        p_creation_date,                        -- creation_date
-                        p_creation_user,                        -- creation_user
-                        p_object_id,                            -- context_id
-                        p_creation_ip,                          -- creation_ip
-                        ''content_item'',                       -- item_subtype
-                        ''ams_object_revision'',                -- content_type
-                        null,                                   -- title
-                        null,                                   -- description
-                        null,                                   -- mime_type
-                        null,                                   -- nls_language
-                        null                                    -- data
-                );
-
-                insert into ams_objects
-                (ams_object_id,object_id)
+	if p_value_id is not null then
+                insert into ams_attribute_values
+                (object_id,attribute_id,value_id)
                 values
-                (v_ams_object_id,p_object_id);
+                (p_object_id,p_attribute_id,p_value_id);
+	end if;
 
-        else
-                v_ams_object_id := ams_object_id(p_object_id);
-        end if;
-
-        return v_ams_object_id;
+        return 0;
 end;' language 'plpgsql';
 
 
-
-create or replace function ams_object_id (integer)
-returns integer as '
+create or replace function ams_attribute_value__value (integer,integer)
+returns text as '
 declare
-        p_object_id          alias for $1;
-        v_ams_object_id      integer;
-begin
-        return ams_object_id from ams_objects where object_id = p_object_id;
-end;' language 'plpgsql';
-
-
-
-select define_function_args('ams_object_revision__new','object_id,package_id,creation_date;now(),creation_user,creation_ip');
-
-create or replace function ams_object_revision__new (integer,integer,timestamptz,integer,varchar)
-returns integer as '
-declare
-        p_object_id          alias for $1;
-        p_package_id         alias for $2;
-        p_creation_date      alias for $3;
-        p_creation_user      alias for $4;
-        p_creation_ip        alias for $5;
-        v_ams_object_id           integer;
-        v_ams_object_revision_id  integer;
+  p_attribute_id           alias for $1;
+  p_value_id               alias for $2;  
+  v_value_method           varchar; 
+  v_value                  text;
+  val                      record;
 begin
 
-        -- get the ams_object_id and create the content item if necessary
-        v_ams_object_id := ams_object__new (
-                p_object_id,
-                p_package_id,
-                p_creation_date,
-                p_creation_user,
-                p_creation_ip
-        );                
+  v_value_method := value_method
+       from ams_widgets
+      where widget = ( select widget
+                         from ams_attributes
+                        where attribute_id = p_attribute_id );
 
-        v_ams_object_revision_id := content_revision__new (
-                null,                   -- title
-                null,                   -- description
-                now(),                  -- publish_date
-                null,                   -- mime_type
-                null,                   -- nls_language
-                null,                   -- data
-                v_ams_object_id,        -- item_id
-                null,                   -- revision_id
-                p_creation_date,        -- creation_date
-                p_creation_user,        -- creation_user
-                p_creation_ip           -- creation_ip
-        );
+  if v_value_method != '''' and v_value_method is NOT null then
+    for val in execute ''select '' || v_value_method || ''('' || p_value_id || '')::text as value'' loop
+        v_value := val.value;
+        exit;
+    end loop;
+  end if;
 
-        PERFORM content_item__set_live_revision (v_ams_object_revision_id);
-
-        insert into ams_object_revisions
-        (ams_object_revision_id)
-        values
-        (v_ams_object_revision_id);
-
-        return v_ams_object_revision_id;
-end;' language 'plpgsql';
-
-
+  return v_value;
+  
+end;' language 'plpgsql' stable strict;
 
 ------ Options                                        
 --------------------------------------------------------------------
 
-create or replace function ams_option__new (integer,varchar,integer)
+select define_function_args('ams_option__new','option_id,attribute_id,option,sort_order,depreacted_p;f,creation_date,creation_user,creation_ip,context_id');
+
+create or replace function ams_option__new (integer,integer,varchar,integer,boolean,timestamptz,integer,varchar,integer)
 returns integer as '
 declare
-        p_ams_attribute_id      alias for $1;
-        p_option                alias for $2;
-        p_sort_order            alias for $3;
+        p_option_id             alias for $1;
+        p_attribute_id          alias for $2;
+        p_option                alias for $3;
+        p_sort_order            alias for $4;
+        p_deprecated_p          alias for $5;
+        p_creation_date         alias for $6;
+        p_creation_user         alias for $7;
+        p_creation_ip           alias for $8;
+        p_context_id            alias for $9;
         v_option_id             integer;
         v_sort_order            integer;
 begin
 
-        v_option_id := nextval(''ams_options_seq'');
+        v_option_id := acs_object__new (
+                p_option_id,
+                ''ams_option'',
+                p_creation_date,
+                p_creation_user,
+                P_creation_ip,
+                p_context_id
+        );
+
         if p_sort_order is null then
-                v_sort_order := nextval(''ams_options_seq'');
+                v_sort_order := v_option_id;
         else
                 v_sort_order := p_sort_order;
         end if;
 
-        insert into ams_options
-        (option_id,ams_attribute_id,option,sort_order)
+        insert into ams_option_types
+        (option_id,attribute_id,option,sort_order,deprecated_p)
         values
-        (v_option_id,p_ams_attribute_id,p_option,v_sort_order);
+        (v_option_id,p_attribute_id,p_option,v_sort_order,p_deprecated_p);
 
         return v_option_id;
 end;' language 'plpgsql';
@@ -349,206 +251,204 @@ declare
         p_option_id             alias for $1;
 begin
         delete from ams_options where object_id = p_option_id;
+        PERFORM acs_object__delete (
+                        p_option_id
+                );
 
         return 0;
+end;' language 'plpgsql';
+
+create or replace function ams_option__name (integer)
+returns varchar as '
+declare
+        p_option_id         alias for $1;
+        v_name              varchar;
+begin
+        v_name := option
+             from ams_option_types
+            where option_id = p_option_id;
+
+        return v_name;
 end;' language 'plpgsql';
 
 create or replace function ams_option__map (integer,integer)
 returns integer as '
 declare
-        p_option_map_id         alias for $1;
+        p_value_id              alias for $1;
         p_option_id             alias for $2;
-        v_option_map_id         integer;
+        v_value_id              integer;
         v_count                 integer;
 begin
-        v_count := count(*) from ams_option_map where option_map_id = p_option_map_id;
+        v_count := count(*) from ams_options where value_id = p_value_id;
 
-        if v_count = ''0'' then
-                v_option_map_id := nextval(''ams_option_map_id_seq'');
-                insert into ams_option_map_ids(option_map_id) values (v_option_map_id);
+        if v_count = ''0'' or p_value_id is null then
+                v_value_id := nextval from acs_object_id_seq;
+                insert into ams_option_ids(value_id) values (v_value_id);
         else 
-                v_option_map_id := p_option_map_id;
+                v_value_id := p_value_id;
         end if;
 
-        insert into ams_option_map
-        (option_map_id,option_id)
+        insert into ams_options
+        (value_id,option_id)
         values
-        (v_option_map_id,p_option_id);
+        (v_value_id,p_option_id);
 
-        return v_option_map_id;
+        return v_value_id;
 end;' language 'plpgsql';
 
+create or replace function ams_value__options (integer)
+returns text as '
+declare
+        p_value_id    alias for $1;
+        v_name             text;
+        rec                RECORD;
+begin
 
+        v_name := NULL;
+        if p_value_id is not null then
+                FOR rec IN 
+                        select option_id 
+                          from ams_options
+                         where value_id = p_value_id
+                         order by option_id
+                LOOP
+                        IF v_name is null THEN
+                                v_name := rec.option_id;
+                        ELSE
+                                v_name := v_name || '' '' || rec.option_id;
+                        END IF;
+                END LOOP;
+        end if;
 
------- Attribute Values
+        return v_name;
+end;' language 'plpgsql';
+
+create or replace function ams_value__asses (text)
+returns integer as '
+declare
+        p_ams_value__options    alias for $1;
+        v_value_id              integer
+begin
+
+        v_value_id := value_id
+          from ams_options_ids
+         where ams_value__options(value_id) = p_ams_value__options;
+
+        return v_value_id;
+end;' language 'plpgsql';
+
+------ AMS Texts
 --------------------------------------------------------------------
 
--- Unlike the ams_attribute_value__save proc below this one,
--- ams_attribute_value__new will save null entries (i.e. when
--- no value was given for an attribute). this will chew up
--- database space (with non-value rows). but it can be called
--- upon by content repository managed objects to store attribute
--- values with that objects revision_id (as opposed to the ams
--- managed revision_id). This is useful when permissions are not
--- set to hide certain attributes from users. If the attributes
--- for an object are restrict based on permissions the ams_object
--- container is preferred since it is made to deal with the
--- retrieval and display of this more complex form of content
--- revision. Note, this proc does not mark previous revisions as
--- superseeded, so if another objects revisions are used you must
--- make sure that the attribute has not already been entered for
--- this particular revision.
-
-
-
-create or replace function ams_attribute_value__new (integer,integer,integer,integer,integer,timestamptz,text,varchar)
+create or replace function ams_value__text_save (text,varchar)
 returns integer as '
 declare
-        p_revision_id                alias for $1;
-        p_ams_attribute_id           alias for $2;
-        p_option_map_id              alias for $3;
-        p_address_id                 alias for $4;
-        p_number_id                  alias for $5;
-        p_time                       alias for $6;
-        p_value                      alias for $7;
-        p_value_mime_type            alias for $8;
-begin
-        insert into ams_attribute_values
-        (revision_id,ams_attribute_id,option_map_id,address_id,number_id,time,value,value_mime_type)
-        values
-        (p_revision_id,p_ams_attribute_id,p_option_map_id,p_address_id,p_number_id,p_time,p_value,p_value_mime_type);
-
-        return 0;
-end;' language 'plpgsql';
-
-
-
-create or replace function ams_attribute_value__superseed (integer,integer,integer)
-returns integer as '
-declare
-        p_revision_id                alias for $1;
-        p_ams_attribute_id           alias for $2;
-        p_ams_object_id              alias for $3;
+        p_text          alias for $1;
+        p_text_format   alias for $2;
+        v_value_id      integer;
 begin
 
-        update ams_attribute_values
-           set superseed_ams_attribute_id = p_revision_id
-         where ams_attribute_id = p_ams_attribute_id
-           and superseed_revision_id is null
-           and revision_id in ( select revision_id
-                                  from cr_revisions
-                                 where item_id = p_ams_object_id );
+	v_value_id := value_id
+                        from ams_texts
+                       where text = p_text
+                         and text_format = p_text_format;
 
-
-        return 0;
-end;' language 'plpgsql';
-
-
-
-create or replace function ams_attribute_value__save (integer,integer,integer,integer,integer,timestamptz,text,varchar)
-returns integer as '
-declare
-        p_revision_id                alias for $1;
-        p_ams_attribute_id           alias for $2;
-        p_option_map_id              alias for $3;
-        p_address_id                 alias for $4;
-        p_number_id                  alias for $5;
-        p_time                       alias for $6;
-        p_value                      alias for $7;
-        p_value_mime_type            alias for $8;
-        v_ams_object_id              integer;
-        v_count                      integer;
-        v_option_map_id              integer;
-        v_address_id                 integer;
-        v_number_id                  integer;
-        v_time                       timestamptz;
-        v_value                      text;
-        v_value_mime_type            varchar;
-        v_insert_new_p               boolean;
-        v_duplicate_p                boolean;
-begin
-
-        v_ams_object_id := item_id from cr_revisions where revision_id = p_revision_id;
-
-        v_count := count(*) from ams_attribute_values 
-                           where superseed_revision_id is null
-                             and revision_id in ( select revision_id
-                                                    from cr_revisions
-                                                   where item_id = v_ams_object_id );
-
-        if v_count > 0 then
-                select option_map_id,
-                       address_id,
-                       number_id,
-                       time, 
-                       value,
-                       value_mime_type
-                  into v_option_map_id,
-                       v_address_id,
-                       v_number_id,
-                       v_time,
-                       v_value,
-                       v_value_mime_type
-                  from ams_attribute_values
-                 where ams_attribute_id = p_ams_attribute_id
-                   and revision_id in ( select revision_id
-                                          from cr_items
-                                         where item_id = v_ams_object_id )
-                   and superseed_revision_id is not null;
-
-                if v_option_map_id != p_option_map_id
-                        or v_address_id != p_address_id
-                        or v_number_id != p_number_id
-                        or v_time != p_time
-                        or v_value != p_value
-                then
-                        PERFORM ams_attribute_value__superseed (
-                                        p_revision_id,
-                                        p_ams_attribute_id,
-                                        v_ams_object_id
-                        );
-                        
-                        v_duplicate_p := ''f'';
-                else
-                        v_duplicate_p := ''t'';
-
-                end if;
-        else
-                v_duplicate_p := ''f'';
+        if v_value_id is null then
+                v_value_id := nextval from acs_object_id_seq;
+                insert into ams_texts
+                (value_id,text,text_format) 
+                values
+                (v_value_id,p_text,p_text_format);
         end if;
 
-        
-        if not v_duplicate_p then
-                -- we know that this is not duplicate
+        return v_value_id;
+end;' language 'plpgsql';
 
-                if p_option_map_id is not null
-                   or p_address_id is not null
-                   or p_number_id is not null
-                   or p_time is not null
-                   or p_value is not null
-                then
-                        -- there is a not null value to this attribute
-                        PERFORM ams_attribute_value__new (
-                                        p_revision_id,
-                                        p_ams_attribute_id,
-                                        p_option_map_id,
-                                        p_address_id,
-                                        p_number_id,
-                                        p_time,
-                                        p_value,
-                                        p_value_mime_type
-                        );
-                end if;
+create or replace function ams_value__text(integer)
+returns varchar as '
+declare
+        p_value_id    alias for $1;
+        v_value       text;
+begin
+        v_value := ''{'' || text_format::text || ''} '' || text from ams_texts where value_id = p_value_id;
+        return v_value;
+end;' language 'plpgsql';
 
+------ AMS Times
+--------------------------------------------------------------------
+
+create or replace function ams_value__time_save (timestamptz)
+returns integer as '
+declare
+        p_time          alias for $1;
+        v_value_id      integer;
+begin
+
+	v_value_id := value_id
+                        from ams_times
+                       where time = p_time;
+
+        if v_value_id is null then
+                v_value_id := nextval from acs_object_id_seq;
+                insert into ams_times
+                (value_id,time) 
+                values
+                (v_value_id,p_time);
         end if;
 
+        return v_value_id;
+end;' language 'plpgsql';
 
-        return 0;
+create or replace function ams_value__time(integer)
+returns text as '
+declare
+        p_value_id    alias for $1;
+        v_value       text;
+begin
+        v_value := to_char(time,''YYYY-MM-DD HH24:MI:SS TZ'')::text from ams_times where value_id = p_value_id;
+        return v_value;
 end;' language 'plpgsql';
 
 
 
------- Groups
+------ AMS 
+--------------------------------------------------------------------
+
+
+create or replace function ams_value__number_save (numeric)
+returns integer as '
+declare
+        p_number        alias for $1;
+        v_value_id      integer;
+begin
+
+	v_value_id :=  value_id
+                        from ams_numbers
+                       where number = p_number;
+
+        if v_value_id is null then
+                v_value_id := nextval from acs_object_id_seq;
+                insert into ams_numbers
+                (value_id,number) 
+                values
+                (v_value_id,p_number);
+        end if;
+
+        return v_value_id;
+end;' language 'plpgsql';
+
+create or replace function ams_value__number(integer)
+returns text as '
+declare
+        p_value_id    alias for $1;
+        v_value       text;
+begin
+        v_value := number::text from ams_numbers where value_id = p_value_id;
+        return v_value;
+end;' language 'plpgsql';
+
+
+------ Lists
 --------------------------------------------------------------------
 
 
@@ -593,7 +493,7 @@ create or replace function ams_list__attribute_map (integer,integer,integer,bool
 returns integer as '
 declare
         p_list_id            alias for $1;
-        p_ams_attribute_id   alias for $2;
+        p_attribute_id       alias for $2;
         p_sort_order         alias for $3;
         p_required_p         alias for $4;
         p_section_heading    alias for $5;
@@ -601,19 +501,19 @@ declare
 begin
 
         if p_sort_order is null then
-           v_sort_order := nextval(''ams_list_attribute_sort_order_seq'');
+           v_sort_order := nextval from acs_object_id_seq;
         else
            v_sort_order := p_sort_order;
         end if;
 
         delete from ams_list_attribute_map
-         where ams_attribute_id = p_ams_attribute_id
+         where attribute_id = p_attribute_id
            and list_id = p_list_id;
 
         insert into ams_list_attribute_map
-                (list_id,ams_attribute_id,sort_order,required_p,section_heading)
+                (list_id,attribute_id,sort_order,required_p,section_heading)
         values
-                (p_list_id,p_ams_attribute_id,v_sort_order,p_required_p,p_section_heading);
+                (p_list_id,p_attribute_id,v_sort_order,p_required_p,p_section_heading);
 
         return ''1'';
 end;' language 'plpgsql';
@@ -622,6 +522,16 @@ end;' language 'plpgsql';
 
 
 
+create or replace function ams_list__name (integer)
+returns varchar as '
+declare
+        p_list_id               alias for $1;
+        v_name                  varchar;
+begin
+       v_name := pretty_name from ams_lists where list_id = p_list_id;
+
+       return v_name;
+end;' language 'plpgsql';
 
 
 
@@ -634,8 +544,8 @@ end;' language 'plpgsql';
 ------ Postal Address
 --------------------------------------------------------------------
 
-create or replace function ams_attribute__postal_address_string (integer)
-returns varchar as '
+create or replace function ams_value__postal_address (integer)
+returns text as '
 declare
         p_address_id    alias for $1;
         v_name          text;
@@ -659,14 +569,74 @@ begin
         return v_name;
 end;' language 'plpgsql';
 
+create or replace function ams_value__postal_address_save (varchar,varchar,varchar,varchar,char(2),varchar,integer)
+returns integer as ' 
+declare 
+        p_delivery_address     alias for $1;
+        p_municipality         alias for $2;
+        p_region               alias for $3;
+        p_postal_code          alias for $4;
+        p_country_code         alias for $5;
+        p_additional_text      alias for $6;
+        p_postal_type          alias for $7;
+        v_address_id           integer;
+begin 
+
+        if p_additional_text is null and p_postal_type is null then
+
+	v_address_id := address_id
+                        from postal_addresses
+                       where delivery_address = p_delivery_address
+                         and municipality = p_municipality
+                         and region = p_region
+                         and postal_code = p_postal_code
+                         and country_code = p_country_code
+                         and additional_text is NULL
+                         and postal_type is NULL;
+
+        else 
+
+	v_address_id := address_id
+                        from postal_addresses
+                       where delivery_address = p_delivery_address
+                         and municipality = p_municipality
+                         and region = p_region
+                         and postal_code = p_postal_code
+                         and country_code = p_country_code
+                         and additional_text = p_additional_text
+                         and postal_type = p_postal_type;
+        
+        end if;
+
+        if v_address_id is null then
+
+                v_address_id := acs_object__new (  
+	                null,  
+	                ''postal_address'',
+	                now(), 
+	                NULL, 
+	                NULL,
+	                NULL
+	        );
+	
+	        insert into postal_addresses 
+	        ( address_id, delivery_address, municipality, region, postal_code, country_code, additional_text, postal_type )  
+	        values
+	        ( v_address_id, p_delivery_address, p_municipality, p_region, p_postal_code, p_country_code, p_additional_text, p_postal_type );
+	
+	end if;
+
+        return v_address_id;
+end;' language 'plpgsql';
+
 
 
 ------ Telecom Number
 --------------------------------------------------------------------
 
 
-create or replace function ams_attribute__telecom_number_string (integer)
-returns varchar as '
+create or replace function ams_value__telecom_number (integer)
+returns text as '
 declare
         p_number_id     alias for $1;
         v_name          text;
@@ -692,33 +662,69 @@ begin
         return v_name;
 end;' language 'plpgsql';
 
+create or replace function ams_value__telecom_number_save (integer,varchar,varchar,varchar,varchar,boolean,varchar,varchar,integer)
+returns integer as '
+declare 
+        p_itu_id               alias for $1;
+        p_national_number      alias for $2;
+        p_area_city_code       alias for $3;
+        p_subscriber_number    alias for $4;
+        p_extension            alias for $5;
+        p_sms_enabled_p        alias for $6;
+        p_best_contact_time    alias for $7;
+        p_location             alias for $8;
+        p_phone_type_id        alias for $9;
+        v_number_id            integer;
+begin 
 
------- AMS Options
---------------------------------------------------------------------
+	v_number_id := number_id
+                        from telecom_numbers
+                       where itu_id = p_itu_id
+                         and national_number = p_national_number
+                         and area_city_code = p_area_city_code
+                         and subscriber_number = p_subscriber_number
+                         and extension = p_extension
+                         and sms_enabled_p = p_sms_enabled_p
+                         and best_contact_time = p_best_contact_time
+                         and location = p_location
+                         and p_phone_type_id = p_phone_type_id;
 
-create or replace function ams_attribute__options_string (integer)
-returns varchar as '
-declare
-        p_option_map_id    alias for $1;
-        v_name             text;
-        rec                RECORD;
-begin
+        if v_number_id is null then
 
-        v_name := NULL;
-        if p_option_map_id is not null then
-                FOR rec IN 
-                        select aom.option_id 
-                          from ams_option_map aom
-                         where aom.option_map_id = p_option_map_id
-                         order by aom.option_id
-                LOOP
-                        IF v_name is null THEN
-                                v_name := rec.option_id;
-                        ELSE
-                                v_name := v_name || '' '' || rec.option_id;
-                        END IF;
-                END LOOP;
-        end if;
+                v_number_id := acs_object__new (  
+	                null,  
+	                ''telecom_number'',
+	                now(), 
+	                NULL, 
+	                NULL,
+	                NULL
+	        );
+	
+	        insert into telecom_numbers 
+	        ( number_id, itu_id, national_number, area_city_code, subscriber_number, extension, sms_enabled_p, best_contact_time, location, phone_type_id )
+	        values
+                ( v_number_id, p_itu_id, p_national_number, p_area_city_code, p_subscriber_number, p_extension, p_sms_enabled_p, p_best_contact_time, p_location, p_phone_type_id);
 
-        return v_name;
+	end if;
+
+        return v_number_id;
 end;' language 'plpgsql';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

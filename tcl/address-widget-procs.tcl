@@ -44,7 +44,29 @@ ad_proc -public template::util::address::html_view {
     {postal_type {}}
 } {
     # MGEDDERT TODO, convert country code to country name via cached proc
-    set country $country_code
+    if { [ad_conn isconnected] } {
+        # We are in an HTTP connection (request) so use that locale
+        set locale [ad_conn locale]
+    } else {
+        # There is no HTTP connection - resort to system locale
+        set locale [lang::system::locale]
+    }
+    set key "ams.country_${country_code}"
+    if { [string is true [lang::message::message_exists_p $locale $key]] } {
+        set country [lang::message::lookup $locale $key]
+    } else {
+        # cache the country codes
+        template::util::address::country_options_not_cached -locale $locale
+
+        if { [string is true [lang::message::message_exists_p $locale $key]] } {
+            set country [lang::message::lookup $locale $key]
+        } else {
+            # we get the default en_US key which was created with the
+            # template::util::address::country_options_not_cached proc
+            set country [lang::message::lookup "en_US" $key]
+        }
+    }
+
     set address "$delivery_address
 $municipality, $region  $postal_code
 $country"
@@ -69,13 +91,51 @@ ad_proc -public template::util::address::formats {} {
 ad_proc -public template::util::address::country_options {} {
     Returns the country list. Cached.
 } {
-    return [util_memoize [list template::util::address::country_options_not_cached]]
+    if { [ad_conn isconnected] } {
+        # We are in an HTTP connection (request) so use that locale
+        set locale [ad_conn locale]
+    } else {
+        # There is no HTTP connection - resort to system locale
+        set locale [lang::system::locale]
+    }
+    return [util_memoize [list template::util::address::country_options_not_cached -locale $locale]]
 }
 
-ad_proc -public template::util::address::country_options_not_cached {} {
+ad_proc -public template::util::address::country_options_not_cached {
+    {-locale "en_US"}
+} {
     Returns the country list.
 } {
-    return [db_list_of_lists get_countries {}]
+    set country_list [db_list_of_lists get_countries {}]
+    set return_country_list [list]
+    foreach country $country_list {
+        set this_locale $locale
+        set country_name_db [lindex $country 0]
+        set country_code_db [lindex $country 1]
+        set package_key "ams"
+        set message_key "country_${country_code_db}"
+        set key "${package_key}.${message_key}"
+        if { [string is false [lang::message::message_exists_p $locale $key]] } {
+            if { [string is false [lang::message::message_exists_p "en_US" $key]] } {
+                lang::message::register $locale $package_key $message_key $country_name_db
+            } else {
+                set this_locale "en_US"
+            }
+        }
+        # mgeddert customization for mbbs
+        if { [lsearch [list US CA] $country_code_db] < 0 } {
+            # the reason not to use the "list" command here is because a curly bracket
+            # needs to be used in the list for countries with a single word name
+            # so that alphabetizing (via lsort) works later on in this proc
+            lappend return_country_list "{[lang::message::lookup $this_locale $key]} {$country_code_db}"
+        }
+    }
+    set country_code [list]
+    lappend country_code [list "United States" US]
+    lappend country_code [list "Canada" CA]
+    lappend country_code [list "--" ""]
+    append country_code " [lsort $return_country_list]"
+    return $country_code
 }
 
 ad_proc -public template::data::validate::address { value_ref message_ref } {
@@ -249,10 +309,12 @@ ad_proc -public template::util::address::get_property { what address_list } {
             set country_code     [template::util::address::get_property country_code $address_list]
             set additional_text  [template::util::address::get_property additional_text $address_list]
             set postal_type      [template::util::address::get_property postal_type $address_list]
-            return [template::util::address::html_view $delivery_address $postal_code $municipality $region $country_code $additional_text $postal_type]
+            return [template::util::address::html_view $delivery_address $municipality $region $postal_code $country_code $additional_text $postal_type]
         }
         default {
-            error "Parameter supplied to util::address::get_property 'what' must be one of: 'delivery_address', 'postal_code', 'municipality', 'region', 'country_code', 'additional_text', 'postal_type'. You specified: '$what'."
+            error "Parameter supplied to template::util::address::get_property 'what' must be one of: 'delivery_address', 'postal_code', 'municipality', 'region', 'country_code', 'additional_text', 'postal_type'. You specified: '$what'."
+            ns_log "AMS Address Widget Error: on page [ad_conn url] template::util::address::get_property asked for $what"
+            return ""
         }
         
     }
@@ -294,25 +356,26 @@ ad_proc -public template::widget::address { element_reference tag_attributes } {
   if { [string equal $element(mode) "edit"] } {
       
 
-      set attributes(id) \"address__$element(form_id)__$element(id)\"
+#      set attributes(id) "address__$element(form_id)__$element(id)"
+      set attributes(class) "address-widget-country-code"
 
       append output "
-<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\">
+<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"address-widget\">
   <tr>
-    <td colspan=\"3\"><textarea name=\"$element(id).delivery_address\" rows=\"2\" cols=\"50\" wrap=\"virtual\">[ad_quotehtml $delivery_address]</textarea></td>
+    <td colspan=\"3\"><textarea name=\"$element(id).delivery_address\" rows=\"2\" cols=\"50\" wrap=\"virtual\" class=\"address-widget-delivery-address\" >[ad_quotehtml $delivery_address]</textarea></td>
   </tr>
   <tr>
     <td colspan=\"3\"><small>[_ ams.delivery_address]</small><br></td>
   </tr>
   <tr>
-    <td><input type=\"text\" name=\"$element(id).municipality\" value=\"[ad_quotehtml $municipality]\" size=\"20\">&nbsp;&nbsp;</td>
-    <td><input type=\"text\" name=\"$element(id).region\" value=\"[ad_quotehtml $region]\" size=\"10\">&nbsp;&nbsp;</td>
-    <td><input type=\"text\" name=\"$element(id).postal_code\" value=\"[ad_quotehtml $postal_code]\" size=\"7\">&nbsp;&nbsp;</td>
+    <td><input type=\"text\" name=\"$element(id).municipality\" value=\"[ad_quotehtml $municipality]\" size=\"20\" class=\"address-widget-municipality\" ></td>
+    <td><input type=\"text\" name=\"$element(id).region\" value=\"[ad_quotehtml $region]\" size=\"10\" class=\"address-widget-region\" ></td>
+    <td><input type=\"text\" name=\"$element(id).postal_code\" value=\"[ad_quotehtml $postal_code]\" size=\"7\" class=\"address-widget-postal_code\" ></td>
   </tr>
   <tr>
-    <td><small>[_ ams.municipality]</small></td>
-    <td><small>[_ ams.region]</small></td>
-    <td><small>[_ ams.postal_code]</small></td>
+    <td align=\"left\"><small>[_ ams.municipality]</small></td>
+    <td align=\"center\"><small>[_ ams.region]</small></td>
+    <td align=\"right\"><small>[_ ams.postal_code]</small></td>
   </tr>
   <tr>
     <td colspan=\"3\">[menu $element(id).country_code [template::util::address::country_options] $country_code attributes]</td>
