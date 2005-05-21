@@ -129,6 +129,15 @@ ad_proc -public ams::object_copy {
     }
 }
 
+ad_proc -public ams::object_delete {
+    {-object_id:required}
+} {
+    delete and object that uses ams attributes
+} {
+    return [db_dml delete_object { delete from ams_attribute_values where object_id = :object_id }]
+}
+
+
 ad_proc -public ams::attribute::get {
     -attribute_id:required
     -array:required
