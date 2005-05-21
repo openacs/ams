@@ -247,6 +247,9 @@
   <msg key="delivery_address">Street</msg>
   <msg key="Email">Email</msg>
   <msg key="Integer">Integer</msg>
+  <msg key="is_not_a_valid_Canadian_postal_code">is not a valid Canadian postal code</msg>
+  <msg key="is_not_a_valid_US_state">is not a valid U.S. State</msg>
+  <msg key="is_not_a_valid_US_zip_code">is not a valid U.S. zip code</msg>
   <msg key="Multiselect">Menu - Multiple Options Allowed</msg>
   <msg key="municipality">City</msg>
   <msg key="postal_code">Zip/Postal Code</msg>
@@ -256,6 +259,7 @@
   <msg key="Select">Drop Down List - One Option Allowed</msg>
   <msg key="select_one">Select One</msg>
   <msg key="Telecom_Number">Phone Number</msg>
+  <msg key="Telecom_numbers_in_country_code_one_must_be_formatted_like_AAA-SSS-SSSSxXXXX_out_of_country_like_011-CCC-AAAA-SSSS-SSSxXXXX">Invalid phone number format. Phone Numbers must by either formatted as AAA-999-9999xEEEE for Country Code &quot;1&quot; (i.e. the United States, Canada, etc.) or 011-CCC-AAA-99999999xEEEE for numbers outside country code &quot;1&quot;. Where &quot;C&quot; is country code, &quot;A&quot; is area code, &quot;9&quot; is the phone number and &quot;E&quot; is the extension number.</msg>
   <msg key="Textarea">Textarea</msg>
   <msg key="Textbox">Textbox</msg>
   <msg key="Url">Website Url</msg>
