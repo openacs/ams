@@ -11,18 +11,20 @@
     <version name="1.0d" url="http://openacs.org/repository/download/apm/ams-1.0d.apm">
         <owner url="mailto:openacs@geddert.com">Matthew Geddert</owner>
         <summary>Store attributes via the Content Repository, and auto generate input forms</summary>
+        <release-date>2005-05-21</release-date>
         <description format="text/html">AMS (Attribute Management System) helps in customizing your website. It lets you adjust what information is collected and displayed for any package that is integrated with it. AMS allows you to easily and dynamically add attributes to forms and display pages, using a Tcl API or an admin interface. AMS uses the content repository to store attribute history for any object on the system.</description>
 
         <provides url="ams" version="1.0d"/>
         <requires url="postal-address" version="0.1d"/>
         <requires url="ref-countries" version="0.1d"/>
         <requires url="ref-us-states" version="0.1d"/>
+        <requires url="ref-us-zipcodes" version="0.1d"/>
         <requires url="telecom-number" version="0.1d"/>
 
         <callbacks>
         </callbacks>
         <parameters>
-            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="DefaultISOCountryCode"  default="US" description="Specify the default ISO Country Code to be used for all address widgets. If left blank it will default to &quot;US&quot;. For a complete list of codes look at the countries table in the database." section_name="address-widget"/>
+            <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="DefaultISOCountryCode"  description="Specify the default ISO Country Code(s) to be used for all address widgets. The first country that will show up is the first entry in this list. The countries specified here will be be at the top of the country list seperated from all other country codes. If left blank it will default to whatever country is alphabetically first in the language used. For a complete list of codes look at the countries table in the database." section_name="address-widget"/>
             <parameter datatype="number"  min_n_values="1"  max_n_values="1"  name="ForceCountryCodeOneFormatting"  default="0" description="If set to &quot;1&quot; AMS will force phone numbers to follow the country zone code 1 rules (US, Canada, etc.), all phone numbers will need to follow the 'three digit area code'-'three digits - 4 digits'x'Extension' format. All &quot;international&quot; numbers will need to have the format &quot;011-'Country_Code'-'Area_Code'-'Subscriber_number'x'Extension' format. If set to &quot;0&quot; telecom numbers will not be seperated into these elements, and the whole number will be entered in the DB as the subscriber number just as input in the form." section_name="telecom-number-widget"/>
         </parameters>
 

@@ -47,19 +47,20 @@ ad_proc -public template::util::telecom_number::html_view {
     {location {}}
     {phone_type_id {}}
 } {
-    set telecom_number $national_number
-    ns_log notice "mgeddert natnum \"$telecom_number\""
-    if { [exists_and_not_null telecom_number] } { append telecom_number " " }
-    ns_log notice "mgeddert bacity \"$telecom_number\""
+    set telecom_number ""
+    if { [parameter::get_from_package_key -parameter "ForceCountryCodeOneFormatting" -package_key "ams" -default "0"] } {
+        if { $national_number != "1" } {
+            set telecom_number "011-${national_number}-"
+        }
+    } else {
+        set telecom_number ${national_number}
+        if { [exists_and_not_null telecom_number] } { append telecom_number "-" }
+    }
     append telecom_number $area_city_code
-    ns_log notice "mgeddert aacity \"$telecom_number\""
     if { [exists_and_not_null telecom_number] } { append telecom_number "-" }
-    ns_log notice "mgeddert bsubnu \"$telecom_number\""
     append telecom_number $subscriber_number
-    ns_log notice "mgeddert asubnu \"$telecom_number\""
     if { [exists_and_not_null extension] } { append telecom_number "&nbsp;x$extension" }
-    ns_log notice "mgeddert aextnu \"$telecom_number\""
-    return [ad_text_to_html $telecom_number]
+    return $telecom_number
 }
 
 ad_proc -public template::util::telecom_number::acquire { type { value "" } } {
@@ -104,9 +105,8 @@ ad_proc -public template::data::validate::telecom_number { value_ref message_ref
     set best_contact_time      [template::util::telecom_number::get_property best_contact_time $telecom_number_list]
     set location               [template::util::telecom_number::get_property location $telecom_number_list]
     set phone_type_id          [template::util::telecom_number::get_property phone_type_id $telecom_number_list]
-
     
-    if { ![parameter::get -parameter "ForceCountryCodeOneFormatting" -default "0"] } {
+    if { ![parameter::get_from_package_key -parameter "ForceCountryCodeOneFormatting" -package_key "ams" -default "0"] } {
         # the number is not required to be formatted in a country code one friendly way
 
         # we need to verify that the number does not contain invalid characters
@@ -156,7 +156,7 @@ ad_proc -public template::data::transform::telecom_number { element_ref } {
     # we need to seperate out the returned value into individual elements for a single box entry widget
     set number              [string trim [ns_queryget $element_id.summary_number]]
 
-    if { ![parameter::get -parameter "ForceCountryCodeOneFormatting" -default "0"] } {
+    if { ![parameter::get_from_package_key -parameter "ForceCountryCodeOneFormatting" -package_key "ams" -default "0"] } {
         # we need to verify that the number is formatted correctly
         # if yes we seperate the number into various elements
         set subscriber_number $number
