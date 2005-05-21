@@ -268,7 +268,7 @@ ad_proc -public template::data::transform::address { element_ref } {
         }
         if { $country_code == "CA" && [string length $postal_code] == "6" } {
             set postal_list [split $postal_code {}]
-            set postal_code_temp "[lrange $postal_list 0 2] [lrange $postal_list 3 5]"
+            set postal_code_temp [string toupper "[join [lrange $postal_list 0 2] {}] [join [lrange $postal_list 3 5] {}]"]
             if { [regexp {^([A-Z][0-9][A-Z] [0-9][A-Z][0-9])$} $postal_code_temp] } {
                 set postal_code $postal_code_temp
             }
