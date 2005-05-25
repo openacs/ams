@@ -10,7 +10,8 @@ set list_id [ams::list::new \
                 -list_name "@list_info.list_name@" \
                 -pretty_name "@list_info.pretty_name@" \
                 -description "@list_info.description@" \
-                -description_mime_type "@list_info.description_mime_type@"
+                -description_mime_type "@list_info.description_mime_type@"]
+
 
 <if @attributes:rowcount@ gt 0>
 <multiple name="attributes">
@@ -19,8 +20,8 @@ set attribute_id [attribute::new \
               -object_type "@attributes.object_type@" \
               -attribute_name "@attributes.attribute_name@" \
               -datatype "@attributes.datatype@" \
-              -pretty_name "@attributes.pretty_name@" \
-              -pretty_plural "@attributes.pretty_plural@" \
+              -pretty_name "\#@attributes.pretty_name@#" \
+              -pretty_plural "\#@attributes.pretty_plural@#" \
               -table_name "@attributes.table_name@" \
               -column_name "@attributes.column_name@" \
               -default_value "@attributes.default_value@" \
@@ -30,6 +31,9 @@ set attribute_id [attribute::new \
               -storage "@attributes.storage@" \
               -static_p "@attributes.static_p@" \
               -if_does_not_exist]
+
+lang::message::register en_US ams @attributes.message_key@ @attributes.true_pretty@ 
+lang::message::register en_US ams @attributes.message_key@_plural @attributes.true_plural@ 
 
 ams::attribute::new \
               -attribute_id $attribute_id \
