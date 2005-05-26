@@ -6,6 +6,8 @@ ad_page_contract {
 } {
     {list_id:integer,notnull}
     {attribute_id:integer,notnull}
+    return_url:optional
+    return_url_label:optional
 }
 
 db_0or1row get_heading { select aa.pretty_name as attribute_pretty_name,
@@ -45,7 +47,7 @@ ad_form -name list_form -form {
            and attribute_id = :attribute_id
     }
 } -after_submit {
-    ad_returnredirect "list?[export_vars -url {package_key object_type list_name}]"
+    ad_returnredirect "list?[export_vars -url {package_key object_type list_name return_url return_url_label}]"
     ad_script_abort
 }
 

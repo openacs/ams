@@ -8,6 +8,8 @@ ad_page_contract {
     {attribute_id:integer,multiple}
     {list_id:integer,notnull}
     {command "map"}
+    return_url:optional
+    return_url_label:optional
 }
 
 foreach attribute_id $attribute_id {
@@ -19,5 +21,5 @@ set package_key $list_info(package_key)
 set object_type $list_info(object_type)
 set list_name $list_info(list_name)
 
-ad_returnredirect "list?[export_vars -url {package_key object_type list_name}]"
+ad_returnredirect "list?[export_vars -url {package_key object_type list_name return_url return_url_label}]"
 ad_script_abort
