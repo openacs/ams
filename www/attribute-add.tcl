@@ -117,9 +117,11 @@ ad_form -extend -name attribute_form -on_request {
     # If Timo manages to get the service contract with babblefish or dict.leo.org working
     # We might have an automatic translation first :).
     set user_locale [lang::user::locale]
-    if {$user_locale != "en_US"} {
-        lang::message::register $user_locale ams $message_key $pretty_name
-        lang::message::register $user_locale ams "${message_key}_plural" $pretty_plural
+    if {[exists_and_not_null user_locale]} {
+        if {$user_locale != "en_US"} {
+            lang::message::register $user_locale ams $message_key $pretty_name
+            lang::message::register $user_locale ams "${message_key}_plural" $pretty_plural
+        }
     }
 
     # Replace the pretty_name and pretty_plural with the message key, so it is inserted correctly in the database
