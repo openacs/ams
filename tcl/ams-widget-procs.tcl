@@ -57,6 +57,20 @@ ad_proc -public ams::widget {
 		    set options {}
 		}
 	    }
+            value_text - value_html {
+                if { [exists_and_not_null value] } {
+                    if { [::ams::widget_has_options_p -widget $widget] } {
+                        set output [list]
+                        foreach option [::ams::widget_options -attribute_id $attribute_id] {
+                            if { [lsearch $value [lindex $option 1]] >= 0 } {
+                                lappend output [lindex $option 0]
+                            }
+                        }
+                        set value [join $output "/n"]
+                    }
+                }
+                set options {}
+            }
 	    default {
 		set options {}
 	    }
@@ -89,7 +103,7 @@ ad_proc -private ams::widget_list {
 			     regsub {::ams::widget::} $widget {} widget
 			     lappend widgets [list [::ams::widget -widget $widget -request "widget_name"] $widget]
 			 }
-		     }
+ }
     return $widgets
 }
 
@@ -197,10 +211,12 @@ ad_proc -private ams::widget::postal_address {
                         -postal_type [template::util::address::get_property postal_type $value]]
 	}
         value_text {
-	    return ${value}
+            foreach {delivery_address municipality region postal_code country_code additional_text postal_type} $value {}
+	    return [ad_html_to_text -showtags -no_format [template::util::address::html_view $delivery_address $municipality $region $postal_code $country_code $additional_text $postal_type]]
 	}
         value_html {
-	    return [ad_html_text_convert -from "text/plain" -to "text/html" ${value}]
+            foreach {delivery_address municipality region postal_code country_code additional_text postal_type} $value {}
+	    return [template::util::address::html_view $delivery_address $municipality $region $postal_code $country_code $additional_text $postal_type]
 	}
         csv_value {
 	    # not yet implemented
@@ -277,10 +293,12 @@ ad_proc -private ams::widget::telecom_number {
 			-phone_type_id [template::util::telecom_number::get_property phone_type_id $value]]
 	}
         value_text {
-	    return ${value}
+            foreach {itu_id national_number area_city_code subscriber_number extension sms_enabled_p best_contact_time location phone_type_id} $value {}
+	    return [ad_html_to_text -showtags -no_format [template::util::telecom_number::html_view $itu_id $national_number $area_city_code $subscriber_number $extension $sms_enabled_p $best_contact_time $location $phone_type_id]]
 	}
         value_html {
-	    return [ad_html_text_convert -from "text/plain" -to "text/html" ${value}]
+            foreach {itu_id national_number area_city_code subscriber_number extension sms_enabled_p best_contact_time location phone_type_id} $value {}
+	    return [template::util::telecom_number::html_view $itu_id $national_number $area_city_code $subscriber_number $extension $sms_enabled_p $best_contact_time $location $phone_type_id]
 	}
         csv_value {
 	    # not yet implemented
@@ -352,10 +370,10 @@ ad_proc -private ams::widget::date {
 	    return [ams::util::time_save -time [template::util::date::get_property ansi $value]]
 	}
         value_text {
-	    return ${value}
+	    return [lc_time_fmt $value %q]
 	}
         value_html {
-	    return [ad_html_text_convert -from "text/plain" -to "text/html" ${value}]
+	    return [ad_html_text_convert -from "text/plain" -to "text/html" [lc_time_fmt $value %q]]
 	}
         csv_value {
 	    # not yet implemented

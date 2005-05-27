@@ -280,10 +280,37 @@ ad_proc -public ams::ad_form::values {
     this code populates ad_form values
 } {
     set list_id [ams::list::get_list_id -package_key $package_key -object_type $object_type -list_name $list_name]
-    db_transaction {
-	db_foreach select_values {} {
-#            ns_log notice "$widget $attribute_name $value"
-	    ams::widget -widget $widget -request "form_set_value" -attribute_name $attribute_name -pretty_name $pretty_name -form_name $form_name -attribute_id $attribute_id -value $value
-	}
+    db_foreach select_values {} {
+        ams::widget -widget $widget -request "form_set_value" -attribute_name $attribute_name -pretty_name $pretty_name -form_name $form_name -attribute_id $attribute_id -value $value
+    }
+}
+
+ad_proc -public ams::values { 
+    -package_key:required
+    -object_type:required
+    -list_name:required
+    -object_id:required
+    {-format "text"}
+} {
+    this returns a list with the first element as the pretty_attribute name and the second the value
+} {
+    if { $format != "html" } {
+        set format "text"
+    }
+    set list_id [ams::list::get_list_id -package_key $package_key -object_type $object_type -list_name $list_name]
+    if { [exists_and_not_null list_id] } {
+        set values [list]
+        set heading ""
+        db_foreach select_values {} {
+            if { [exists_and_not_null section_heading] } {
+                set heading $section_heading
+            }
+            if { [exists_and_not_null value] } {
+                lappend values $heading $attribute_name $pretty_name [ams::widget -widget $widget -request "value_${format}" -attribute_name $attribute_name -attribute_id $attribute_id -value $value]
+            }
+        }
+        return $values
+    } else {
+        return [list]
     }
 }
