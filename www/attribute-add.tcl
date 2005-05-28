@@ -14,8 +14,8 @@ ad_page_contract {
 
 acs_object_type::get -object_type $object_type -array "object_info"
 
-set title "Add Attribute"
-set context [list [list objects Objects] [list "object?object_type=$object_type" $object_info(pretty_name)] "Add Attribute"]
+set title "[_ ams.Add_Attribute]"
+set context [list [list objects Objects] [list "object?object_type=$object_type" $object_info(pretty_name)] "[_ ams.Add_Attribute]"]
 
 ad_form -name attribute_form -form {
     {ams_attribute_id:key}
@@ -24,10 +24,10 @@ ad_form -name attribute_form -form {
     {list_id:integer(hidden),optional}
     {object_type:text(hidden)}
     {mode:text(hidden),optional}
-    {widget:text(radio),optional {label "Widget"} {options {[lsort [::ams::widget_list]]}}}
-    {attribute_name:text,optional {label "Attribute Name"} {html {size 30 maxlength 100}} {help_text {This name must be lower case, contain only letters and underscores, and contain no spaces. If not specified one will be generated for you.}}}
-    {pretty_name:text,optional {label "Pretty Name"} {html {size 30 maxlength 100}}}
-    {pretty_plural:text,optional {label "Pretty Plural"} {html {size 30 maxlength 100}}}
+    {widget:text(radio),optional {label "[_ ams.Widget_1]"} {options {[lsort [::ams::widget_list]]}}}
+    {attribute_name:text,optional {label "[_ ams.Attribute_Name]"} {html {size 30 maxlength 100}} {help_text {This name must be lower case, contain only letters and underscores, and contain no spaces. If not specified one will be generated for you.}}}
+    {pretty_name:text,optional {label "[_ ams.Pretty_Name_1]"} {html {size 30 maxlength 100}}}
+    {pretty_plural:text,optional {label "[_ ams.Pretty_Plural_1]"} {html {size 30 maxlength 100}}}
 }
 
 
@@ -44,12 +44,12 @@ if { [ams::widget_has_options_p -widget $widget] } {
     lappend elements [list option_fields_count:integer(hidden) [list value $option_fields_count]]
 #    lappend elements [list options_on_last_screen:integer(hidden),optional]
     while { $i <= $option_fields_count } {
-	set element [list option${i}:text(text),optional [list label "Option $i"] [list html [list size 50]]]
+	set element [list option${i}:text(text),optional [list label "[_ ams.Option_i]"] [list html [list size 50]]]
         if { $i == $option_fields_count } {
-	    lappend element [list help_text "If you need to add more options you will be able to do so by editing this attributes again ($default_number_of_options new fields are added to the preexisting count each time you edit an attribute)"]
+	    lappend element [list help_text "[_ ams.lt_If_you_need_to_add_mo]"]
 	}
         if { $i == 1 } {
-	    lappend element [list section "Predefined Options"]
+	    lappend element [list section "[_ ams.Predefined_Options]"]
 	}
 	lappend elements $element
         incr i
@@ -69,7 +69,7 @@ ad_form -extend -name attribute_form -on_request {
     }
     if { [exists_and_not_null widget] } {
 	if { [string is false [ams::widget_proc_exists_p -widget $widget]] } {
-	    ad_return_error "There was a problem with your input" "The widget specified does not exist"
+	    ad_return_error "[_ ams.lt_There_was_a_problem_w]" "[_ ams.lt_The_widget_specified_]"
 	}
         ::template::element::set_properties attribute_form widget -widget select -mode display
     }
@@ -82,7 +82,7 @@ ad_form -extend -name attribute_form -on_request {
     ams::widgets_init
     if { [exists_and_not_null attribute_name] } {
         if { [string is false [::regexp {^([0-9]|[a-z]|\_){1,}$} $attribute_name match attribute_name_matcher]] } {
-	    ::template::form::set_error attribute_form attribute_name "You have used invalid characters."
+	    ::template::form::set_error attribute_form attribute_name "[_ ams.lt_You_have_used_invalid]"
 	} else {
 	    ::template::element::set_properties attribute_form attribute_name -mode display
 	}
@@ -134,9 +134,9 @@ ad_form -extend -name attribute_form -on_request {
     if { $mode == "new" } {
 	    if { [::attribute::exists_p -convert_p 0 $object_type $attribute_name] } {
 		if { [exists_and_not_null attribute_name_generated_p] } {
-		    set message "The attribute name automatically generated for conflicts with an attribute that is already in the database. Please make sure you are not creating a duplicate attribute and change the name if not."
+		    set message "[_ ams.lt_The_attribute_name_au]"
 		} else {
-		    set message "This attribute name already exists. Please make sure you are not creating a duplicate attribute and change the name if not."
+		    set message "[_ ams.lt_This_attribute_name_a]"
 		}
 		::template::element::set_error attribute_form attribute_name $message 
 		::template::element::set_properties attribute_form attribute_name -mode edit 
@@ -210,7 +210,7 @@ ad_form -extend -name attribute_form -on_request {
     } else {
 	set return_url [export_vars -base "object" -url {object_type return_url return_url_label}]
     }
-    ad_returnredirect -message "$pretty_name has been added as an attribute to $object_type" $return_url
+    ad_returnredirect -message "$pretty_name has been added as an attribute to $object_type#>" $return_url
     ad_script_abort
 }
 

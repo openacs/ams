@@ -9,14 +9,14 @@ ad_page_contract {
     {orderby "name"}
 }
 
-set title "AMS Lists"
+set title "[_ ams.AMS_Lists]"
 set context [list $title]
 
 list::create \
     -name lists \
     -multirow lists \
     -key list_id \
-    -row_pretty_plural "AMS Lists" \
+    -row_pretty_plural "[_ ams.AMS_Lists]" \
     -checkbox_name checkbox \
     -selected_format "normal" \
     -class "list" \
@@ -30,20 +30,20 @@ list::create \
         }
         pretty_name {
             display_col pretty_name
-            label "Pretty Name"
+            label "[_ ams.Pretty_Name_1]"
         }
         package_key {
             display_col package_key
-            label "Package Key"
+            label "[_ ams.Package_Key_1]"
         }        
         list_name {
             display_col list_name
-            label "List Name"
+            label "[_ ams.List_Name_1]"
             link_url_eval $list_url
         }        
         object_type {
             display_col object_type
-            label "Object Type"
+            label "[_ ams.Object_Type_1]"
             link_url_eval $object_url
         }        
     } -filters {
@@ -51,7 +51,7 @@ list::create \
     } -orderby {
     } -formats {
         normal {
-            label "Table"
+            label "[_ ams.Table]"
             layout table
             row {
                 package_key {}

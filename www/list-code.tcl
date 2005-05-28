@@ -45,12 +45,5 @@ db_multirow -extend {message_key true_pretty true_plural} -unclobber attributes 
     set true_plural [lang::message::lookup en_US ams.${message_key}_plural]
 }
 
-
-
-
 ad_return_template
-
-
-
-
 

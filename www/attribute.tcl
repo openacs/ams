@@ -23,7 +23,7 @@ list::create \
     -name options \
     -multirow options \
     -key option_id \
-    -row_pretty_plural "Options" \
+    -row_pretty_plural "[_ ams.Options]" \
     -checkbox_name checkbox \
     -selected_format "normal" \
     -class "list" \
@@ -34,13 +34,13 @@ list::create \
     } -bulk_action_export_vars { 
         attribute_id
     } -bulk_actions {
-	"Update" "attribute-options-update" "Update Options"        
+	"[_ acs-kernel.common_Update]" "attribute-options-update" "[_ ams.Update_Options]"        
     } -elements {
         edit {
             label {}
         }
         option {
-            label "Option"
+            label "[_ ams.Option]"
             display_template {
                 <if @options.option@ not nil>
                   @options.option@
@@ -51,7 +51,7 @@ list::create \
             }
         }
         sort_order {
-            label "Sort Order"
+            label "[_ ams.Sort_Order]"
             display_template {
                 <input name="sort_key.@options.option_id@" value="@options.sort_order@" size="4">
             }

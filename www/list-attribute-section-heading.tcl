@@ -24,7 +24,7 @@ db_0or1row get_heading { select aa.pretty_name as attribute_pretty_name,
                             and alam.list_id = :list_id
                             and alam.attribute_id = :attribute_id
 }
-set title "Add a Heading Above: ${attribute_pretty_name}"
+set title "[_ ams.lt_Add_a_Heading_Above_a]"
 set context [list [list lists Lists] [list [ams::list::url -package_key $package_key -object_type $object_type -list_name $list_name] ${list_pretty_name}] $title]
 
 set package_options " [db_list_of_lists select_packages { select package_key, package_key from apm_package_types order by package_key } ]"
@@ -32,9 +32,9 @@ set package_options " [db_list_of_lists select_packages { select package_key, pa
 ad_form -name list_form -form {
     list_id:integer(hidden)
     attribute_id:integer(hidden)
-    {section_heading:text {label "Heading"} {html {size 40 maxlength 200}}}
-    {save:text(submit) {label "Save"}}
-    {delete:text(submit) {label "Delete Heading"}}
+    {section_heading:text {label "[_ ams.Heading]"} {html {size 40 maxlength 200}}}
+    {save:text(submit) {label "[_ acs-kernel.common_Save]"}}
+    {delete:text(submit) {label "[_ ams.Delete_Heading]"}}
 } -on_request {
 } -on_submit {
     if { [string is true [exists_and_not_null delete]] } {

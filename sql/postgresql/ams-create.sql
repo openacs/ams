@@ -58,8 +58,8 @@ create view ams_attributes as
 
 select acs_object_type__create_type (
     'ams_attribute',                -- object_type
-    'AMS Attribute',                -- pretty_name
-    'AMS Attributes ',              -- pretty_plural
+    '#ams.AMS_Attribute#',                -- pretty_name
+    '#ams.AMS_Attributes#',              -- pretty_plural
     'acs_object',                   -- supertype
     'ams_attribute_items',          -- table_name
     'ams_attribute_id',             -- id_column
@@ -73,8 +73,8 @@ select acs_attribute__create_attribute (
     'ams_attribute',                -- object_type
     'attribute_id',                 -- attribute_name
     'integer',                      -- datatype
-    'ACS Attribute ID',             -- pretty_name
-    'ACS Attribute IDs',            -- pretty_plural -- default null
+    '#ams.ACS_Attribute_ID#',             -- pretty_name
+    '#ams.ACS_Attribute_IDs#',            -- pretty_plural -- default null
     null,                           -- table_name -- default null
     'attribute_id',                 -- column_name -- default null
     null,                           -- default_value -- default null
@@ -89,8 +89,8 @@ select acs_attribute__create_attribute (
     'ams_attribute',                -- object_type
     'widget',                       -- attribute_name
     'string',                       -- datatype
-    'Widget',                       -- pretty_name
-    'Widgets',                      -- pretty_plural -- default null
+    '#ams.Widget_1#',                       -- pretty_name
+    '#ams.Widgets#',                      -- pretty_plural -- default null
     null,                           -- table_name -- default null
     'widget',                       -- column_name -- default null
     null,                           -- default_value -- default null
@@ -109,8 +109,8 @@ select acs_attribute__create_attribute (
     'ams_attribute',                -- object_type
     'dynamic_p',                    -- attribute_name
     'boolean',                      -- datatype
-    'Dynamic (added by AMS UI?)',   -- pretty_name
-    'Dynamic (added by AMS UI?)',   -- pretty_plural -- default null
+    '#ams.lt_Dynamic_added_by_AMS_#',   -- pretty_name
+    '#ams.lt_Dynamic_added_by_AMS_#',   -- pretty_plural -- default null
     null,                           -- table_name -- default null
     'deprecated_p',                 -- column_name -- default null
     null,                           -- default_value -- default null
@@ -125,8 +125,8 @@ select acs_attribute__create_attribute (
     'ams_attribute',                -- object_type
     'deprecated_p',                 -- attribute_name
     'boolean',                      -- datatype
-    'Deprecated',                   -- pretty_name
-    'Deprecated',                   -- pretty_plural -- default null
+    '#ams.Deprecated#',                   -- pretty_name
+    '#ams.Deprecated#',                   -- pretty_plural -- default null
     null,                           -- table_name -- default null
     'deprecated_p',                 -- column_name -- default null
     null,                           -- default_value -- default null
@@ -180,8 +180,8 @@ create table ams_option_types (
 
 select acs_object_type__create_type (
     'ams_option',                   -- object_type
-    'AMS Option',                   -- pretty_name
-    'AMS Options',                  -- pretty_plural
+    '#ams.AMS_Option#',                   -- pretty_name
+    '#ams.AMS_Options#',                  -- pretty_plural
     'acs_object',                   -- supertype
     'ams_option_types',             -- table_name
     'option_id',                    -- id_column
@@ -195,8 +195,8 @@ select acs_attribute__create_attribute (
     'ams_option',                   -- object_type
     'attribute_id',                 -- attribute_name
     'integer',                      -- datatype
-    'AMS Attribute ID',             -- pretty_name
-    'AMS Attribute IDs',            -- pretty_plural -- default null
+    '#ams.AMS_Attribute_ID#',             -- pretty_name
+    '#ams.AMS_Attribute_IDs#',            -- pretty_plural -- default null
     null,                           -- table_name -- default null
     'attribute_id',                 -- column_name -- default null
     null,                           -- default_value -- default null
@@ -211,8 +211,8 @@ select acs_attribute__create_attribute (
     'ams_option',                   -- object_type
     'option',                       -- attribute_name
     'string',                       -- datatype
-    'Option',                       -- pretty_name
-    'Options',                      -- pretty_plural -- default null
+    '#ams.Option#',                       -- pretty_name
+    '#ams.Options#',                      -- pretty_plural -- default null
     null,                           -- table_name -- default null
     'option',                       -- column_name -- default null
     null,                           -- default_value -- default null
@@ -227,8 +227,8 @@ select acs_attribute__create_attribute (
     'ams_option',                   -- object_type
     'sort_order',                   -- attribute_name
     'integer',                      -- datatype
-    'Sort Order',                   -- pretty_name
-    'Sort Orders',                  -- pretty_plural -- default null
+    '#ams.Sort_Order#',                   -- pretty_name
+    '#ams.Sort_Orders#',                  -- pretty_plural -- default null
     null,                           -- table_name -- default null
     'sort_order',                   -- column_name -- default null
     null,                           -- default_value -- default null
@@ -243,8 +243,8 @@ select acs_attribute__create_attribute (
     'ams_option',                -- object_type
     'deprecated_p',                 -- attribute_name
     'boolean',                      -- datatype
-    'Deprecated',                   -- pretty_name
-    'Deprecated',                   -- pretty_plural -- default null
+    '#ams.Deprecated#',                   -- pretty_name
+    '#ams.Deprecated#',                   -- pretty_plural -- default null
     null,                           -- table_name -- default null
     'deprecated_p',                 -- column_name -- default null
     null,                           -- default_value -- default null
@@ -345,8 +345,8 @@ create table ams_lists (
 
 select acs_object_type__create_type (
     'ams_list',                     -- object_type
-    'AMS List',                     -- pretty_name
-    'AMS Lists ',                   -- pretty_plural
+    '#ams.AMS_List#',                     -- pretty_name
+    '#ams.AMS_Lists#',                   -- pretty_plural
     'acs_object',                   -- supertype
     'ams_lists',                    -- table_name
     'list_id',                      -- id_column
@@ -360,8 +360,8 @@ select acs_attribute__create_attribute (
     'ams_list',                     -- object_type
     'package_key',                  -- attribute_name
     'string',                       -- datatype
-    'Package Key',                  -- pretty_name
-    'Package Keys',                 -- pretty_plural -- default null
+    '#ams.Package_Key_1#',                  -- pretty_name
+    '#ams.Package_Keys#',                 -- pretty_plural -- default null
     null,                           -- table_name -- default null
     'object_type',                  -- column_name -- default null
     null,                           -- default_value -- default null
@@ -376,8 +376,8 @@ select acs_attribute__create_attribute (
     'ams_list',                     -- object_type
     'object_type',                  -- attribute_name
     'string',                       -- datatype
-    'Object Type',                  -- pretty_name
-    'Object Types',                 -- pretty_plural -- default null
+    '#ams.Object_Type_1#',                  -- pretty_name
+    '#ams.Object_Types#',                 -- pretty_plural -- default null
     null,                           -- table_name -- default null
     'object_type',                  -- column_name -- default null
     null,                           -- default_value -- default null
@@ -392,8 +392,8 @@ select acs_attribute__create_attribute (
     'ams_list',                     -- object_type
     'list_name',                    -- attribute_name
     'string',                       -- datatype
-    'List Name',                    -- pretty_name
-    'List Names',                   -- pretty_plural -- default null
+    '#ams.List_Name_1#',                    -- pretty_name
+    '#ams.List_Names#',                   -- pretty_plural -- default null
     null,                           -- table_name -- default null
     'list_name',                    -- column_name -- default null
     null,                           -- default_value -- default null
@@ -408,8 +408,8 @@ select acs_attribute__create_attribute (
     'ams_list',                     -- object_type
     'pretty_name',                  -- attribute_name
     'string',                       -- datatype
-    'Pretty Name',                  -- pretty_name
-    'Pretty Names',                 -- pretty_plural -- default null
+    '#ams.Pretty_Name_1#',                  -- pretty_name
+    '#ams.Pretty_Names#',                 -- pretty_plural -- default null
     null,                           -- table_name -- default null
     'pretty_name',                  -- column_name -- default null
     null,                           -- default_value -- default null
@@ -424,8 +424,8 @@ select acs_attribute__create_attribute (
     'ams_list',                     -- object_type
     'description',                  -- attribute_name
     'text',                         -- datatype
-    'Description',                  -- pretty_name
-    'Descriptions',                 -- pretty_plural -- default null
+    '#ams.Description#',                  -- pretty_name
+    '#ams.Descriptions#',                 -- pretty_plural -- default null
     null,                           -- table_name -- default null
     'description',                  -- column_name -- default null
     null,                           -- default_value -- default null
@@ -440,8 +440,8 @@ select acs_attribute__create_attribute (
     'ams_list',                     -- object_type
     'description_mime_type',        -- attribute_name
     'text',                         -- datatype
-    'Description Mime Type',        -- pretty_name
-    'Descriptions Mime Types',      -- pretty_plural -- default null
+    '#ams.lt_Description_Mime_Type#',        -- pretty_name
+    '#ams.lt_Descriptions_Mime_Typ#',      -- pretty_plural -- default null
     null,                           -- table_name -- default null
     'description_mime_type',        -- column_name -- default null
     null,                           -- default_value -- default null

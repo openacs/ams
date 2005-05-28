@@ -20,7 +20,7 @@ list::create \
     -name object_attributes \
     -multirow object_attributes \
     -key attribute_name \
-    -row_pretty_plural "AMS Attributes" \
+    -row_pretty_plural "[_ ams.AMS_Attributes]" \
     -checkbox_name checkbox \
     -selected_format "normal" \
     -class "list" \
@@ -28,7 +28,7 @@ list::create \
     -sub_class "narrow" \
     -pass_properties {
         object_type
-    } -actions [list "Add" "attribute-add?object_type=$object_type" "Add an AMS Attribute"] \
+    } -actions [list "[_ acs-kernel.common_Add]" "attribute-add?object_type=$object_type" "[_ ams.Add_an_AMS_Attribute]"] \
     -bulk_actions {
     } -elements {
         edit {
@@ -36,17 +36,17 @@ list::create \
         }
         pretty_name {
             display_col pretty_name
-            label "Pretty Name"
+            label "[_ ams.Pretty_Name_1]"
             link_url_eval $ams_attribute_url
         }
         attribute_name {
             display_col attribute_name
-            label "Attribute Name"
+            label "[_ ams.Attribute_Name]"
         }
         widget {
-            label "Widget"
+            label "[_ ams.Widget_1]"
             display_template {
-                <if @object_attributes.widget@ nil><a href="attribute-add?object_type=@object_type@&attribute_name=@object_attributes.attribute_name@" class="button">Define Widget</a></if><else><a href="widgets">@object_attributes.widget@</else>
+                <if @object_attributes.widget@ nil><a href="attribute-add?object_type=@object_type@&attribute_name=@object_attributes.attribute_name@" class="button">[_ ams.Define_Widget]</a></if><else><a href="widgets">@object_attributes.widget@</else>
             }
         }
     } -filters {
@@ -72,7 +72,7 @@ list::create \
         }
     } -formats {
         normal {
-            label "Table"
+            label "[_ ams.Table]"
             layout table
             row {
                 pretty_name {}

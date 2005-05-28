@@ -15,8 +15,8 @@ ad_page_contract {
 
 acs_object_type::get -object_type $object_type -array "object_info"
 
-set title "Add List"
-set context [list [list objects Objects] [list "object?object_type=$object_type" $object_info(pretty_name)] "Add List"]
+set title "[_ ams.Add_List]"
+set context [list [list objects Objects] [list "object?object_type=$object_type" $object_info(pretty_name)] "[_ ams.Add_List]"]
 
 set package_options " [db_list_of_lists select_packages { select package_key, package_key from apm_package_types order by package_key } ]"
 
@@ -26,11 +26,11 @@ if { [exists_and_not_null package_key] && [exists_and_not_null object_type] && [
 
 ad_form -name list_form -form {
     {list_id:key}
-    {package_key:text(select) {label "Package Key"} {options $package_options}}
-    {object_type:text(inform) {label "Object Type"}}
-    {list_name:text {label "List Name"} {html {size 30 maxlength 100}} {help_text {This name must be lower case, contain only letters and underscores, and contain no spaces}}}
-    {pretty_name:text {label "Pretty Name"} {html {size 30 maxlength 100}}}
-    {description:text(textarea),optional {label "Description"} {html {cols 55 rows 4}}}
+    {package_key:text(select) {label "[_ ams.Package_Key_1]"} {options $package_options}}
+    {object_type:text(inform) {label "[_ ams.Object_Type_1]"}}
+    {list_name:text {label "[_ ams.List_Name_1]"} {html {size 30 maxlength 100}} {help_text {[_ ams.lt_This_name_must_be_low]}}}
+    {pretty_name:text {label "[_ ams.Pretty_Name_1]"} {html {size 30 maxlength 100}}}
+    {description:text(textarea),optional {label "[_ ams.Description]"} {html {cols 55 rows 4}}}
     return_url:text(hidden),optional
     return_url_label:text(hidden),optional
 } -new_request {
@@ -66,11 +66,11 @@ ad_form -name list_form -form {
     # i need to add validation that the attribute isn't already in the database
     { list_name 
         { [::regexp {^([0-9]|[a-z]|\_){1,}$} $list_name match list_name_validate] } 
-        "You have used invalid characters."
+        "[_ ams.lt_You_have_used_invalid]"
     }
     { list_name
         { ![::ams::list::exists_p -package_key $package_key -object_type $object_type -list_name $list_name] } 
-        "List name <a href=\"list?[export_vars -url {package_key object_type list_name}]\">$list_name</a> already exists for <a href=\"object?[export_vars -url {object_type}]\">$object_info(pretty_name)</a>."
+        "[_ ams.lt_List_name_a_hrefliste]"
     }
 } -on_submit {
 

@@ -2,7 +2,7 @@
 <property name="title">@title@</property>
 <property name="context">@context@</property>
 
-<p>Here is the code necessary to re-create this ams-list on a new system. You may insert this into your appliation code if you would like to.</p>
+<p>#ams.lt_Here_is_the_code_nece#</p>
 <pre style="border: 1px solid #CCC; background-color: #EEE; padding: 10px;">
 set list_id [ams::list::new \
                 -package_key "@list_info.package_key@" \
@@ -49,3 +49,4 @@ ams::list::attribute::map \
 </multiple>
 </if>
 </pre>
+

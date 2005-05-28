@@ -17,7 +17,7 @@ ad_page_contract {
     {format "normal"}
     {status "normal"}
     {return_url ""}
-    {return_url_label "Return to Where You Were"}
+    {return_url_label "[_ ams.lt_Return_to_Where_You_W]"}
 }
 
 set provided_return_url $return_url
@@ -29,7 +29,7 @@ set code_url [export_vars -url -base "list-code" {package_key object_type list_n
 
 
 if { ![ams::list::exists_p -package_key $package_key -object_type $object_type -list_name $list_name] } {
-    ad_returnredirect -message "The list specified does not exists. You may create it if you like." [export_vars -base "list-add" -url {package_key object_type list_name pretty_name description return_url return_url_label}]
+    ad_returnredirect -message "[_ ams.lt_The_list_specified_do]" [export_vars -base "list-add" -url {package_key object_type list_name pretty_name description return_url return_url_label}]
     ad_script_abort
 }
 set list_id [ams::list::get_list_id -package_key $package_key -object_type $object_type -list_name $list_name]
@@ -48,7 +48,7 @@ list::create \
     -name mapped_attributes \
     -multirow mapped_attributes \
     -key attribute_id \
-    -row_pretty_plural "Mapped Attributes" \
+    -row_pretty_plural "[_ ams.Mapped_Attributes]" \
     -checkbox_name checkbox \
     -selected_format $format \
     -class "list" \
@@ -57,52 +57,52 @@ list::create \
     -pass_properties {
     } -actions {
     } -bulk_actions {
-	"Answer Required" "list-attributes-required" "Require an answer from the checked attributes"
-	"Answer Optional" "list-attributes-optional" "An answer from the checked attributes is optional"
-	"Unmap" "list-attributes-unmap" "Unmap check attributes"
-	"Update Ordering" "list-order-update" "Update ordering from values in list"
+	"[_ ams.Answer_Required]" "list-attributes-required" "[_ ams.lt_Require_an_answer_fro]"
+	"[_ ams.Answer_Optional]" "list-attributes-optional" "[_ ams.lt_An_answer_from_the_ch]"
+	"[_ ams.Unmap]" "list-attributes-unmap" "[_ ams.lt_Unmap_check_attribute]"
+	"[_ ams.Update_Ordering]" "list-order-update" "[_ ams.lt_Update_ordering_from_]"
     } -bulk_action_export_vars { 
         list_id
     } -elements {
         attribute_name {
-            label "Attribute"
+            label "[_ ams.Attribute]"
             display_col attribute_name
         }
         pretty_name {
-            label "Pretty Name"
+            label "[_ ams.Pretty_Name_1]"
 	    display_template {
 		<a href="@mapped_attributes.attribute_url@">@mapped_attributes.pretty_name@</a><if $object_type not eq @mapped_attributes.object_type@> (Parent Object Type: <a href="object?object_type=@mapped_attributes.object_type@">@mapped_attributes.object_type@</a>)</if>
 	    }
         }
         widget {
-            label "Widget"
+            label "[_ ams.Widget_1]"
             display_col widget
             link_url_eval widgets
         }
         section_heading {
-            label "Heading"
+            label "[_ ams.Heading]"
             display_col section_heading
         }
         action {
-            label "Action"
+            label "[_ ams.Action]"
             display_template {
-                <a href="@mapped_attributes.unmap_url@" class="button">Unmap</a>
-                <a href="@mapped_attributes.heading_url@" class="button"><if @mapped_attributes.section_heading@ nil>Add Heading</if><else>Edit/Delete Heading</else></a>
+                <a href="@mapped_attributes.unmap_url@" class="button">[_ ams.Unmap]</a>
+                <a href="@mapped_attributes.heading_url@" class="button"><if @mapped_attributes.section_heading@ nil>[_ ams.Add_Heading]</if><else>[_ ams.EditDelete_Heading]</else></a>
             }
         }
         answer {
-            label "Required"
+            label "[_ ams.Required]"
             display_template {
                 <if @mapped_attributes.required_p@>
-                <a href="list-attributes-optional?list_id=$list_id&attribute_id=@mapped_attributes.attribute_id@"><img src="/resources/acs-subsite/checkboxchecked.gif" title="Required" border="0"></a>
+                <a href="list-attributes?command="required"&list_id=$list_id&attribute_id=@mapped_attributes.attribute_id@"><img src="/resources/acs-subsite/checkboxchecked.gif" title="[_ ams.Required]" border="0"></a>
                 </if>
                 <else>
-                <a href="list-attributes-required?list_id=$list_id&attribute_id=@mapped_attributes.attribute_id@"><img src="/resources/acs-subsite/checkbox.gif" title="Optional" border="0"></a>
+                <a href="list-attributes?command="optional"&list_id=$list_id&attribute_id=@mapped_attributes.attribute_id@"><img src="/resources/acs-subsite/checkbox.gif" title="[_ ams.Optional]" border="0"></a>
                 </else>
             }
         }
         sort_order {
-            label "Ordering"
+            label "[_ ams.Ordering]"
             display_template {
                 <input name="sort_key.@mapped_attributes.attribute_id@" value="@mapped_attributes.sort_order_key@" size="4">
             }
@@ -112,7 +112,7 @@ list::create \
     } -orderby {
     } -formats {
         normal {
-            label "Table"
+            label "[_ ams.Table]"
             layout table
             row {
                 checkbox {}
@@ -152,23 +152,11 @@ db_multirow -extend { sort_order_key attribute_url unmap_url heading_url } -uncl
     incr sort_order_count 10
 }
 
-
-#----------------------------------------------------------------------
-# List builder
-#----------------------------------------------------------------------
-
-
-
-
-#    } -bulk_actions [list "Map" "list-attributes" "Map the selected attributes"] \
-#    -bulk_action_export_vars { 
-#        list_id
-
 list::create \
     -name unmapped_attributes \
     -multirow unmapped_attributes \
     -key attribute_id \
-    -row_pretty_plural "Unmapped Attributes" \
+    -row_pretty_plural "[_ ams.Unmapped_Attributes]" \
     -checkbox_name checkbox \
     -selected_format "normal" \
     -class "list" \
@@ -178,27 +166,27 @@ list::create \
     } -actions {
     } -elements {
         attribute_name {
-            label "Attribute"
+            label "[_ ams.Attribute]"
             display_col attribute_name
         }
         pretty_name {
-            label "Pretty Name"
+            label "[_ ams.Pretty_Name_1]"
             display_col pretty_name
             link_url_eval $attribute_url
         }
         widget {
-            label "Widget"
+            label "[_ ams.Widget_1]"
             display_col widget
             link_url_eval widgets
         }
         action {
-            label "Action"
+            label "[_ ams.Action]"
             display_template {
                 <if @unmapped_attributes.widget@ nil>
-		<a href="@unmapped_attributes.attribute_add_url@" class="button">Define Widget</a>
+		<a href="@unmapped_attributes.attribute_add_url@" class="button">[_ ams.Define_Widget]</a>
 		</if>
 		<else>
-                <a href="@unmapped_attributes.map_url@" class="button">Map</a>
+                <a href="@unmapped_attributes.map_url@" class="button">[_ ams.Map]</a>
 		</else>
             }
         }
@@ -207,7 +195,7 @@ list::create \
     } -orderby {
     } -formats {
         normal {
-            label "Table"
+            label "[_ ams.Table]"
             layout table
             row {
                 pretty_name {}

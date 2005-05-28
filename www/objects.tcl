@@ -9,14 +9,14 @@ ad_page_contract {
     {orderby "name"}
 }
 
-set title "Objects"
+set title "[_ ams.Objects]"
 set context [list $title]
 
 list::create \
     -name object_types \
     -multirow object_types \
     -key object_type \
-    -row_pretty_plural "Object Types" \
+    -row_pretty_plural "[_ ams.Object_Types]" \
     -checkbox_name checkbox \
     -selected_format "normal" \
     -class "list" \
@@ -30,12 +30,12 @@ list::create \
         }
         pretty_name {
             display_col pretty_name
-            label "Pretty Name"
+            label "[_ ams.Pretty_Name_1]"
             link_url_eval $object_attributes_url
         }
         object_type {
             display_col object_type
-            label "Object Type"
+            label "[_ ams.Object_Type_1]"
             link_url_eval $object_attributes_url
         }        
     } -filters {
@@ -43,7 +43,7 @@ list::create \
     } -orderby {
     } -formats {
         normal {
-            label "Table"
+            label "[_ ams.Table]"
             layout table
             row {
                 pretty_name {}
