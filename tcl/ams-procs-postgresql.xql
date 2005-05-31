@@ -1,6 +1,22 @@
 <?xml version="1.0"?>
 <queryset>
 
+<fullquery name="attribute::pretty_name.get_pretty_name">
+  <querytext>
+        select pretty_name
+          from ams_attributes
+         where attribute_id = :attribute_id
+  </querytext>
+</fullquery>
+
+<fullquery name="attribute::pretty_plural.get_pretty_plural">
+  <querytext>
+        select pretty_pluralo
+          from ams_attributes
+         where attribute_id = :attribute_id
+  </querytext>
+</fullquery>
+
 <fullquery name="attribute::new.create_attribute">
   <querytext>
         select acs_attribute__create_attribute (
@@ -30,6 +46,49 @@
   </querytext>
 </fullquery>
 
+<fullquery name="ams::object_parents.get_supertype">
+  <querytext>
+        select supertype
+          from acs_object_types
+         where object_type = :object_type
+  </querytext>
+</fullquery>
+
+<fullquery name="ams::object_copy.copy_object">
+  <querytext>
+        insert into ams_attribute_values
+        (object_id,attribute_id,value_id)
+        ( select :to,
+                 attribute_id,
+                 value_id
+            from ams_attribute_values
+           where object_id = :from )
+  </querytext>
+</fullquery>
+
+<fullquery name="ams::object.object_delete.delete_object">
+  <querytext>
+        delete from ams_attribute_values
+         where object_id = :object_id
+  </querytext>
+</fullquery>
+
+<fullquery name="ams::attribute::get.select_attribute_info">
+  <querytext>
+        select *
+          from ams_attributes
+         where attribute_id = :attribute_id 
+  </querytext>
+</fullquery>
+
+<fullquery name="ams::attribute::new.get_existing_ams_attribute_id">
+  <querytext>
+    select ams_attribute_id
+      from ams_attributes
+     where attribute_id = :attribute_id 
+  </querytext>
+</fullquery>
+
 <fullquery name="ams::attribute::value_save.attribute_value_save">
   <querytext>
     select ams_attribute_value__save (
@@ -40,7 +99,15 @@
   </querytext>
 </fullquery>
 
-<fullquery name="ams::ad_form::elements.select_elements">
+<fullquery name="ams::option::name.get_option">
+  <querytext>
+        select option
+          from ams_option_types
+         where option_id = :option_id
+  </querytext>
+</fullquery>
+
+<fullquery name="ams::ad_form::save.select_elements">
   <querytext>
         select alam.attribute_id,
                alam.required_p,
@@ -56,7 +123,7 @@
   </querytext>
 </fullquery>
 
-<fullquery name="ams::ad_form::save.select_elements">
+<fullquery name="ams::ad_form::elements.select_elements">
   <querytext>
         select alam.attribute_id,
                alam.required_p,

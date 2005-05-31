@@ -20,7 +20,7 @@ ad_proc -public attribute::pretty_name {
 } {
     get the pretty_name of an attribute
 } {
-    return [db_string get_pretty_name { select pretty_name from ams_attributes where attribute_id = :attribute_id } -default {}]
+    return [db_string get_pretty_name {} -default {}]
 }
 
 ad_proc -public attribute::pretty_plural {
@@ -28,7 +28,7 @@ ad_proc -public attribute::pretty_plural {
 } {
     get the pretty_plural of an attribute
 } {
-    return [db_string get_pretty_name { select pretty_plural from ams_attributes where attribute_id = :attribute_id } -default {}]
+    return [db_string get_pretty_plural {} -default {}]
 }
 
 ad_proc -public attribute::new {
@@ -96,7 +96,7 @@ ad_proc -public ams::object_parents {
 	set object_types [list $object_type]
     }
     while { $object_type != "acs_object" } {
-	set object_type [db_string get_next_object_type { select supertype from acs_object_types where object_type = :object_type }]
+	set object_type [db_string get_supertype {}]
 	if { $object_type != "acs_object" } {
 	    lappend object_types $object_type
 	}
@@ -117,15 +117,7 @@ ad_proc -public ams::object_copy {
 } {
 } {
     db_transaction {
-	db_dml copy_object {
-	    insert into ams_attribute_values
-            (object_id,attribute_id,value_id)
-            ( select :to,
-                     attribute_id,
-                     value_id
-                from ams_attribute_values
-               where object_id = :object_id )
-	}
+	db_dml copy_object {}
     }
 }
 
@@ -134,7 +126,7 @@ ad_proc -public ams::object_delete {
 } {
     delete and object that uses ams attributes
 } {
-    return [db_dml delete_object { delete from ams_attribute_values where object_id = :object_id }]
+    return [db_dml delete_object {}]
 }
 
 
@@ -145,7 +137,7 @@ ad_proc -public ams::attribute::get {
     Get the info on an ams_attribute
 } {
     upvar 1 $array row
-    db_1row select_attribute_info { select * from ams_attributes where attribute_id = :attribute_id } -column_array row
+    db_1row select_attribute_info {} -column_array row
 }
 
 ad_proc -public ams::attribute::new {
@@ -160,7 +152,7 @@ ad_proc -public ams::attribute::new {
 
     @see attribute::new
 } {
-    set existing_ams_attribute_id [db_string get_it { select ams_attribute_id from ams_attributes where attribute_id = :attribute_id } -default {}]
+    set existing_ams_attribute_id [db_string get_existing_ams_attribute_id {} -default {}]
 
     if { [exists_and_not_null existing_ams_attribute_id] } {
         return $existing_ams_attribute_id
@@ -219,7 +211,7 @@ ad_proc -public ams::option::name {
 
     @param option_id
 } {
-    return [db_string get_it { select option from ams_option_types where option_id = :option_id } -default {}]
+    return [db_string get_option {} -default {}]
 }
 
 
