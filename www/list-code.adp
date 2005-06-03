@@ -8,8 +8,8 @@ set list_id [ams::list::new \
                 -package_key "@list_info.package_key@" \
                 -object_type "@list_info.object_type@" \
                 -list_name "@list_info.list_name@" \
-                -pretty_name "@list_info.pretty_name@" \
-                -description "@list_info.description@" \
+                -pretty_name "\#@list_info.pretty_name@\#" \
+                -description "\#@list_info.description@\#" \
                 -description_mime_type "@list_info.description_mime_type@"]
 
 
@@ -32,8 +32,8 @@ set attribute_id [attribute::new \
               -static_p "@attributes.static_p@" \
               -if_does_not_exist]
 
-lang::message::register en_US ams @attributes.message_key@ @attributes.true_pretty@ 
-lang::message::register en_US ams @attributes.message_key@_plural @attributes.true_plural@ 
+lang::message::register en_US ams @attributes.message_key@ "@attributes.true_pretty@"
+lang::message::register en_US ams @attributes.message_key@_plural "@attributes.true_plural@"
 
 ams::attribute::new \
               -attribute_id $attribute_id \

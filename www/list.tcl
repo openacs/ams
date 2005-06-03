@@ -57,10 +57,10 @@ list::create \
     -pass_properties {
     } -actions {
     } -bulk_actions {
-	"[_ ams.Answer_Required]" "list-attributes-required" "[_ ams.lt_Require_an_answer_fro]"
-	"[_ ams.Answer_Optional]" "list-attributes-optional" "[_ ams.lt_An_answer_from_the_ch]"
-	"[_ ams.Unmap]" "list-attributes-unmap" "[_ ams.lt_Unmap_check_attribute]"
-	"[_ ams.Update_Ordering]" "list-order-update" "[_ ams.lt_Update_ordering_from_]"
+	"#ams.Answer_Required#" "list-attributes-required" "#ams.lt_Require_an_answer_fro#"
+	"#ams.Answer_Optional#" "list-attributes-optional" "#ams.lt_An_answer_from_the_ch#"
+	"#ams.Unmap#" "list-attributes-unmap" "#ams.lt_Unmap_check_attribute#"
+	"#ams.Update_Ordering#" "list-order-update" "#ams.lt_Update_ordering_from_#"
     } -bulk_action_export_vars { 
         list_id
     } -elements {
