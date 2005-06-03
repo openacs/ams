@@ -17,6 +17,7 @@
   <msg key="Checkbox">Checkbox - Multiple Options Allowed</msg>
   <msg key="cit_cntry">Citizenship</msg>
   <msg key="cit_cntry_plural">Citizenships</msg>
+  <msg key="Copy">Copy</msg>
   <msg key="country">Country</msg>
   <msg key="country_AD">Andorra</msg>
   <msg key="country_AE">United Arab Emirates</msg>

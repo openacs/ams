@@ -19,6 +19,38 @@
   </querytext>
 </fullquery>
 
+<fullquery name="ams::list::copy.get_from_list_data">
+  <querytext>
+        select pretty_name,
+               description,
+               description_mime_type
+          from ams_lists
+         where list_id = :from_id
+  </querytext>
+</fullquery>
+
+<fullquery name="ams::list::copy.copy_list">
+  <querytext>
+        insert into ams_list_attribute_map
+        (list_id,attribute_id,sort_order,required_p,section_heading)
+        ( select :to_id,
+                 attribute_id,
+                 sort_order,
+                 required_p,
+                 section_heading
+            from ams_list_attribute_map
+           where list_id = :from_id )
+  </querytext>
+</fullquery>
+
+<fullquery name="ams::list::copy.list_has_attributes_mapped">
+  <querytext>
+        select '1'
+          from ams_list_attribute_map
+         where list_id = :to_id
+         limit 1
+  </querytext>
+</fullquery>
 
 <fullquery name="ams::list::exists_p.list_exists_p">
   <querytext>

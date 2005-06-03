@@ -74,6 +74,51 @@ ad_proc -private ams::list::ams_attribute_ids_flush {
     return [util_memoize_flush [list ams::list::ams_attribute_ids_not_cached -list_id $list_id]]
 }
 
+ad_proc -public ams::list::copy {
+    -package_key:required
+    -object_type:required
+    -from_list_name:required
+    -to_list_name:required
+    {-to_pretty_name ""}
+    {-to_description ""}
+    {-to_description_mime_type "text/plain"}
+    {-to_context_id ""}
+} {
+    Copy one ams_list to another
+} {
+    set to_pretty_name [string trim $to_pretty_name]
+    set from_id [ams::list::get_list_id_not_cached -package_key $package_key -object_type $object_type -list_name $from_list_name]
+    if { [exists_and_not_null from_id] } {
+        set to_id [ams::list::get_list_id_not_cached -package_key $package_key -object_type $object_type -list_name $to_list_name]
+        if { ![exists_and_not_null to_id] } {
+            if { ![exists_and_not_null to_pretty_name] } {
+                db_1row get_from_list_data {}
+                set to_pretty_name "$pretty_name [_ ams.Copy]"
+                set to_description $description
+                set to_description_mime_type $description_mime_type
+            }
+            set to_id [ams::list::new \
+                           -package_key $package_key \
+                           -object_type $object_type \
+                           -list_name $to_list_name \
+                           -pretty_name $to_pretty_name \
+                           -description $to_description \
+                           -description_mime_type $to_description_mime_type \
+                           -context_id $to_context_id]
+        }
+        if { $to_id != $from_id } {
+            if { ![db_0or1row list_has_attributes_mapped {}] } {
+                db_transaction {
+                    db_dml copy_list {}
+                }
+                return 1
+            }
+        }
+    }
+    return 0
+
+}
+
 
 
 ad_proc -private ams::list::exists_p {
