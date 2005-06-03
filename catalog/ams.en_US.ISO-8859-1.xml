@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="ams" package_version="1.0d" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="ams" package_version="1.1d1" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Action">Action</msg>
   <msg key="Add_Attribute">Add Attribute</msg>
   <msg key="Add_Heading">Add Heading</msg>
   <msg key="Address">Address</msg>
+  <msg key="Answer_Optional">Answer Optional</msg>
+  <msg key="Answer_Required">Answer Required</msg>
   <msg key="app_rec">Application Recieved</msg>
   <msg key="app_rec_plural">Applications Recieved</msg>
   <msg key="app_visa">Application Visa</msg>
@@ -292,8 +294,13 @@
   <msg key="is_not_a_valid_US_state">is not a valid U.S. State</msg>
   <msg key="is_not_a_valid_US_zip_code">is not a valid U.S. zip code</msg>
   <msg key="List_Name">List Name</msg>
+  <msg key="lt_An_answer_from_the_ch">An answer from the user is optional</msg>
   <msg key="lt_Create_and_map_a_new_">Create and map a new attribute</msg>
   <msg key="lt_Export_code_to_recrea">Export code to recreate this list</msg>
+  <msg key="lt_Require_an_answer_fro">Require an answer from the user</msg>
+  <msg key="lt_Unmap_check_attribute">Unmap checked attributes</msg>
+  <msg key="lt_Update_ordering_from_">Update ordering</msg>
+  <msg key="Map">Map</msg>
   <msg key="Mapped_Attributes">Mapped Attributes</msg>
   <msg key="married">Marriage Status</msg>
   <msg key="married_plural">Marriage Statuses</msg>
@@ -361,6 +368,7 @@
   <msg key="trm_ofint_plural">Terms of Interest</msg>
   <msg key="Unmap">Unmap</msg>
   <msg key="Unmapped_Attributes">Unmapped Attributes</msg>
+  <msg key="Update_Ordering">Update Ordering</msg>
   <msg key="Url">Website Url</msg>
   <msg key="visa_cntry">Visa Country</msg>
   <msg key="visa_cntry_plural">Visa Countries</msg>
