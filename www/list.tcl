@@ -94,10 +94,10 @@ list::create \
             label "[_ ams.Required]"
             display_template {
                 <if @mapped_attributes.required_p@>
-                <a href="list-attributes?command="required"&list_id=$list_id&attribute_id=@mapped_attributes.attribute_id@"><img src="/resources/acs-subsite/checkboxchecked.gif" title="[_ ams.Required]" border="0"></a>
+                <a href="@mapped_attributes.optional_url@"><img src="/resources/acs-subsite/checkboxchecked.gif" title="[_ ams.Required]" border="0"></a>
                 </if>
                 <else>
-                <a href="list-attributes?command="optional"&list_id=$list_id&attribute_id=@mapped_attributes.attribute_id@"><img src="/resources/acs-subsite/checkbox.gif" title="[_ ams.Optional]" border="0"></a>
+                <a href="@mapped_attributes.required_url@"><img src="/resources/acs-subsite/checkbox.gif" title="[_ ams.Optional]" border="0"></a>
                 </else>
             }
         }
@@ -129,7 +129,7 @@ list::create \
 
 set sort_order_count 10
 
-db_multirow -extend { sort_order_key attribute_url unmap_url heading_url } -unclobber mapped_attributes select_mapped_attributes {
+db_multirow -extend { sort_order_key attribute_url unmap_url heading_url required_url optional_url } -unclobber mapped_attributes select_mapped_attributes {
         select alam.required_p,
                alam.section_heading,
                ams.attribute_id,
@@ -149,6 +149,8 @@ db_multirow -extend { sort_order_key attribute_url unmap_url heading_url } -uncl
     set sort_order_key $sort_order_count
     set unmap_url [export_vars -base "list-attributes-unmap" -url {list_id attribute_id return_url return_url_label}]
     set heading_url [export_vars -base "list-attribute-section-heading" -url {list_id attribute_id return_url return_url_label}]
+    set required_url [export_vars -base "list-attributes-required" -url {list_id attribute_id return_url return_url_label}]
+    set optional_url [export_vars -base "list-attributes-optional" -url {list_id attribute_id return_url return_url_label}]
     incr sort_order_count 10
 }
 
