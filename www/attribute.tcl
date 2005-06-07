@@ -59,7 +59,7 @@ list::create \
         actions {
             label ""
             display_template {
-                <if @options.in_use_p@></if><else><a href="attribute-option-delete?option_id=@options.option_id@"><img src="/shared/images/Delete16.gif" height="16" width="16" alt="Delete" border="0"></a></else>
+                <if @options.in_use_p@></if><else><a href="@options.delete_url@"><img src="/shared/images/Delete16.gif" height="16" width="16" alt="Delete" border="0"></a></else>
             }
         }
     } -filters {
@@ -85,7 +85,7 @@ list::create \
 
 set sort_count 10
 set sort_key_count 10000
-db_multirow -extend { sort_order sort_key } options select_options {
+db_multirow -extend { sort_order sort_key delete_url } options select_options {
     select option_id, option,
            CASE WHEN ( select '1' from ams_options where ams_options.option_id = ams_option_types.option_id limit 1 ) IS NULL THEN 0 ELSE 1 END as in_use_p
       from ams_option_types
@@ -96,6 +96,7 @@ db_multirow -extend { sort_order sort_key } options select_options {
     set sort_key $sort_key_count
     incr sort_count 10
     incr sort_key_count 1
+    set delete_url [export_vars -base "attribute-option-delete" -url {attribute_id option_id}]
 }
 
 if { [template::multirow size options] > 0 } {
