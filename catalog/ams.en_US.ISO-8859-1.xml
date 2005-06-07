@@ -2,9 +2,11 @@
 <message_catalog package_key="ams" package_version="1.1d1" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Action">Action</msg>
+  <msg key="Add_an_AMS_Attribute">Add an AMS Attribute</msg>
   <msg key="Add_Attribute">Add Attribute</msg>
   <msg key="Add_Heading">Add Heading</msg>
   <msg key="Address">Address</msg>
+  <msg key="AMS_Attributes">AMS Attributes</msg>
   <msg key="Answer_Optional">Answer Optional</msg>
   <msg key="Answer_Required">Answer Required</msg>
   <msg key="app_rec">Application Recieved</msg>
@@ -315,6 +317,7 @@
   <msg key="no_mail">No Mail</msg>
   <msg key="no_mail_plural">No Mails</msg>
   <msg key="Object_Type">Object Type</msg>
+  <msg key="Option">Option</msg>
   <msg key="Optional">Optional</msg>
   <msg key="Ordering">Ordering</msg>
   <msg key="organization_name">Organization Name</msg>
@@ -335,7 +338,9 @@
   <msg key="postal_code">Zip/Postal Code</msg>
   <msg key="prefix">Prefix</msg>
   <msg key="prefix_plural">Prefixes</msg>
+  <msg key="Pretty_Name">Pretty Name</msg>
   <msg key="Pretty_Name_1">Pretty Name</msg>
+  <msg key="Pretty_Plural">Pretty Name Plural</msg>
   <msg key="Pretty_Plural_1">Pretty Plural</msg>
   <msg key="Preview_Input_Form">Preview the Input Form</msg>
   <msg key="program">Program</msg>
@@ -356,6 +361,7 @@
   <msg key="schl_type_plural">School Types</msg>
   <msg key="Select">Drop Down List - One Option Allowed</msg>
   <msg key="select_one">Select One</msg>
+  <msg key="Sort_Order">Sort Order</msg>
   <msg key="suffix">Suffix</msg>
   <msg key="suffix_plural">Suffixes</msg>
   <msg key="Telecom_Number">Phone Number</msg>
@@ -368,6 +374,7 @@
   <msg key="trm_ofint_plural">Terms of Interest</msg>
   <msg key="Unmap">Unmap</msg>
   <msg key="Unmapped_Attributes">Unmapped Attributes</msg>
+  <msg key="Update_Options">Update Options</msg>
   <msg key="Update_Ordering">Update Ordering</msg>
   <msg key="Url">Website Url</msg>
   <msg key="visa_cntry">Visa Country</msg>
@@ -378,6 +385,7 @@
   <msg key="visa_type_plural">Visa Types</msg>
   <msg key="vtran_schl">Visa Transferred from School</msg>
   <msg key="vtran_schl_plural">Visas Transferred from School</msg>
+  <msg key="Widget">Widget</msg>
   <msg key="Widget_1">Widget</msg>
   <msg key="wk_permit">Work Permit</msg>
   <msg key="wk_permit_plural">Work Permits</msg>

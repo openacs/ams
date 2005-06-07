@@ -34,7 +34,7 @@ list::create \
     } -bulk_action_export_vars { 
         attribute_id
     } -bulk_actions {
-	"[_ acs-kernel.common_Update]" "attribute-options-update" "[_ ams.Update_Options]"        
+	"#acs-kernel.common_Update#" "attribute-options-update" "#ams.Update_Options#"        
     } -elements {
         edit {
             label {}

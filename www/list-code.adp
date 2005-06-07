@@ -32,8 +32,8 @@ set attribute_id [attribute::new \
               -static_p "@attributes.static_p@" \
               -if_does_not_exist]
 
-lang::message::register en_US ams @attributes.message_key@ "@attributes.true_pretty@"
-lang::message::register en_US ams @attributes.message_key@_plural "@attributes.true_plural@"
+lang::message::register en_US acs-translations @attributes.message_key@ "@attributes.true_pretty@"
+lang::message::register en_US acs-translations @attributes.message_key@_plural "@attributes.true_plural@"
 
 ams::attribute::new \
               -attribute_id $attribute_id \
@@ -46,6 +46,16 @@ ams::list::attribute::map \
               -sort_order "@attributes.list_sort_order@" \
               -required_p "@attributes.required_p@" \
               -section_heading "@attributes.section_heading@"
+
+<group column=attribute_id>
+<if @attributes.option_id@ not nil>
+set option_id [ams::option::new \
+	-attribute_id $attribute_id \
+	-option "\#@attributes.option@#"]
+
+lang::message::register en_US acs-translations @attributes.option_key@ "@attributes.true_option@"
+</if>
+</group>
 </multiple>
 </if>
 </pre>

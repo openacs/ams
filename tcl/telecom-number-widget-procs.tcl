@@ -50,7 +50,7 @@ ad_proc -public template::util::telecom_number::html_view {
     set telecom_number ""
     if { [parameter::get_from_package_key -parameter "ForceCountryCodeOneFormatting" -package_key "ams" -default "0"] } {
         if { $national_number != "1" } {
-            set telecom_number "011-${national_number}-"
+            set telecom_number "[_ ams.international_dial_code]${national_number}-"
         }
     } else {
         set telecom_number ${national_number}
@@ -113,8 +113,8 @@ ad_proc -public template::data::validate::telecom_number { value_ref message_ref
         set telecom_number_temp "$itu_id$national_number$area_city_code$subscriber_number$extension$sms_enabled_p$best_contact_time"
         regsub -all " " $telecom_number_temp "" telecom_number_temp
         ns_log Notice $telecom_number_temp
-        if { ![regexp {^([0-9]|x|-|\)|\(){1,}$} $telecom_number_temp match telecom_number_temp] } {
-             set message [_ ams.Telecom_numbers_must_only_contain_numbers_dashes_and_x_es_and_rounded_braces]
+        if { ![regexp {^([0-9]|x|-|\+|\)|\(){1,}$} $telecom_number_temp match telecom_number_temp] } {
+	    set message [_ ams.lt_Telecom_numbers_must_only_contain]
         }
     } else {
         # we have a number in country code one that must follow certain formatting guidelines
@@ -125,7 +125,7 @@ ad_proc -public template::data::validate::telecom_number { value_ref message_ref
         # users know how they are supposed to format numbers.
         
         if { ![exists_and_not_null area_city_code] || ![exists_and_not_null national_number] } {
-            set message [_ ams.Telecom_numbers_in_country_code_one_must_be_formatted_like_AAA-SSS-SSSSxXXXX_out_of_country_like_011-CCC-AAAA-SSSS-SSSxXXXX]
+            set message [_ ams.lt_Telecom_numbers_in_country_code]
         }
     }
 
