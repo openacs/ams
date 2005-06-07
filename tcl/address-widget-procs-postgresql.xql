@@ -2,9 +2,9 @@
 <queryset>
 
 
-<fullquery name="template::util::address::country_options_not_cached.get_countries">
+<fullquery name="template::util::address::country_options_not_cached.get_country_codes">
   <querytext>
-        select default_name, iso from countries                                                                                  s
+        select iso from countries                                                                                  s
   </querytext>
 </fullquery>
 

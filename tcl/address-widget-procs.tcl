@@ -98,7 +98,8 @@ ad_proc -public template::util::address::country_options {} {
         # There is no HTTP connection - resort to system locale
         set locale [lang::system::locale]
     }
-    return [util_memoize [list template::util::address::country_options_not_cached -locale $locale]]
+#    return [util_memoize [list template::util::address::country_options_not_cached -locale $locale]]
+    return [template::util::address::country_options_not_cached]
 }
 
 ad_proc -public template::util::address::country_options_not_cached {
@@ -106,30 +107,13 @@ ad_proc -public template::util::address::country_options_not_cached {
 } {
     Returns the country list.
 } {
-    set country_list [db_list_of_lists get_countries {}]
+    set country_code_list [db_list get_country_codes {}]
     set return_country_list [list]
     set reserved_country_codes [parameter::get_from_package_key -parameter "DefaultISOCountryCode" -package_key "ams" -default ""]
 
-    foreach country $country_list {
-        set this_locale $locale
-        set country_name_db [lindex $country 0]
-        set country_code_db [lindex $country 1]
-        set package_key "ams"
-        set message_key "country_${country_code_db}"
-        set key "${package_key}.${message_key}"
-        if { [string is false [lang::message::message_exists_p $locale $key]] } {
-            if { [string is false [lang::message::message_exists_p "en_US" $key]] } {
-                lang::message::register $locale $package_key $message_key $country_name_db
-            } else {
-                set this_locale "en_US"
-            }
-        }
-        # mgeddert customization for mbbs
-        if { [lsearch $reserved_country_codes $country_code_db] < 0 } {
-            # the reason not to use the "list" command here is because a curly bracket
-            # needs to be used in the list for countries with a single word name
-            # so that alphabetizing (via lsort) works later on in this proc
-            lappend return_country_list "{[lang::message::lookup $this_locale $key]} {$country_code_db}"
+    foreach country $country_code_list {
+        if { [lsearch $reserved_country_codes $country] < 0 } {
+            lappend return_country_list [list [lang::util::localize "#ref-countries.${country}#"] $country]
         }
     }
     set country_code [list]
