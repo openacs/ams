@@ -104,29 +104,9 @@ ad_form -extend -name attribute_form -on_request {
     }
 
 
-    # Internationalising of Attributes. This is done by storing the attribute with it's acs-lang key
-    set message_key "${object_type}_${attribute_name}"
-    
-    # Register the language keys
-    lang::message::register en_US ams $message_key $pretty_name
-    lang::message::register en_US ams "${message_key}_plural" $pretty_plural
-
-    # Register the language key in the current user locale as well
-    # Usually you would only register the key in the locale that the user is using
-    # But we can't do this as the system depends on english language keys first.
-    # If Timo manages to get the service contract with babblefish or dict.leo.org working
-    # We might have an automatic translation first :).
-    set user_locale [lang::user::locale]
-    if {[exists_and_not_null user_locale]} {
-        if {$user_locale != "en_US"} {
-            lang::message::register $user_locale ams $message_key $pretty_name
-            lang::message::register $user_locale ams "${message_key}_plural" $pretty_plural
-        }
-    }
-
     # Replace the pretty_name and pretty_plural with the message key, so it is inserted correctly in the database
-    set pretty_name "#ams.${message_key}#"
-    set pretty_plural "#ams.${message_key}_plural#"
+    set pretty_name [lang::util::convert_to_i18n -text $pretty_name -prefix $object_type]
+    set pretty_plural [lang::util::convert_to_i18n -text $pretty_plural -prefix $object_type]
 
     if { [exists_and_not_null widget] } {
 	::template::element::set_properties attribute_form widget -widget select -mode display
