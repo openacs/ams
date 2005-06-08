@@ -89,7 +89,12 @@ ad_proc -private ams::widget_options {
 } {
     Return all widget procs. Each list element is a list of the first then pretty_name then the widget
 } {
-    return [db_list_of_lists get_options {}]
+    set return_list [list]
+    db_foreach get_options {} {
+	set option "[lang::util::localize $option]"
+	lappend return_list [list $option $option_id]
+    }
+    return $return_list
 }
 
 ad_proc -private ams::widget_list {
