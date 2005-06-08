@@ -6,12 +6,15 @@
   <msg key="Answer_Optional">optionale Antwort</msg>
   <msg key="Answer_Required">Antwort erforderlich</msg>
   <msg key="country">Land</msg>
+  <msg key="Define_Widget">Widget definieren</msg>
   <msg key="delivery_address">Strasse</msg>
+  <msg key="Form_Preview">Formblatt Voransicht</msg>
   <msg key="Heading">Überschrift</msg>
   <msg key="List_Name">Listenname</msg>
   <msg key="lt_An_answer_from_the_ch">Die Antwort des Users ist optional</msg>
   <msg key="lt_Create_and_map_a_new_">Ein neues Attribut erstellen und zuweisen</msg>
   <msg key="lt_Require_an_answer_fro">Benötigen eine Antwort vom User</msg>
+  <msg key="lt_Unmap_check_attribute">Markierte Attribute entfernen</msg>
   <msg key="lt_Update_ordering_from_">Update Reihenfolge</msg>
   <msg key="Map">Zuweisen</msg>
   <msg key="Mapped_Attributes">Zugewiesene Attribute</msg>
@@ -25,7 +28,9 @@
   <msg key="region">Bundesland</msg>
   <msg key="Required">Erforderlich</msg>
   <msg key="Sort_Order">Sortierreihenfolge</msg>
+  <msg key="Unmap">Attribut entfernen</msg>
   <msg key="Unmapped_Attributes">Nicht zugewiesene Attribute</msg>
   <msg key="Update_Options">Aktualisieren der Optionen</msg>
   <msg key="Update_Ordering">Update Reihenfolge</msg>
+  <msg key="Widget_1">Widget</msg>
 </message_catalog>
