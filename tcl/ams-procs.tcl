@@ -51,6 +51,9 @@ ad_proc -public attribute::new {
 
     @see ams::attribute::new
 } {
+    set pretty_name [lang::util::convert_to_i18n -prefix "${object_type}_${attribute_name}" -text "$pretty_name"]
+    set pretty_plural [lang::util::convert_to_i18n -prefix "${object_type}_${attribute_name}" -text "$pretty_plural"]
+
     if { $if_does_not_exist_p } {
 	set attribute_id [attribute::id -object_type $object_type -attribute_name $attribute_name]
 	if { [string is false [exists_and_not_null attribute_id]] } {
@@ -187,6 +190,9 @@ ad_proc -public ams::option::new {
 } {
     Create a new ams option for an attribute
 } {
+
+    set option [lang::util::convert_to_i18n -prefix "${object_type}_${attribute_name}" -text "$option"]
+
     set extra_vars [ns_set create]
     oacs_util::vars_to_ns_set -ns_set $extra_vars -var_list {option_id attribute_id option sort_order deprecated_p}
     set option_id [package_instantiate_object -extra_vars $extra_vars ams_option]
@@ -306,3 +312,4 @@ ad_proc -public ams::values {
         return [list]
     }
 }
+
