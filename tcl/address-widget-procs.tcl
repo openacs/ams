@@ -98,8 +98,8 @@ ad_proc -public template::util::address::country_options {} {
         # There is no HTTP connection - resort to system locale
         set locale [lang::system::locale]
     }
-#    return [util_memoize [list template::util::address::country_options_not_cached -locale $locale]]
-    return [template::util::address::country_options_not_cached]
+    return [util_memoize [list template::util::address::country_options_not_cached -locale $locale]]
+#    return [template::util::address::country_options_not_cached]
 }
 
 ad_proc -public template::util::address::country_options_not_cached {
@@ -113,17 +113,16 @@ ad_proc -public template::util::address::country_options_not_cached {
 
     foreach country $country_code_list {
         if { [lsearch $reserved_country_codes $country] < 0 } {
-            lappend return_country_list [list [lang::util::localize "#ref-countries.${country}#"] $country]
+            lappend return_country_list [list [lang::message::lookup $locale "ref-countries.${country}"] $country]
         }
     }
     set country_code [list]
     if { [exists_and_not_null reserved_country_codes] } {
-        foreach code $reserved_country_codes {
-            set code [string toupper $code]
-            lappend country_code [list [lang::message::lookup $this_locale "ams.country_${code}"] $code]
+        foreach country $reserved_country_codes {
+            set country [string toupper $country]
+            lappend country_code [list [lang::message::lookup $locale "ref-countries.${country}"] $country]
         }
-        lappend country_code [list "--" ""]
-        append country_code " [lsort $return_country_list]"
+        set country_code [concat $country_code [list "--" ""] [lsort $return_country_list]]
     } else {
         set country_code [lsort $return_country_list]
     }

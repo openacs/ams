@@ -44,7 +44,7 @@ if { [ams::widget_has_options_p -widget $widget] } {
     lappend elements [list option_fields_count:integer(hidden) [list value $option_fields_count]]
 #    lappend elements [list options_on_last_screen:integer(hidden),optional]
     while { $i <= $option_fields_count } {
-	set element [list option${i}:text(text),optional [list label "[_ ams.Option_i]"] [list html [list size 50]]]
+	set element [list option${i}:text(text),optional [list label "[_ ams.Option] $i"] [list html [list size 50]]]
         if { $i == $option_fields_count } {
 	    lappend element [list help_text "[_ ams.lt_If_you_need_to_add_mo]"]
 	}
@@ -190,7 +190,7 @@ ad_form -extend -name attribute_form -on_request {
     } else {
 	set return_url [export_vars -base "object" -url {object_type return_url return_url_label}]
     }
-    ad_returnredirect -message "$pretty_name has been added as an attribute to $object_type#>" $return_url
+    ad_returnredirect -message "$pretty_name [_ ams.has_been_added_as_an_attribute_to] $object_type" $return_url
     ad_script_abort
 }
 
