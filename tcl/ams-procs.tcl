@@ -18,12 +18,28 @@ namespace eval ams::ad_form {}
 ad_proc -public attribute::pretty_name {
     {-attribute_id:required}
 } {
-    get the pretty_name of an attribute
+    get the pretty_name of an attribute. Cached
+} {
+    return [util_memoize [list ::attribute::pretty_name_not_cached -attribute_id $attribute_id]]
+}
+
+ad_proc -public attribute::pretty_name_not_cached {
+    {-attribute_id:required}
+} {
+    get the pretty_name of an attribute 
 } {
     return [db_string get_pretty_name {} -default {}]
 }
 
 ad_proc -public attribute::pretty_plural {
+    {-attribute_id:required}
+} {
+    get the pretty_plural of an attribute. Cached
+} {
+    return [util_memoize [list ::attribute::pretty_plural_not_cached -attribute_id $attribute_id]]
+}
+
+ad_proc -public attribute::pretty_plural_not_cached {
     {-attribute_id:required}
 } {
     get the pretty_plural of an attribute
@@ -191,6 +207,7 @@ ad_proc -public ams::option::new {
     Create a new ams option for an attribute
 } {
 
+    db_1row get_object_data { select object_type, attribute_name from ams_attributes where attribute_id = :attribute_id }
     set option [lang::util::convert_to_i18n -prefix "${object_type}_${attribute_name}" -text "$option"]
 
     set extra_vars [ns_set create]

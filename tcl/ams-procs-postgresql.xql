@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <queryset>
 
-<fullquery name="attribute::pretty_name.get_pretty_name">
+<fullquery name="attribute::pretty_name_not_cached.get_pretty_name">
   <querytext>
         select pretty_name
           from ams_attributes
@@ -9,9 +9,9 @@
   </querytext>
 </fullquery>
 
-<fullquery name="attribute::pretty_plural.get_pretty_plural">
+<fullquery name="attribute::pretty_plural_not_cached.get_pretty_plural">
   <querytext>
-        select pretty_pluralo
+        select pretty_plural
           from ams_attributes
          where attribute_id = :attribute_id
   </querytext>
