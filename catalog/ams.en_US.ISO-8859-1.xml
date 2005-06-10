@@ -7,6 +7,7 @@
   <msg key="Add_Heading">Add Heading</msg>
   <msg key="Address">Address</msg>
   <msg key="AMS_Attributes">AMS Attributes</msg>
+  <msg key="AMS_Lists">AMS Lists</msg>
   <msg key="Answer_Optional">Answer Optional</msg>
   <msg key="Answer_Required">Answer Required</msg>
   <msg key="apfee_dt">Application Fee Recieved</msg>
@@ -314,10 +315,14 @@
   <msg key="is_not_a_valid_US_state">is not a valid U.S. State</msg>
   <msg key="is_not_a_valid_US_zip_code">is not a valid U.S. zip code</msg>
   <msg key="List_Name">List Name</msg>
+  <msg key="List_Name_1">List Name</msg>
   <msg key="lt_AMS_Lists_associated_">AMS Lists associated with this Object</msg>
   <msg key="lt_An_answer_from_the_ch">An answer is required from the checked attributes</msg>
   <msg key="lt_Create_and_map_a_new_">Create and map a new attribute</msg>
   <msg key="lt_Export_code_to_recrea">Export code to recreate this list</msg>
+  <msg key="lt_Here_is_the_code_nece">Here is the code necessary to recreate the list</msg>
+  <msg key="lt_You_can_create_a_list">You can create a list ...</msg>
+  <msg key="Map">Map</msg>
   <msg key="lt_If_you_need_to_add_mo">If you need to add more you will be able to</msg>
   <msg key="lt_Require_an_answer_fro">Require an answer from the checked attributes</msg>
   <msg key="lt_Unmap_check_attribute">Unmap the checked attributes</msg>
@@ -348,6 +353,7 @@
   <msg key="oth_visa">Other Visa</msg>
   <msg key="oth_visa_plural">Other Visas</msg>
   <msg key="Package_Key">Package Key</msg>
+  <msg key="Package_Key_1">Package Key</msg>
   <msg key="party_denomination">Denomination</msg>
   <msg key="party_denomination_plural">Denominations</msg>
   <msg key="party_email">Email Address</msg>
