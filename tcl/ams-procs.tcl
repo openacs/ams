@@ -67,8 +67,8 @@ ad_proc -public attribute::new {
 
     @see ams::attribute::new
 } {
-    set pretty_name [lang::util::convert_to_i18n -prefix "${object_type}_${attribute_name}" -text "$pretty_name"]
-    set pretty_plural [lang::util::convert_to_i18n -prefix "${object_type}_${attribute_name}" -text "$pretty_plural"]
+    set pretty_name [lang::util::convert_to_i18n -message_key "${object_type}_${attribute_name}" -text "$pretty_name"]
+    set pretty_plural [lang::util::convert_to_i18n -message_key "${object_type}_${attribute_name}" -text "$pretty_plural"]
 
     if { $if_does_not_exist_p } {
 	set attribute_id [attribute::id -object_type $object_type -attribute_name $attribute_name]

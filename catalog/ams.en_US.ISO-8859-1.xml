@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="ams" package_version="1.0d" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="ams" package_version="1.1d1" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Action">Action</msg>
   <msg key="Add_an_AMS_Attribute">Add an AMS Attribute</msg>
@@ -321,12 +321,12 @@
   <msg key="lt_Create_and_map_a_new_">Create and map a new attribute</msg>
   <msg key="lt_Export_code_to_recrea">Export code to recreate this list</msg>
   <msg key="lt_Here_is_the_code_nece">Here is the code necessary to recreate the list</msg>
-  <msg key="lt_You_can_create_a_list">You can create a list ...</msg>
-  <msg key="Map">Map</msg>
   <msg key="lt_If_you_need_to_add_mo">If you need to add more you will be able to</msg>
   <msg key="lt_Require_an_answer_fro">Require an answer from the checked attributes</msg>
   <msg key="lt_Unmap_check_attribute">Unmap the checked attributes</msg>
   <msg key="lt_Update_ordering_from_">Update ordering from numbers in the ordering column</msg>
+  <msg key="lt_You_can_create_a_list">You can create a list ...</msg>
+  <msg key="Map">Map</msg>
   <msg key="Mapped_Attributes">Mapped Attributes</msg>
   <msg key="married">Marriage Status</msg>
   <msg key="married_plural">Marriage Statuses</msg>

@@ -211,7 +211,8 @@ ad_proc -public ams::list::new {
     if { ![exists_and_not_null description] } {
         set description_mime_type ""
     }
-
+    
+    set pretty_name [lang::util::convert_to_i18n -prefix "ams_list" -text "$pretty_name"]
     set extra_vars [ns_set create]
     oacs_util::vars_to_ns_set -ns_set $extra_vars -var_list { list_id package_key object_type list_name pretty_name description description_mime_type }
     set list_id [package_instantiate_object -extra_vars $extra_vars ams_list]

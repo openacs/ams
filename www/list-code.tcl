@@ -42,13 +42,10 @@ db_multirow -extend {message_key option_key true_pretty true_plural true_option}
 } {
     regsub -all {"} $section_heading {\"} section_heading
     set message_key "${object_type}_${attribute_name}"
-    set option_key "${message_key}_[lang::util::suggest_key $option]"
-    set pretty_name "acs-translation.$message_key"
-    set pretty_plural "acs-translation.${message_key}_plural"
-    set true_pretty [lang::message::lookup en_US acs-translations.$message_key]
-    set true_plural [lang::message::lookup en_US acs-translations.${message_key}_plural]
-    set true_option $option
-    set option "acs-translation.$option_key"
+#    set option [lang::message::lookup en_US [string trim $option "#"]]
+	set pretty_name [lang::message::lookup en_US [string trim $pretty_name "#"]]
+	set pretty_plural [lang::message::lookup en_US [string trim $pretty_plural "#"]]
+
 # set true_option [lang::message::lookup en_US acs-translations.$option_key]
 }
 
