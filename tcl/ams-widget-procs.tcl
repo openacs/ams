@@ -79,7 +79,7 @@ ad_proc -public ams::widget {
 	return [::ams::widget::${widget} -request $request -attribute_name $attribute_name -pretty_name $pretty_name -value $value -optional_p $optional_p -form_name $form_name -options $options]
     } else {
 	# the widget requested did not exist
-	ns_log notice "AMS: the ams widget \"${widget}\" was requested and the associated ::ams::widget::${widget} procedure does not exist"
+	ns_log Debug "AMS: the ams widget \"${widget}\" was requested and the associated ::ams::widget::${widget} procedure does not exist"
 
     }
 }
