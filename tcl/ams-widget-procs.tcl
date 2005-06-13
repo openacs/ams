@@ -75,7 +75,7 @@ ad_proc -public ams::widget {
 		set options {}
 	    }
 	}
-	ns_log notice "MGEDDERT DEBUG: 	return ::ams::widget::${widget} -request $request -attribute_name $attribute_name -pretty_name $pretty_name -value $value -optional_p $optional_p -form_name $form_name -options $options"
+	ns_log Debug "MGEDDERT DEBUG: 	return ::ams::widget::${widget} -request $request -attribute_name $attribute_name -pretty_name $pretty_name -value $value -optional_p $optional_p -form_name $form_name -options $options"
 	return [::ams::widget::${widget} -request $request -attribute_name $attribute_name -pretty_name $pretty_name -value $value -optional_p $optional_p -form_name $form_name -options $options]
     } else {
 	# the widget requested did not exist
