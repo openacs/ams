@@ -14,6 +14,7 @@ namespace eval ams:: {}
 namespace eval ams::attribute {}
 namespace eval ams::option {}
 namespace eval ams::ad_form {}
+namespace eval ams::util {}
 
 ad_proc -public attribute::pretty_name {
     {-attribute_id:required}
@@ -67,8 +68,8 @@ ad_proc -public attribute::new {
 
     @see ams::attribute::new
 } {
-    set pretty_name [lang::util::convert_to_i18n -message_key "${object_type}_${attribute_name}" -text "$pretty_name"]
-    set pretty_plural [lang::util::convert_to_i18n -message_key "${object_type}_${attribute_name}" -text "$pretty_plural"]
+    set pretty_name   [lang::util::convert_to_i18n -message_key "${object_type}_${attribute_name}_pretty_name" -text "$pretty_name"]
+    set pretty_plural [lang::util::convert_to_i18n -message_key "${object_type}_${attribute_name}_pretty_plural" -text "$pretty_plural"]
 
     if { $if_does_not_exist_p } {
 	set attribute_id [attribute::id -object_type $object_type -attribute_name $attribute_name]
@@ -98,6 +99,20 @@ ad_proc -public ams::package_id {} {
     @return package_id
 } {
     return [ad_conn package_id]
+}
+
+ad_proc -public ams::util::edit_lang_key_url {
+    -message:required
+    {-package_key "ams"}
+} {
+
+} {
+    if { [regsub "^${package_key}." [string trim $message "\#"] {} message_key] } {
+	set edit_url [export_vars -base "[apm_package_url_from_key "acs-lang"]admin/edit-localized-message" { { locale {[ad_conn locale]} } package_key message_key { return_url [ad_return_url] } }]
+    } else {
+	set edit_url ""
+    }
+    return $edit_url
 }
 
 ad_proc -public ams::object_parents {

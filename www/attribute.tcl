@@ -14,10 +14,11 @@ ams::attribute::get -attribute_id $attribute_id -array "attribute_info"
 acs_object_type::get -object_type $attribute_info(object_type) -array "object_info"
 
 
-set pretty_name $attribute_info(pretty_name)
-set pretty_plural $attribute_info(pretty_plural)
-set title $pretty_name
+set pretty_name_url   [ams::util::edit_lang_key_url -message $attribute_info(pretty_name)]
+set pretty_plural_url [ams::util::edit_lang_key_url -message $attribute_info(pretty_plural)]
+set title $attribute_info(pretty_name)
 set context [list [list objects Objects] [list "object?object_type=$attribute_info(object_type)" $object_info(pretty_name)] $title]
+
 
 list::create \
     -name options \
@@ -59,6 +60,7 @@ list::create \
         actions {
             label ""
             display_template {
+                <if @options.edit_url@ not nil><a href="@options.edit_url@"><img src="/shared/images/Edit16.gif" height="16" width="16" alt="Edit" border="0"></a></if>
                 <if @options.in_use_p@></if><else><a href="@options.delete_url@"><img src="/shared/images/Delete16.gif" height="16" width="16" alt="Delete" border="0"></a></else>
             }
         }
@@ -85,7 +87,7 @@ list::create \
 
 set sort_count 10
 set sort_key_count 10000
-db_multirow -extend { sort_order sort_key delete_url } options select_options {
+db_multirow -extend { sort_order sort_key delete_url edit_url } options select_options {
     select option_id, option,
            CASE WHEN ( select '1' from ams_options where ams_options.option_id = ams_option_types.option_id limit 1 ) IS NULL THEN 0 ELSE 1 END as in_use_p
       from ams_option_types
@@ -97,6 +99,7 @@ db_multirow -extend { sort_order sort_key delete_url } options select_options {
     incr sort_count 10
     incr sort_key_count 1
     set delete_url [export_vars -base "attribute-option-delete" -url {attribute_id option_id}]
+    set edit_url [ams::util::edit_lang_key_url -message $option]
 }
 
 if { [template::multirow size options] > 0 } {
