@@ -221,13 +221,18 @@ ad_proc -public ams::option::new {
 } {
     Create a new ams option for an attribute
 } {
-
     db_1row get_object_data { select object_type, attribute_name from ams_attributes where attribute_id = :attribute_id }
+
     set option [lang::util::convert_to_i18n -prefix "${object_type}_${attribute_name}" -text "$option"]
 
-    set extra_vars [ns_set create]
-    oacs_util::vars_to_ns_set -ns_set $extra_vars -var_list {option_id attribute_id option sort_order deprecated_p}
-    set option_id [package_instantiate_object -extra_vars $extra_vars ams_option]
+    set option_id [db_string get_option_id { select option_id from ams_option_types where option = :option and attribute_id = :attribute_id } -default {}]
+
+    if { $option_id == "" } {
+	set extra_vars [ns_set create]
+	oacs_util::vars_to_ns_set -ns_set $extra_vars -var_list {option_id attribute_id option sort_order deprecated_p}
+	set option_id [package_instantiate_object -extra_vars $extra_vars ams_option]
+    }
+
     return $option_id
 }
 
