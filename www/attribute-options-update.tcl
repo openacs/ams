@@ -16,12 +16,10 @@ foreach option_key [list new1 new2 new3] {
     set option_string [string trim $option(${option_key})]
     if {[exists_and_not_null option_string]} {
 
-	# Replace the pretty_name and pretty_plural with the message key, so it is inserted correctly in the database
-	set option_string [lang::util::convert_to_i18n -text $option_string -prefix "ams_option"]
-
 	set option_id [ams::option::new \
 			   -attribute_id $attribute_id \
 			   -option $option_string]
+
         set sort_key(${option_id}) $sort_key(${option_key})
     }
 }
