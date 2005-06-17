@@ -105,8 +105,8 @@ ad_form -extend -name attribute_form -on_request {
 
 
     # Replace the pretty_name and pretty_plural with the message key, so it is inserted correctly in the database
-    set pretty_name [lang::util::convert_to_i18n -text $pretty_name -prefix $object_type]
-    set pretty_plural [lang::util::convert_to_i18n -text $pretty_plural -prefix $object_type]
+#    set pretty_name [lang::util::convert_to_i18n -text $pretty_name -prefix $object_type]
+#    set pretty_plural [lang::util::convert_to_i18n -text $pretty_plural -prefix $object_type]
 
     if { [exists_and_not_null widget] } {
 	::template::element::set_properties attribute_form widget -widget select -mode display
