@@ -115,6 +115,56 @@ ad_proc -public ams::util::edit_lang_key_url {
     return $edit_url
 }
 
+ad_proc -public ams::util::localize_and_sort_list_of_lists {
+    {-list}
+    {-position "0"}
+} {
+    localize and sort a list of lists
+} {
+    set localized_list [ams::util::localize_list_of_lists -list $list]
+    return [ams::util::sort_list_of_lists -list $localized_list -position $position]
+}
+
+ad_proc -public ams::util::localize_list_of_lists {
+    {-list}
+} {
+    localize the elements of a list_of_lists
+} {
+    set list_output [list]
+    foreach item $list {
+	set item_output [list]
+	foreach part $item {
+	    lappend item_output [lang::util::localize $part]
+	}
+	lappend list_output $item_output
+    }
+    return $list_output
+}
+
+ad_proc -public ams::util::sort_list_of_lists {
+    {-list}
+    {-position "0"}
+} {
+    sort a list_of_lists
+} {
+    set sort_output [list]
+    foreach item $list {
+	set sort_key [string toupper [lindex $item $position]]
+	# we need to replace spaces because it prevents 
+        # multi word sort keys from recieving curly
+        # brackets during the sort, which skews results
+	regsub -all " " $sort_key "_" sort_key
+	lappend sort_output [list $sort_key $item]
+    }
+    set sort_output [lsort $sort_output]
+    set list_output [list]
+    foreach item $sort_output {
+	lappend list_output [lindex $item 1]
+    }
+    return $list_output
+}
+
+
 ad_proc -public ams::object_parents {
     -object_type:required
     -sql:boolean
