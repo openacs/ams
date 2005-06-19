@@ -116,15 +116,16 @@ ad_proc -public template::util::address::country_options_not_cached {
             lappend return_country_list [list [lang::message::lookup $locale "ref-countries.${country}"] $country]
         }
     }
+    set return_country_list [ams::util::sort_list_of_lists -list $return_country_list]
     set country_code [list]
     if { [exists_and_not_null reserved_country_codes] } {
         foreach country $reserved_country_codes {
             set country [string toupper $country]
             lappend country_code [list [lang::message::lookup $locale "ref-countries.${country}"] $country]
         }
-        set country_code [concat $country_code [list "--" ""] [lsort $return_country_list]]
+        set country_code [concat $country_code [list "--" ""] $return_country_list]
     } else {
-        set country_code [lsort $return_country_list]
+        set country_code $return_country_list
     }
     return $country_code
 }
