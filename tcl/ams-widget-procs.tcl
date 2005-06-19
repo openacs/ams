@@ -66,7 +66,7 @@ ad_proc -public ams::widget {
                                 lappend output [lindex $option 0]
                             }
                         }
-                        set value [join $output "/n"]
+                        set value [join $output "\n"]
                     }
                 }
                 set options {}
