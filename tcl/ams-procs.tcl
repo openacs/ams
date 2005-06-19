@@ -21,7 +21,7 @@ ad_proc -public attribute::pretty_name {
 } {
     get the pretty_name of an attribute. Cached
 } {
-    return [util_memoize [list ::attribute::pretty_name_not_cached -attribute_id $attribute_id]]
+    return [lang::util::localize [util_memoize [list ::attribute::pretty_name_not_cached -attribute_id $attribute_id]]]
 }
 
 ad_proc -public attribute::pretty_name_not_cached {
@@ -37,7 +37,7 @@ ad_proc -public attribute::pretty_plural {
 } {
     get the pretty_plural of an attribute. Cached
 } {
-    return [util_memoize [list ::attribute::pretty_plural_not_cached -attribute_id $attribute_id]]
+    return [lang::util::localize [util_memoize [list ::attribute::pretty_plural_not_cached -attribute_id $attribute_id]]]
 }
 
 ad_proc -public attribute::pretty_plural_not_cached {
@@ -304,7 +304,7 @@ ad_proc -public ams::option::name {
 
     @param option_id
 } {
-    return [db_string get_option {} -default {}]
+    return [lang::util::localize [db_string get_option {} -default {}]]
 }
 
 
