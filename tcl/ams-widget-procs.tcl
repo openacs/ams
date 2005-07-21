@@ -451,7 +451,7 @@ ad_proc -private ams::widget::select {
 	    return ${value}
 	}
         value_html {
-	    return [ad_html_text_convert -from "text/plain" -to "text/html" ${value}]
+	    return [ad_html_text_convert -from "text/plain" -to "text/html" -- ${value}]
 	}
         csv_value {
 	    # not yet implemented
@@ -522,7 +522,7 @@ ad_proc -private ams::widget::radio {
 	    return ${value}
 	}
         value_html {
-	    return [ad_html_text_convert -from "text/plain" -to "text/html" ${value}]
+	    return [ad_html_text_convert -from "text/plain" -to "text/html" -- ${value}]
 	}
         csv_value {
 	    # not yet implemented
@@ -595,7 +595,7 @@ ad_proc -private ams::widget::checkbox {
 	    return ${value}
 	}
         value_html {
-	    return [ad_html_text_convert -from "text/plain" -to "text/html" ${value}]
+	    return [ad_html_text_convert -from "text/plain" -to "text/html" -- ${value}]
 	}
         csv_value {
 	    # not yet implemented
@@ -668,7 +668,7 @@ ad_proc -private ams::widget::multiselect {
 	    return ${value}
 	}
         value_html {
-	    return [ad_html_text_convert -from "text/plain" -to "text/html" ${value}]
+	    return [ad_html_text_convert -from "text/plain" -to "text/html" -- ${value}]
 	}
         csv_value {
 	    # not yet implemented
@@ -743,7 +743,7 @@ ad_proc -private ams::widget::integer {
 	    return ${value}
 	}
         value_html {
-	    return [ad_html_text_convert -from "text/plain" -to "text/html" ${value}]
+	    return [ad_html_text_convert -from "text/plain" -to "text/html" -- ${value}]
 	}
         csv_value {
 	    # not yet implemented
@@ -817,7 +817,7 @@ ad_proc -private ams::widget::textbox {
 	    return ${value}
 	}
         value_html {
-	    return [ad_html_text_convert -from "text/plain" -to "text/html" ${value}]
+	    return [ad_html_text_convert -from "text/plain" -to "text/html" -- ${value}]
 	}
         csv_value {
 	    # not yet implemented
@@ -891,7 +891,7 @@ ad_proc -private ams::widget::textarea {
 	    return ${value}
 	}
         value_html {
-	    return [ad_html_text_convert -from "text/plain" -to "text/html" ${value}]
+	    return [ad_html_text_convert -from "text/plain" -to "text/html" -- ${value}]
 	}
         csv_value {
 	    # not yet implemented
@@ -967,7 +967,7 @@ ad_proc -private ams::widget::richtext {
 	    return ${value}
 	}
         value_html {
-	    return [ad_html_text_convert -from "text/plain" -to "text/html" ${value}]
+	    return [ad_html_text_convert -from "text/plain" -to "text/html" -- ${value}]
 	}
         csv_value {
 	    # not yet implemented
@@ -1041,7 +1041,7 @@ ad_proc -private ams::widget::email {
 	    return ${value}
 	}
         value_html {
-	    return [ad_html_text_convert -from "text/plain" -to "text/html" ${value}]
+	    return [ad_html_text_convert -from "text/plain" -to "text/html" -- ${value}]
 	}
         csv_value {
 	    # not yet implemented
@@ -1115,7 +1115,7 @@ ad_proc -private ams::widget::url {
 	    return ${value}
 	}
         value_html {
-	    return [ad_html_text_convert -from "text/plain" -to "text/html" ${value}]
+	    return [ad_html_text_convert -from "text/plain" -to "text/html" -- ${value}]
 	}
         csv_value {
 	    # not yet implemented
