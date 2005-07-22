@@ -170,5 +170,15 @@
          order by alam.sort_order
   </querytext>
 </fullquery>
+  
+  <fullquery name="ams::value.select_value">
+    <querytext>
+      select ams_attribute_value__value(av.attribute_id,av.value_id) as value, widget,attribute_name,av.attribute_id
+      from ams_attribute_values av, ams_attributes aa 
+      where object_id = :object_id
+      and av.attribute_id = aa.attribute_id
+      $where_clause
+    </querytext>
+  </fullquery>
 
 </queryset>
