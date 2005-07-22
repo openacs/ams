@@ -400,3 +400,38 @@ ad_proc -public ams::values {
     }
 }
 
+ad_proc -public ams::value {
+    -object_id:required
+    -attribute_id
+    -attribute_name
+    {-format "html"}
+} {
+    Return the value of an attribute for a certain object. You can
+    provide either the attribute_id or the attribute_name
+    
+    @author Malte Sussdorff (sussdorff@sussdorff.de)
+    @creation-date 2005-07-22
+    
+    @param object_id The object for which the value is stored
+
+    @param attribute_id The attribute_id of the attribute for which the value is retrieved
+
+    @param attribute_name Alternatively the attribute_name for the attribute
+
+    @return 
+    
+    @error 
+} {
+    if {[exists_and_not_null attribute_id]} {
+	set where_clause "and aa.attribute_id = :attribute_id"
+    } else {
+	set where_clause "and aa.attribute_name = :attribute_name"
+    }
+    if {[db_0or1row select_value {}]} {
+	return [ams::widget -widget $widget -request "value_${format}" -attribute_name $attribute_name -attribute_id $attribute_id -value $value]
+    } else {
+	return ""
+    }
+}
+
+
