@@ -376,6 +376,7 @@ ad_proc -public ams::values {
     -list_name:required
     -object_id:required
     {-format "text"}
+    {-locale ""}
 } {
     this returns a list with the first element as the pretty_attribute name and the second the value
 } {
@@ -391,7 +392,7 @@ ad_proc -public ams::values {
                 set heading $section_heading
             }
             if { [exists_and_not_null value] } {
-                lappend values $heading $attribute_name $pretty_name [ams::widget -widget $widget -request "value_${format}" -attribute_name $attribute_name -attribute_id $attribute_id -value $value]
+                lappend values $heading $attribute_name $pretty_name [ams::widget -widget $widget -request "value_${format}" -attribute_name $attribute_name -attribute_id $attribute_id -value $value -locale $locale]
             }
         }
         return $values
@@ -405,6 +406,7 @@ ad_proc -public ams::value {
     -attribute_id
     -attribute_name
     {-format "html"}
+    {-locale ""}
 } {
     Return the value of an attribute for a certain object. You can
     provide either the attribute_id or the attribute_name
@@ -428,7 +430,7 @@ ad_proc -public ams::value {
 	set where_clause "and aa.attribute_name = :attribute_name"
     }
     if {[db_0or1row select_value {}]} {
-	return [ams::widget -widget $widget -request "value_${format}" -attribute_name $attribute_name -attribute_id $attribute_id -value $value]
+	return [ams::widget -widget $widget -request "value_${format}" -attribute_name $attribute_name -attribute_id $attribute_id -value $value -locale $locale]
     } else {
 	return ""
     }
