@@ -21,6 +21,7 @@ ad_proc -public ams::widget {
     {-form_name ""}
     {-value ""}
     {-optional_p "1"}
+    {-locale ""}
 } {
     This proc defers its responses to all other <a href="/api-doc/proc-search?show_deprecated_p=0&query_string=ams::widget::&source_weight=0&param_weight=3&name_weight=5&doc_weight=2&show_private_p=1&search_type=All+matches">ams::widget::${widget}</a> procs.
 
@@ -61,7 +62,7 @@ ad_proc -public ams::widget {
                 if { [exists_and_not_null value] } {
                     if { [::ams::widget_has_options_p -widget $widget] } {
                         set output [list]
-                        foreach option [::ams::widget_options -attribute_id $attribute_id] {
+                        foreach option [::ams::widget_options -attribute_id $attribute_id -locale $locale] {
                             if { [lsearch $value [lindex $option 1]] >= 0 } {
                                 lappend output [lindex $option 0]
                             }
@@ -86,12 +87,13 @@ ad_proc -public ams::widget {
 
 ad_proc -private ams::widget_options {
     -attribute_id:required
+    {-locale ""}
 } {
     Return all widget procs. Each list element is a list of the first then pretty_name then the widget
 } {
     set return_list [list]
     db_foreach get_options {} {
-	set option "[lang::util::localize $option]"
+	set option "[lang::util::localize $option $locale]"
 	lappend return_list [list $option $option_id]
     }
     return $return_list
