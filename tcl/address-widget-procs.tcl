@@ -67,9 +67,24 @@ ad_proc -public template::util::address::html_view {
         }
     }
 
-    set address "$delivery_address
-$municipality, $region  $postal_code
+    # Different formats depending on the country
+    
+    switch $country_code {
+	"US" {
+	    set address "$delivery_address
+$municipality, $region $postal_code
 $country"
+	}
+	"DE" {
+	    set address "$delivery_address
+$postal_code $municipality"
+	}	    
+	default {
+	    set address "$delivery_address
+$postal_code $municipality
+$country"
+	}	    
+    }
     return [ad_text_to_html $address]
 }
 
