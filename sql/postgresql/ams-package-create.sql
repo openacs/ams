@@ -327,7 +327,7 @@ create or replace function ams_value__asses (text)
 returns integer as '
 declare
         p_ams_value__options    alias for $1;
-        v_value_id              integer
+        v_value_id              integer;
 begin
 
         v_value_id := value_id

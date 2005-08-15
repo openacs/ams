@@ -142,8 +142,6 @@ select acs_attribute__create_attribute (
 ------ Attribute Values
 --------------------------------------------------------------------
 
-
-
 create table ams_attribute_values (
         object_id               integer
                                 constraint ams_attribute_values_object_id_fk references acs_objects(object_id)
@@ -155,6 +153,7 @@ create table ams_attribute_values (
                                 constraint ams_attribute_values_nn not null
 );
 
+create index ams_attribute_values_attribute_idx on ams_attribute_values(attribute_id);
 
 ------ Options
 --------------------------------------------------------------------

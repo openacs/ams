@@ -12,6 +12,7 @@
   <msg key="Attribute_Name">Name des Attributs</msg>
   <msg key="Checkbox">Checkbox - Mehrere Optionen erlaubt</msg>
   <msg key="country">Land</msg>
+  <msg key="country_DE">Deutschland</msg>
   <msg key="Date">Datum</msg>
   <msg key="Define_Widget">Widget definieren</msg>
   <msg key="delivery_address">Strasse</msg>
@@ -37,9 +38,7 @@
   <msg key="Ordering">Reihenfolge</msg>
   <msg key="Package_Key">Package Key</msg>
   <msg key="postal_code">Postleitzahl</msg>
-  <msg key="Pretty_Name">Sichtbarer Name: Name</msg>
   <msg key="Pretty_Name_1">Sichtbarer Name</msg>
-  <msg key="Pretty_Plural">Sichtbarer Name im Plural:</msg>
   <msg key="Pretty_Plural_1">Sichtbarer Name im Plural</msg>
   <msg key="Preview_Input_Form">Voransicht des Formblatts</msg>
   <msg key="Radio">Radio Buttons - Eine Option erlaubt</msg>
@@ -47,15 +46,13 @@
   <msg key="Required">Erforderlich</msg>
   <msg key="Richtext">Textbox (WYSYWIG-Editor)</msg>
   <msg key="Select">Drop Down List - Eine Option erlaubt</msg>
-  <msg key="Sort_Order">Sortierreihenfolge</msg>
+  <msg key="select_one">Eine Gruppe auswählen</msg>
   <msg key="Telecom_Number">Telefonnummer</msg>
   <msg key="Textarea">Textbox (längerer Text möglich)</msg>
   <msg key="Textbox">Textzeile</msg>
   <msg key="Unmap">Attribut entfernen</msg>
   <msg key="Unmapped_Attributes">Nicht zugewiesene Attribute</msg>
-  <msg key="Update_Options">Aktualisieren der Optionen</msg>
   <msg key="Update_Ordering">Update Reihenfolge</msg>
   <msg key="Url">Website URL</msg>
-  <msg key="Widget">Widget</msg>
   <msg key="Widget_1">Widget</msg>
 </message_catalog>
