@@ -65,11 +65,8 @@ ad_proc -public attribute::new {
 } {
     create a new attribute
 
-@see ams::attribute::new
+    @see ams::attribute::new
 } {
-    set pretty_name   [lang::util::convert_to_i18n -message_key "ams_attribute_${object_type}_${attribute_name}_pretty_name" -text "$pretty_name"]
-    set pretty_plural [lang::util::convert_to_i18n -message_key "ams_attribute_${object_type}_${attribute_name}_pretty_plural" -text "$pretty_plural"]
-
     if { $if_does_not_exist_p } {
 	set attribute_id [attribute::id -object_type $object_type -attribute_name $attribute_name]
 	if { [string is false [exists_and_not_null attribute_id]] } {
@@ -78,6 +75,11 @@ ad_proc -public attribute::new {
     } else {
 	set attribute_id [db_string create_attribute {}]
     }
+
+    # Update the pretty names
+    set pretty_name   [lang::util::convert_to_i18n -message_key "ams_attribute_${attribute_id}_pretty_name" -text "$pretty_name"]
+    set pretty_plural [lang::util::convert_to_i18n -message_key "ams_attribute_${attribute_id}_pretty_plural" -text "$pretty_plural"]
+    db_dml update_pretty_names "update acs_attributes set pretty_name = :pretty_name, pretty_plural = :pretty_plural where attribute_id = :attribute_id"
     return $attribute_id
 }
 

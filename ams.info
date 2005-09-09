@@ -24,6 +24,7 @@
         <requires url="acs-lang" version="5.1.5d1"/>
 
         <callbacks>
+            <callback type="after-upgrade"  proc="ams::install::after_upgrade"/>
         </callbacks>
         <parameters>
             <parameter datatype="string"  min_n_values="1"  max_n_values="1"  name="DefaultISOCountryCode"  description="Specify the default ISO Country Code(s) to be used for all address widgets. The first country that will show up is the first entry in this list. The countries specified here will be be at the top of the country list seperated from all other country codes. If left blank it will default to whatever country is alphabetically first in the language used. For a complete list of codes look at the countries table in the database." section_name="address-widget"/>
