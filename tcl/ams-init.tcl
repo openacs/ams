@@ -39,8 +39,9 @@ if { [empty_string_p [info procs "::lang::util::convert_to_i18n"]] } {
 	if {[exists_and_not_null locale]} {
 	    lang::message::register $locale $package_key $message_key $text
 	}
-	
+ 	
 	return "\#${package_key}.${message_key}\#"
     }
 
 }
+

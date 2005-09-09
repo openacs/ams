@@ -67,10 +67,10 @@ ad_proc -public attribute::new {
 
 @see ams::attribute::new
 } {
-    set pretty_name   [lang::util::convert_to_i18n -message_key "ams_attribute.${object_type}.${attribute_name}.pretty_name" -text "$pretty_name"]
-    set pretty_plural [lang::util::convert_to_i18n -message_key "ams_attribute.${object_type}.${attribute_name}.pretty_plural" -text "$pretty_plural"]
+    set pretty_name   [lang::util::convert_to_i18n -message_key "ams_attribute_${object_type}_${attribute_name}_pretty_name" -text "$pretty_name"]
+    set pretty_plural [lang::util::convert_to_i18n -message_key "ams_attribute_${object_type}_${attribute_name}_pretty_plural" -text "$pretty_plural"]
 
-if { $if_does_not_exist_p } {
+    if { $if_does_not_exist_p } {
 	set attribute_id [attribute::id -object_type $object_type -attribute_name $attribute_name]
 	if { [string is false [exists_and_not_null attribute_id]] } {
 	    set attribute_id [db_string create_attribute {}]
@@ -264,14 +264,13 @@ ad_proc -public ams::util::edit_lang_key_url {
  } {
      Create a new ams option for an attribute
  } {
-     db_1row get_object_data { select object_type, attribute_name from ams_attributes where attribute_id = :attribute_id }
 
      set option_id [db_string get_option_id { select option_id from ams_option_types where option = :option and attribute_id = :attribute_id } -default {}]
 
      if { $option_id == "" } {
 
 	 set option_id [db_nextval acs_object_id_seq]
-	 set pretty_name [lang::util::convert_to_i18n -message_key "${attribute_name}_$option_id" -text "$option"]
+	 set pretty_name [lang::util::convert_to_i18n -message_key "ams_option_${option_id}" -text "$option"]
 	 set extra_vars [ns_set create]
 	 oacs_util::vars_to_ns_set -ns_set $extra_vars -var_list {option_id attribute_id option sort_order deprecated_p pretty_name}
 	 set option_id [package_instantiate_object -extra_vars $extra_vars ams_option]
