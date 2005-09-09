@@ -203,9 +203,9 @@ end;' language 'plpgsql' stable strict;
 ------ Options                                        
 --------------------------------------------------------------------
 
-select define_function_args('ams_option__new','option_id,attribute_id,option,sort_order,depreacted_p;f,creation_date,creation_user,creation_ip,context_id');
+select define_function_args('ams_option__new','option_id,attribute_id,option,sort_order,depreacted_p;f,creation_date,creation_user,creation_ip,context_id,pretty_name');
 
-create or replace function ams_option__new (integer,integer,varchar,integer,boolean,timestamptz,integer,varchar,integer)
+create or replace function ams_option__new (integer,integer,varchar,integer,boolean,timestamptz,integer,varchar,integer,varchar)
 returns integer as '
 declare
         p_option_id             alias for $1;
@@ -217,6 +217,7 @@ declare
         p_creation_user         alias for $7;
         p_creation_ip           alias for $8;
         p_context_id            alias for $9;
+        p_pretty_name           alias for $10;
         v_option_id             integer;
         v_sort_order            integer;
 begin
@@ -227,7 +228,9 @@ begin
                 p_creation_date,
                 p_creation_user,
                 P_creation_ip,
-                p_context_id
+                p_context_id,
+		''t'',
+		p_pretty_name
         );
 
         if p_sort_order is null then

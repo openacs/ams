@@ -4,9 +4,11 @@
 <fullquery name="ams::widget_options.get_options">
   <querytext>
     select option,
-           option_id
-      from ams_option_types
+           option_id,
+	   title as pretty_name
+      from ams_option_types aot, acs_objects ao
      where attribute_id = :attribute_id
+	and aot.option_id = ao.object_id
        and not deprecated_p
      order by sort_order
   </querytext>

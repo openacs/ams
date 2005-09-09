@@ -51,6 +51,9 @@ list::create \
                 </else>
             }
         }
+	pretty_name {
+	    label "[_ ams.Pretty_Name]"
+	}
         sort_order {
             label "[_ ams.Sort_Order]"
             display_template {
@@ -78,6 +81,7 @@ list::create \
             layout table
             row {
                 option {}
+		pretty_name {}
                 sort_order {}
                 actions {}
             }
@@ -88,10 +92,11 @@ list::create \
 set sort_count 10
 set sort_key_count 10000
 db_multirow -extend { sort_order sort_key delete_url edit_url } options select_options {
-    select option_id, option,
+    select option_id, option, title as pretty_name,
            CASE WHEN ( select '1' from ams_options where ams_options.option_id = ams_option_types.option_id limit 1 ) IS NULL THEN 0 ELSE 1 END as in_use_p
-      from ams_option_types
+      from ams_option_types aot, acs_objects o
      where attribute_id = :attribute_id
+     and aot.option_id = o.object_id
      order by sort_order
 } {
     set sort_order $sort_count

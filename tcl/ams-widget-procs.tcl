@@ -93,8 +93,8 @@ ad_proc -private ams::widget_options {
 } {
     set return_list [list]
     db_foreach get_options {} {
-	set option "[lang::util::localize $option $locale]"
-	lappend return_list [list $option $option_id]
+	set pretty_name "[lang::util::localize $pretty_name $locale]"
+	lappend return_list [list $pretty_name $option_id]
     }
     return $return_list
 }
