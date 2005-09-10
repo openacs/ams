@@ -58,9 +58,14 @@ ad_proc -public template::util::telecom_number::html_view {
     }
     append telecom_number $area_city_code
     if { [exists_and_not_null telecom_number] } { append telecom_number "-" }
-    append telecom_number $subscriber_number
+    append telecom_number "$subscriber_number"
     if { [exists_and_not_null extension] } { append telecom_number "&nbsp;x$extension" }
-    return $telecom_number
+    set phone_url [parameter::get_from_package_key -parameter "PhoneURL" -package_key "ams" -default ""]
+    if {[empty_string_p $phone_url]} {
+	return $telecom_number
+    } else {
+	return "<a href=\"[eval set foo $phone_url]\">$telecom_number</a>"
+    }
 }
 
 ad_proc -public template::util::telecom_number::acquire { type { value "" } } {
@@ -390,7 +395,7 @@ ad_proc -public template::widget::telecom_number { element_reference tag_attribu
   } else {
       # Display mode
       if { [info exists element(value)] } {
-          append output [template::util::telecom_number::get_property html_view $element(value)]
+          append output "[template::util::telecom_number::get_property html_view $element(value)]"
           append output "<input type=\"hidden\" name=\"$element(id).itu_id\" value=\"[ad_quotehtml $itu_id]\">"
           append output "<input type=\"hidden\" name=\"$element(id).national_number\" value=\"[ad_quotehtml $national_number]\">"
           append output "<input type=\"hidden\" name=\"$element(id).area_city_code\" value=\"[ad_quotehtml $area_city_code]\">"
