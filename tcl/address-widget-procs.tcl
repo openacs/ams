@@ -68,7 +68,6 @@ ad_proc -public template::util::address::html_view {
     }
 
     # Different formats depending on the country
-    
     switch $country_code {
 	"US" {
 	    set address "$delivery_address
@@ -80,9 +79,15 @@ $country"
 $postal_code $municipality"
 	}	    
 	default {
-	    set address "$delivery_address
-$postal_code $municipality
+	    if { [parameter::get_from_package_key -package_key "ams" -parameter "DefaultAdressLayoutP" -default 1] } {
+		set address "$delivery_address
+$municipality $region $postal_code
 $country"
+	    } else {
+		set address "$delivery_address
+$postal_code $municipality $region
+$country"
+	    }
 	}	    
     }
     return [ad_text_to_html $address]
@@ -457,15 +462,31 @@ ad_proc -public template::widget::address { element_reference tag_attributes } {
     <td colspan=\"3\"><small>[_ ams.delivery_address]</small><br></td>
   </tr>
   <tr>
-    <td><input type=\"text\" name=\"$element(id).municipality\" value=\"[ad_quotehtml $municipality]\" size=\"20\" class=\"address-widget-municipality\" ></td>
-    <td><input type=\"text\" name=\"$element(id).region\" value=\"[ad_quotehtml $region]\" size=\"10\" class=\"address-widget-region\" ></td>
-    <td><input type=\"text\" name=\"$element(id).postal_code\" value=\"[ad_quotehtml $postal_code]\" size=\"7\" class=\"address-widget-postal_code\" ></td>
-  </tr>
-  <tr>
-    <td align=\"left\"><small>[_ ams.municipality]</small></td>
-    <td align=\"center\"><small>[_ ams.region]</small></td>
-    <td align=\"right\"><small>[_ ams.postal_code]</small></td>
-  </tr>
+"
+      if  { [parameter::get_from_package_key -package_key "ams" -parameter "DefaultAdressLayoutP" -default 1] } {
+	  append output "
+            <td><input type=\"text\" name=\"$element(id).municipality\" value=\"[ad_quotehtml $municipality]\" size=\"20\" class=\"address-widget-municipality\" ></td>
+            <td><input type=\"text\" name=\"$element(id).region\" value=\"[ad_quotehtml $region]\" size=\"10\" class=\"address-widget-region\" ></td>
+            <td><input type=\"text\" name=\"$element(id).postal_code\" value=\"[ad_quotehtml $postal_code]\" size=\"7\" class=\"address-widget-postal_code\" ></td>
+        </tr>
+        <tr>
+           <td align=\"left\"><small>[_ ams.municipality]</small></td>
+           <td align=\"center\"><small>[_ ams.region]</small></td>
+           <td align=\"right\"><small>[_ ams.postal_code]</small></td>
+        </tr>"
+      } else {
+	  append output "
+            <td><input type=\"text\" name=\"$element(id).postal_code\" value=\"[ad_quotehtml $postal_code]\" size=\"7\" class=\"address-widget-postal_code\" ></td>
+            <td><input type=\"text\" name=\"$element(id).municipality\" value=\"[ad_quotehtml $municipality]\" size=\"20\" class=\"address-widget-municipality\" ></td>
+            <td><input type=\"text\" name=\"$element(id).region\" value=\"[ad_quotehtml $region]\" size=\"10\" class=\"address-widget-region\" ></td>
+        </tr>
+        <tr>
+           <td align=\"right\"><small>[_ ams.postal_code]</small></td>
+           <td align=\"left\"><small>[_ ams.municipality]</small></td>
+           <td align=\"center\"><small>[_ ams.region]</small></td>
+        </tr>"
+      }
+      append output "
   <tr>
     <td colspan=\"3\">[menu $element(id).country_code [template::util::address::country_options] $country_code attributes]</td>
   </tr>
