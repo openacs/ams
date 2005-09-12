@@ -29,6 +29,9 @@ ad_proc -public ams::install::after_upgrade {
 		    }
 		}
 	    }
+	    1.1d3 1.1d4 {
+		apm_parameter_register "DefaultAdressLayoutP" "Especify the default template for input and display layout for the address. Set to 1 for { street, city, state, zip, country } or 0 for { street, zip, city, state, country }" "ams" "1" "number" "address-widget"
+	    }
 	}
 }
 
