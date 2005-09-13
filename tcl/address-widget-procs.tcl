@@ -471,8 +471,8 @@ ad_proc -public template::widget::address { element_reference tag_attributes } {
         </tr>
         <tr>
            <td align=\"left\"><small>[_ ams.municipality]</small></td>
-           <td align=\"center\"><small>[_ ams.region]</small></td>
-           <td align=\"right\"><small>[_ ams.postal_code]</small></td>
+           <td align=\"left\"><small>[_ ams.region]</small></td>
+           <td align=\"left\"><small>[_ ams.postal_code]</small></td>
         </tr>"
       } else {
 	  append output "
@@ -481,9 +481,9 @@ ad_proc -public template::widget::address { element_reference tag_attributes } {
             <td><input type=\"text\" name=\"$element(id).region\" value=\"[ad_quotehtml $region]\" size=\"10\" class=\"address-widget-region\" ></td>
         </tr>
         <tr>
-           <td align=\"right\"><small>[_ ams.postal_code]</small></td>
+           <td align=\"left\"><small>[_ ams.postal_code]</small></td>
            <td align=\"left\"><small>[_ ams.municipality]</small></td>
-           <td align=\"center\"><small>[_ ams.region]</small></td>
+           <td align=\"left\"><small>[_ ams.region]</small></td>
         </tr>"
       }
       append output "
