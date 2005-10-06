@@ -374,6 +374,27 @@ ad_proc -public ams::values {
     {-format "text"}
     {-locale ""}
 } {
+    This returns a list with the first element as the pretty_attribute name 
+    and the second the value. Cached
+} {
+    return [util_memoize [list ams::values_not_cached \
+			      -package_key $package_key \
+			      -object_type $object_type \
+			      -list_name $list_name \
+			      -object_id $object_id \
+			      -format $format \
+			      -locale $locale]]
+}
+
+
+ad_proc -public ams::values_not_cached {
+    -package_key:required
+    -object_type:required
+    -list_name:required
+    -object_id:required
+    {-format "text"}
+    {-locale ""}
+} {
     this returns a list with the first element as the pretty_attribute name and the second the value
 } {
     if { $format != "html" } {
@@ -397,7 +418,32 @@ ad_proc -public ams::values {
     }
 }
 
+
 ad_proc -public ams::value {
+    -object_id:required
+    -attribute_id
+    -attribute_name
+    {-format "html"}
+    {-locale ""}
+} {
+    Return the value of an attribute for a certain object. You can
+    provide either the attribute_id or the attribute_name. Cached.
+    
+    @param object_id The object for which the value is stored
+    @param attribute_id The attribute_id of the attribute for which the value is retrieved
+    @param attribute_name Alternatively the attribute_name for the attribute
+    @return
+    @error
+} {
+    return [util_memoize [list ams::value_not_cached \
+			      -object_id $object_id \
+			      -attribute_id $attribute_id \
+			      -attribute_name $attribute_name \
+			      -format $format \
+			      -locale $locale]]
+}
+
+ad_proc -public ams::value_not_cached {
     -object_id:required
     -attribute_id
     -attribute_name

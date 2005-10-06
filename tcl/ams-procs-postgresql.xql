@@ -151,7 +151,7 @@
   </querytext>
 </fullquery>
 
-<fullquery name="ams::values.select_values">
+<fullquery name="ams::values_not_cached.select_values">
   <querytext>
         select alam.attribute_id,
                alam.section_heading,
@@ -171,7 +171,7 @@
   </querytext>
 </fullquery>
   
-  <fullquery name="ams::value.select_value">
+  <fullquery name="ams::value_not_cached.select_value">
     <querytext>
       select ams_attribute_value__value(av.attribute_id,av.value_id) as value, widget,attribute_name,av.attribute_id
       from ams_attribute_values av, ams_attributes aa 
