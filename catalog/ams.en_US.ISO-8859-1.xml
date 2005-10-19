@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="ams" package_version="1.1d4" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="ams" package_version="1.1d5" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Action">Action</msg>
   <msg key="Add_an_AMS_Attribute">Add an AMS Attribute</msg>
@@ -18,6 +18,7 @@
   <msg key="app_rec_plural">Applications Recieved</msg>
   <msg key="app_visa">Application Visa</msg>
   <msg key="app_visa_plural">Application Visas</msg>
+  <msg key="Attribute">Attribute</msg>
   <msg key="Attribute_Name">Attribute Name</msg>
   <msg key="birthday">Birthday</msg>
   <msg key="birthday_plural">Birthdays</msg>
@@ -401,6 +402,7 @@
   <msg key="sms_trans_plural">Transferred to Student Management System</msg>
   <msg key="suffix">Suffix</msg>
   <msg key="suffix_plural">Suffixes</msg>
+  <msg key="Table">Table</msg>
   <msg key="Telecom_Number">Phone Number</msg>
   <msg key="Telecom_numbers_in_country_code_one_must_be_formatted_like_AAA-SSS-SSSSxXXXX_out_of_country_like_011-CCC-AAAA-SSSS-SSSxXXXX">Invalid phone number format. Phone Numbers must by either formatted as AAA-999-9999xEEEE for Country Code &quot;1&quot; (i.e. the United States, Canada, etc.) or 011-CCC-AAA-99999999xEEEE for numbers outside country code &quot;1&quot;. Where &quot;C&quot; is country code, &quot;A&quot; is area code, &quot;9&quot; is the phone number and &quot;E&quot; is the extension number.</msg>
   <msg key="Textarea">Textarea</msg>
