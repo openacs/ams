@@ -893,7 +893,8 @@ ad_proc -private ams::widget::textarea {
 	    return ${value}
 	}
         value_html {
-	    return [ad_html_text_convert -from "text/plain" -to "text/html" -- ${value}]
+#	    return [ad_html_text_convert -from "text/plain" -to "text/html" -- ${value}]
+	    return ${value}
 	}
         csv_value {
 	    # not yet implemented
@@ -969,7 +970,8 @@ ad_proc -private ams::widget::richtext {
 	    return ${value}
 	}
         value_html {
-	    return [ad_html_text_convert -from "text/plain" -to "text/html" -- ${value}]
+#	    return [ad_html_text_convert -from "text/plain" -to "text/html" -- ${value}]
+	    return ${value}
 	}
         csv_value {
 	    # not yet implemented

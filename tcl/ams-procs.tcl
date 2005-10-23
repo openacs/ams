@@ -421,8 +421,8 @@ ad_proc -public ams::values_not_cached {
 
 ad_proc -public ams::value {
     -object_id:required
-    -attribute_id
-    -attribute_name
+    {-attribute_id ""}
+    {-attribute_name ""}
     {-format "html"}
     {-locale ""}
 } {
@@ -471,6 +471,7 @@ ad_proc -public ams::value_not_cached {
     } else {
 	set where_clause "and aa.attribute_name = :attribute_name"
     }
+    
     if {[db_0or1row select_value {}]} {
 	return [ams::widget -widget $widget -request "value_${format}" -attribute_name $attribute_name -attribute_id $attribute_id -value $value -locale $locale]
     } else {
