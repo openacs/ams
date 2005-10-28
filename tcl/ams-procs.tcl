@@ -345,7 +345,7 @@ ad_proc -public ams::ad_form::elements {
 } {
     set list_ids [list]
     if { [empty_string_p $list_names] && [empty_string_p $list_name] } {
-	ad_return_complaint 1 "[_ ams.you_must_provide_list_name]" You must provide either <b>list_name</b> or <b>list_names</b>"
+	ad_return_complaint 1 "[_ ams.you_must_provide_list_name]"
 	ad_script_abort
     }
 
@@ -392,7 +392,8 @@ ad_proc -public ams::ad_form::values {
 ad_proc -public ams::values {
     -package_key:required
     -object_type:required
-    -list_name:required
+    {-list_name ""}
+    {-list_names ""}
     -object_id:required
     {-format "text"}
     {-locale ""}
@@ -404,6 +405,7 @@ ad_proc -public ams::values {
 			      -package_key $package_key \
 			      -object_type $object_type \
 			      -list_name $list_name \
+			      -list_names $list_names \
 			      -object_id $object_id \
 			      -format $format \
 			      -locale $locale]]
@@ -413,7 +415,8 @@ ad_proc -public ams::values {
 ad_proc -public ams::values_not_cached {
     -package_key:required
     -object_type:required
-    -list_name:required
+    {-list_name ""}
+    {-list_names ""}
     -object_id:required
     {-format "text"}
     {-locale ""}
@@ -423,11 +426,26 @@ ad_proc -public ams::values_not_cached {
     if { $format != "html" } {
         set format "text"
     }
-    set list_id [ams::list::get_list_id -package_key $package_key -object_type $object_type -list_name $list_name]
-    if { [exists_and_not_null list_id] } {
+    if { [empty_string_p $list_names] && [empty_string_p $list_name] } {
+	ad_return_complaint 1 "[_ ams.you_must_provide_list_name]"
+	ad_script_abort
+    }
+
+    if { [empty_string_p $list_names] && ![empty_string_p $list_name] } {
+	set list_names $list_name
+    }
+
+    foreach l_name $list_names {
+	lappend list_ids [ams::list::get_list_id -package_key $package_key -object_type $object_type -list_name $l_name]
+    }
+
+    # To use in the query
+    set list_ids [template::util::tcl_to_sql_list $list_ids]
+
+    if { [exists_and_not_null list_ids] } {
         set values [list]
         set heading ""
-        db_foreach select_values {} {
+        db_foreach select_values " " {
             if { [exists_and_not_null section_heading] } {
                 set heading $section_heading
             }

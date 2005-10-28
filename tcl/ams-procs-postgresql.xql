@@ -166,6 +166,15 @@
 
 <fullquery name="ams::values_not_cached.select_values">
   <querytext>
+	select 
+		distinct 
+		attribute_id,
+               	section_heading,
+               	attribute_name,
+               	pretty_name,
+               	widget,
+               	value
+	from (
         select alam.attribute_id,
                alam.section_heading,
                aa.attribute_name,
@@ -179,8 +188,8 @@
                     from ams_attribute_values
                    where ams_attribute_values.object_id = :object_id ) av on ( aa.attribute_id = av.attribute_id )
          where alam.attribute_id = aa.attribute_id
-           and alam.list_id = :list_id
-         order by alam.sort_order
+           and alam.list_id in ($list_ids)
+         order by alam.sort_order) attribute
   </querytext>
 </fullquery>
   
