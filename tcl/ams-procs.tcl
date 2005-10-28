@@ -330,18 +330,41 @@ ad_proc -public ams::ad_form::save {
 ad_proc -public ams::ad_form::elements {
     -package_key:required
     -object_type:required
-    -list_name:required
+    {-list_name ""}
+    {-list_names ""}
     {-key ""}
 } {
-    this code saves retrieves ad_form elements
-} {
-    set list_id [ams::list::get_list_id -package_key $package_key -object_type $object_type -list_name $list_name]
+    This code saves retrieves ad_form elements, it recieves list_name or list_names switch, if both are provided
+    then it would use list_names.
 
-set element_list ""
+    @param package_key      The package_key of the list_id.
+    @param object_type      The object_type of the list_id.
+    @param list_name        The list_name to get the list_id. Either this or list_names must be provided.
+    @param list_names       A list of list_names to get the list_ids from. Either this or list_name must be provided.
+    @param key              The key element to use in the form.
+} {
+    set list_ids [list]
+    if { [empty_string_p $list_names] && [empty_string_p $list_name] } {
+	ad_return_complaint 1 "[_ ams.you_must_provide_list_name]" You must provide either <b>list_name</b> or <b>list_names</b>"
+	ad_script_abort
+    }
+
+    if { [empty_string_p $list_names] && ![empty_string_p $list_name] } {
+	set list_names $list_name
+    }
+
+    foreach l_name $list_names {
+	lappend list_ids [ams::list::get_list_id -package_key $package_key -object_type $object_type -list_name $l_name]
+    }
+    
+    # To use in the query
+    set list_ids [template::util::tcl_to_sql_list $list_ids]
+
+    set element_list ""
     if { [exists_and_not_null key] } {
         lappend element_list "$key\:key"
     }
-    db_foreach select_elements {} {
+    db_foreach select_elements " " {
 	set element [ams::widget -widget $widget -request "ad_form_widget" -attribute_name $attribute_name -pretty_name $pretty_name -optional_p [string is false $required_p] -attribute_id $attribute_id]
 	if { [exists_and_not_null section_heading] } {
 	    lappend element [list section $section_heading]

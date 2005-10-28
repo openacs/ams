@@ -121,7 +121,17 @@
   </querytext>
 </fullquery>
 
-
-
+<fullquery name="ams::list::attribute::get_mapped_attributes.get_attributes">
+  <querytext>
+	select 
+		attribute_id 
+	from 
+		ams_list_attribute_map 
+	where 
+		list_id = :list_id 
+	order by 
+		attribute_id
+  </querytext>
+</fullquery>
 
 </queryset>

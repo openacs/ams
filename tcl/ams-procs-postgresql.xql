@@ -125,17 +125,30 @@
 
 <fullquery name="ams::ad_form::elements.select_elements">
   <querytext>
-        select alam.attribute_id,
-               alam.required_p,
-               alam.section_heading,
-               aa.attribute_name,
-               aa.pretty_name,
-               aa.widget
-          from ams_list_attribute_map alam,
-               ams_attributes aa
-         where alam.attribute_id = aa.attribute_id
-           and alam.list_id = :list_id
-         order by alam.sort_order
+	select 
+		distinct 
+	       	attribute_id,
+               	required_p,
+               	section_heading,
+               	attribute_name,
+               	pretty_name,
+               	widget
+	from (
+		select 
+	      		alam.attribute_id,
+              		alam.required_p,
+               		alam.section_heading,
+               		aa.attribute_name,
+               		aa.pretty_name,
+               		aa.widget
+          	from 
+			ams_list_attribute_map alam,
+               		ams_attributes aa
+        	 where 
+			alam.attribute_id = aa.attribute_id
+           		and alam.list_id in ($list_ids)
+         		order by alam.sort_order
+	) attributes
   </querytext>
 </fullquery>
 

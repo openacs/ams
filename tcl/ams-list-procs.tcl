@@ -268,6 +268,31 @@ ad_proc -public ams::list::attribute::optional {
     db_dml ams_list_attribute_optional {}
 }
 
+ad_proc -public ams::list::attribute::get_mapped_attributes {
+    {-list_id ""}
+    {-list_name ""}
+    -object_type:required
+    -package_key:required
+} {
+    Returns a list of attribute_id's mapped to the list_id. If you provided
+    both parameter list_id will be used.
+    
+    @param list_id     list_id to get mapped attributes from
+    @param list_name   list_name to get mapped attributes from
+    @param object_type the type of the object mapped to the list 
+    @param package_key the package_key to use for get the list_id when list_name is provided.
+} {
+    if { [empty_string_p $list_id] && [empty_string_p $list_name] } {
+	ad_return_complaint 1 "[_ ams.you_must_provide_list_id]"
+	ad_scritp_abort
+    }
+    
+    if { ![empty_string_p $list_name] && [empty_string_p $list_id]} {
+	set list_id [ams::list::get_list_id -package_key $package_key -object_type $object_type -list_name $list_name]
+    }
+    
+    return [db_list get_attributes { }]
+}
 
 
 
