@@ -362,18 +362,41 @@ ad_proc -public ams::ad_form::elements {
     
     # To use in the query
     set list_ids [template::util::tcl_to_sql_list $list_ids]
-
     set element_list ""
     if { [exists_and_not_null key] } {
         lappend element_list "$key\:key"
     }
-    db_foreach select_elements " " {
-	set element [ams::widget -widget $widget -request "ad_form_widget" -attribute_name $attribute_name -pretty_name $pretty_name -optional_p [string is false $required_p] -attribute_id $attribute_id]
-	if { [exists_and_not_null section_heading] } {
-	    lappend element [list section $section_heading]
+
+    # Control list to know which attributes are already in the
+    # elements list so we don't en up with duplicates
+    set control_list [list]
+
+    set all_attributes [db_list_of_lists select_elements " "]
+
+    foreach attribute $all_attributes {
+	set attribute_id [lindex $attribute 0]
+	if { [string equal [lsearch $control_list $attribute_id] "-1"] } {
+	    lappend control_list $attribute_id
+	    set required_p      [lindex $attribute 1]
+	    set section_heading [lindex $attribute 2]
+	    set attribute_name  [lindex $attribute 3]
+	    set pretty_name     [lindex $attribute 4]
+	    set widget          [lindex $attribute 5]
+
+	    set element [ams::widget \
+			     -widget $widget \
+			     -request "ad_form_widget" \
+			     -attribute_name $attribute_name \
+			     -pretty_name $pretty_name \
+			     -optional_p [string is false $required_p] -attribute_id $attribute_id]
+
+	    if { [exists_and_not_null section_heading] } {
+		lappend element [list section $section_heading]
+	    }
+	    lappend element_list $element
 	}
-	lappend element_list $element
     }
+    
     return $element_list
 }
 
@@ -451,16 +474,40 @@ ad_proc -public ams::values_not_cached {
     if { [exists_and_not_null list_ids] } {
         set values [list]
         set heading ""
-        db_foreach select_values " " {
-            if { [exists_and_not_null section_heading] } {
-                set heading $section_heading
-            }
-            if { [exists_and_not_null value] } {
-                lappend values $heading $attribute_name $pretty_name [ams::widget -widget $widget -request "value_${format}" -attribute_name $attribute_name -attribute_id $attribute_id -value $value -locale $locale]
+	
+	# Control list to know which attributes are already in the
+	# elements list so we don't en up with duplicates
+	set control_list [list]
+	
+	set all_attributes [db_list_of_lists select_values " "]
+	
+        foreach attribute $all_attributes {
+	    set attribute_id [lindex $attribute 0]
+	    if { [string equal [lsearch $control_list $attribute_id] "-1"] } {
+		lappend control_list $attribute_id
+		set section_heading [lindex $attribute 1]
+		set attribute_name  [lindex $attribute 2]
+		set pretty_name     [lindex $attribute 3]
+		set widget          [lindex $attribute 4]
+		set value           [lindex $attribute 5]
+
+		if { [exists_and_not_null section_heading] } {
+		    set heading $section_heading
+		}
+		if { [exists_and_not_null value] } {
+		    lappend values $heading $attribute_name $pretty_name [ams::widget \
+									      -widget $widget \
+									      -request "value_${format}" \
+									      -attribute_name $attribute_name \
+									      -attribute_id $attribute_id \
+									      -value $value -locale $locale]
+
+		    ns_log Notice "$attribute_name ($attribute_id):: $value"
+		}
+
 		ns_log Notice "$attribute_name ($attribute_id):: $value"
-            }
-	    ns_log Notice "$attribute_name ($attribute_id):: $value"
-        }
+	    }
+	}
         return $values
     } else {
         return [list]

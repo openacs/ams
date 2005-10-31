@@ -126,29 +126,19 @@
 <fullquery name="ams::ad_form::elements.select_elements">
   <querytext>
 	select 
-		distinct 
-	       	attribute_id,
-               	required_p,
-               	section_heading,
-               	attribute_name,
-               	pretty_name,
-               	widget
-	from (
-		select 
-	      		alam.attribute_id,
-              		alam.required_p,
-               		alam.section_heading,
-               		aa.attribute_name,
-               		aa.pretty_name,
-               		aa.widget
-          	from 
-			ams_list_attribute_map alam,
-               		ams_attributes aa
-        	 where 
-			alam.attribute_id = aa.attribute_id
-           		and alam.list_id in ($list_ids)
-         		order by alam.sort_order
-	) attributes
+      		alam.attribute_id,
+      		alam.required_p,
+      		alam.section_heading,
+       		aa.attribute_name,
+       		aa.pretty_name,
+      		aa.widget
+       	from 
+		ams_list_attribute_map alam,
+        	ams_attributes aa
+        where 
+		alam.attribute_id = aa.attribute_id
+        	and alam.list_id in ($list_ids)
+     		order by alam.sort_order
   </querytext>
 </fullquery>
 
@@ -166,30 +156,25 @@
 
 <fullquery name="ams::values_not_cached.select_values">
   <querytext>
-	select 
-		distinct 
-		attribute_id,
-               	section_heading,
-               	attribute_name,
-               	pretty_name,
-               	widget,
-               	value
-	from (
         select alam.attribute_id,
                alam.section_heading,
                aa.attribute_name,
                aa.pretty_name,
                aa.widget,
                av.value
-          from ams_list_attribute_map alam,
+        from ams_list_attribute_map alam,
                ams_attributes aa left join (
-                  select ams_attribute_values.attribute_id,
-                         ams_attribute_value__value(ams_attribute_values.attribute_id,ams_attribute_values.value_id) as value
-                    from ams_attribute_values
-                   where ams_attribute_values.object_id = :object_id ) av on ( aa.attribute_id = av.attribute_id )
-         where alam.attribute_id = aa.attribute_id
-           and alam.list_id in ($list_ids)
-         order by alam.sort_order) attribute
+                  select 
+			ams_attribute_values.attribute_id,
+                        ams_attribute_value__value(ams_attribute_values.attribute_id,ams_attribute_values.value_id) as value
+                  from 
+			ams_attribute_values
+                  where 
+			ams_attribute_values.object_id = :object_id ) av on ( aa.attribute_id = av.attribute_id )
+        where 
+		alam.attribute_id = aa.attribute_id
+         	and alam.list_id in ($list_ids)
+        order by alam.sort_order
   </querytext>
 </fullquery>
   
