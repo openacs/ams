@@ -1267,7 +1267,42 @@ ad_proc -public ams::attribute::save::text {
 			      -text $value \
 			      -text_format "text/plain"]
 	    ams::attribute::value_save -object_id $object_id -attribute_id $attribute_id -value_id $value_id
-	    ns_log Notice "AMS TEXT:: $object_id  - $attribute_id - $value_id"
+	}
+    }
+}
+
+ad_proc -public ams::attribute::save::number {
+    -object_id:required
+    {-attribute_id ""}
+    {-attribute_name ""}
+    {-object_type ""}
+    {-format "text/plain"}
+    -number
+} {
+    Save the value of an AMS text attribute for an object.
+    
+    @author Malte Sussdorff (sussdorff@sussdorff.de)
+    @creation-date 2005-07-22
+    
+    @param object_id The object for which the value is stored
+    
+    @param attribute_id The attribute_id of the attribute for which the value is retrieved
+    
+    @param attribute_name Alternatively the attribute_name for the attribute
+    
+    @param number The number value to save
+    @return
+    
+    @error
+} {
+    if {[exists_and_not_null value]} {
+	if {[empty_string_p $attribute_id]} {
+	    set attribute_id [attribute::id \
+				  -object_type "$object_type" -attribute_name "$attribute_name"]
+	}
+	if {[exists_and_not_null attribute_id]} {
+	    set value_id [ams::util::number_save -number $number]
+	    ams::attribute::value_save -object_id $object_id -attribute_id $attribute_id -value_id $value_id
 	}
     }
 }
@@ -1312,7 +1347,6 @@ ad_proc -public ams::attribute::save::timestamp {
     if {[exists_and_not_null attribute_id]} {
 	set value_id [ams::util::time_save -time "$month-$day-$year $hour:$minute"]
 	ams::attribute::value_save -object_id $object_id -attribute_id $attribute_id -value_id $value_id
-	ns_log Notice "AMS TIMESTAMP:: $object_id  - $attribute_id - $value_id"
     }
 }
 
@@ -1367,9 +1401,46 @@ ad_proc -public ams::attribute::save::postal_address {
 			  -additional_text $additional_text \
 			  -postal_type $postal_type]
 	ams::attribute::value_save -object_id $object_id -attribute_id $attribute_id -value_id $value_id
-	ns_log Notice "AMS POSTAL:: $object_id  - $attribute_id - $value_id"
     }
 }
+
+
+ad_proc -public ams::attribute::save::simple_phone_number {
+    -object_id:required
+    {-attribute_id ""}
+    {-attribute_name ""}
+    {-object_type ""}
+    -phone_number:required
+} {
+    Save the value of an AMS timestamp attribute for an object.
+    
+    @author Malte Sussdorff (sussdorff@sussdorff.de)
+    @creation-date 2005-07-22
+    
+    @param object_id The object for which the value is stored
+    
+    @param attribute_id The attribute_id of the attribute for which the value is retrieved
+    
+    @param attribute_name Alternatively the attribute_name for the attribute
+
+    @param phone_number  The simple phone number without any extras
+
+    @return
+    
+    @error
+} {
+
+    if {[empty_string_p $attribute_id]} {
+	set attribute_id [attribute::id \
+			      -object_type "$object_type" -attribute_name "$attribute_name"]
+    }
+    if {[exists_and_not_null attribute_id]} {
+
+	set value_id [ams::util::telecom_number_save -subscriber_number $phone_number]
+	ams::attribute::value_save -object_id $object_id -attribute_id $attribute_id -value_id $value_id
+    }
+}
+
 
 ad_proc -public ams::attribute::save::mc {
     -object_id:required

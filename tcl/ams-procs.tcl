@@ -457,7 +457,9 @@ ad_proc -public ams::values_not_cached {
             }
             if { [exists_and_not_null value] } {
                 lappend values $heading $attribute_name $pretty_name [ams::widget -widget $widget -request "value_${format}" -attribute_name $attribute_name -attribute_id $attribute_id -value $value -locale $locale]
+		ns_log Notice "$attribute_name ($attribute_id):: $value"
             }
+	    ns_log Notice "$attribute_name ($attribute_id):: $value"
         }
         return $values
     } else {
