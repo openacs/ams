@@ -11,6 +11,7 @@ ad_library {
 namespace eval ams {}
 namespace eval ams::widget {}
 namespace eval ams::util {}
+namespace eval ams::attribute::save {}
 
 ad_proc -public ams::widget {
     -widget:required
@@ -1142,15 +1143,6 @@ ad_proc -private ams::widget::url {
     }
 }
 
-
-
-
-
-
-
-
-
-
 ad_proc -private ams::util::text_save {
     -text:required
     -text_format:required
@@ -1236,3 +1228,215 @@ ad_proc -public ams::util::options_save {
     return $value_id
 }
 
+
+
+#########################
+# Quick Procs for Saving
+#########################
+
+ad_proc -public ams::attribute::save::text {
+    -object_id:required
+    {-attribute_id ""}
+    {-attribute_name ""}
+    {-object_type ""}
+    {-format "text/plain"}
+    -value
+} {
+    Save the value of an AMS text attribute for an object.
+    
+    @author Malte Sussdorff (sussdorff@sussdorff.de)
+    @creation-date 2005-07-22
+    
+    @param object_id The object for which the value is stored
+    
+    @param attribute_id The attribute_id of the attribute for which the value is retrieved
+    
+    @param attribute_name Alternatively the attribute_name for the attribute
+    
+    @return
+    
+    @error
+} {
+    if {[exists_and_not_null value]} {
+	if {[empty_string_p $attribute_id]} {
+	    set attribute_id [attribute::id \
+				  -object_type "$object_type" -attribute_name "$attribute_name"]
+	}
+	if {[exists_and_not_null attribute_id]} {
+	    set value_id [ams::util::text_save \
+			      -text $value \
+			      -text_format "text/plain"]
+	    ams::attribute::value_save -object_id $object_id -attribute_id $attribute_id -value_id $value_id
+	    ns_log Notice "AMS TEXT:: $object_id  - $attribute_id - $value_id"
+	}
+    }
+}
+
+ad_proc -public ams::attribute::save::timestamp {
+    -object_id:required
+    {-attribute_id ""}
+    {-attribute_name ""}
+    {-object_type ""}
+    {-format "text/plain"}
+    -month
+    -day
+    -year
+    -hour
+    -minute
+} {
+    Save the value of an AMS timestamp attribute for an object.
+    
+    @author Malte Sussdorff (sussdorff@sussdorff.de)
+    @creation-date 2005-07-22
+    
+    @param object_id The object for which the value is stored
+    
+    @param attribute_id The attribute_id of the attribute for which the value is retrieved
+    
+    @param attribute_name Alternatively the attribute_name for the attribute
+
+    @param month Month of the object to store
+    @param day Day of the object to store
+    @param year Year of the object
+    @param hour Hour of the object
+    @param minute Minute of the object
+    
+    @return
+    
+    @error
+} {
+    if {[empty_string_p $attribute_id]} {
+	set attribute_id [attribute::id \
+			      -object_type "$object_type" -attribute_name "$attribute_name"]
+    }
+    if {[exists_and_not_null attribute_id]} {
+	set value_id [ams::util::time_save -time "$month-$day-$year $hour:$minute"]
+	ams::attribute::value_save -object_id $object_id -attribute_id $attribute_id -value_id $value_id
+	ns_log Notice "AMS TIMESTAMP:: $object_id  - $attribute_id - $value_id"
+    }
+}
+
+ad_proc -public ams::attribute::save::postal_address {
+    -object_id:required
+    {-attribute_id ""}
+    {-attribute_name ""}
+    {-object_type ""}
+    {-format "text/plain"}
+    -delivery_address:required
+    -municipality:required
+    -region:required
+    -postal_code:required
+    -country_code:required
+    {-additional_text ""}
+    {-postal_type ""}
+} {
+    Save the value of an AMS timestamp attribute for an object.
+    
+    @author Malte Sussdorff (sussdorff@sussdorff.de)
+    @creation-date 2005-07-22
+    
+    @param object_id The object for which the value is stored
+    
+    @param attribute_id The attribute_id of the attribute for which the value is retrieved
+    
+    @param attribute_name Alternatively the attribute_name for the attribute
+
+    @param delivery_address Street Information
+    @param municipality City/Town
+    @param region Region
+    @param postal_code Postal / ZIP Code
+    @param country_code Country Code of the address
+    @param additional_text Additional text for the address
+    @param postal_type Addtional postal type information
+    
+    @return
+    
+    @error
+} {
+    if {[empty_string_p $attribute_id]} {
+	set attribute_id [attribute::id \
+			      -object_type "$object_type" -attribute_name "$attribute_name"]
+    }
+    if {[exists_and_not_null attribute_id]} {
+	set value_id [ams::util::postal_address_save \
+			  -delivery_address $delivery_address \
+			  -municipality $municipality \
+			  -region $region \
+			  -postal_code $postal_code \
+			  -country_code $country_code \
+			  -additional_text $additional_text \
+			  -postal_type $postal_type]
+	ams::attribute::value_save -object_id $object_id -attribute_id $attribute_id -value_id $value_id
+	ns_log Notice "AMS POSTAL:: $object_id  - $attribute_id - $value_id"
+    }
+}
+
+ad_proc -public ams::attribute::save::mc {
+    -object_id:required
+    {-attribute_id ""}
+    {-attribute_name ""}
+    {-object_type ""}
+    -value
+    {-format "text/plain"}
+} {
+    Save the value of an AMS multiple choice attribute like "select",
+    "radio"  for an object.
+    
+    @author Malte Sussdorff (sussdorff@sussdorff.de)
+    @creation-date 2005-07-22
+    
+    @param object_id The object for which the value is stored
+    
+    @param attribute_id The attribute_id of the attribute for which the value is retrieved
+    
+    @param attribute_name Alternatively the attribute_name for the attribute
+
+    @return
+    
+    @error
+} {
+    if {[exists_and_not_null value]} {
+	# map values if corresponding mapping-function
+	# exists
+	
+	set proc "map_$attribute_name"
+	
+	if {[llength [info procs $proc]] == 1} {
+	    if {[exists_and_not_null value]} {
+		if {[catch {set value [eval $proc {$value}]} err]} {
+		    append error_string "Contact \#$contact_count ($first_names $last_name): $err<br>"
+		}
+	    }
+	}
+    }
+    
+    if {[exists_and_not_null value]} {
+
+	if {[empty_string_p $attribute_id]} {
+	    set attribute_id [attribute::id \
+				  -object_type "$object_type" -attribute_name "$attribute_name"]
+	}
+
+	switch $value {
+	    "TRUE" {set value "t" }
+	    "FALSE" {set value "f" }
+	    default {set value "#acs-translations.organization_[set attribute]_$value#"}
+	}
+	set option_id [db_string get_option {select option_id from ams_option_types where attribute_id = :attribute_id and option = :value} \
+			   -default {}]
+
+	# Create the option if it no already existed.
+	if {![exists_and_not_null option_id]} {
+	    set option_id [ams::option::new \
+			       -attribute_id $attribute_id \
+			       -option $value]
+	    ns_log notice "...... CREATED OPTION $option_id: $value"
+	}
+	
+	# Save the value using the option_id
+	set value_id [ams::util::options_save \
+			  -options $option_id]
+	ams::attribute::value_save -object_id $object_id -attribute_id $attribute_id -value_id $value_id
+	ns_log Notice "AMS MC:: $object_id  - $attribute_id - $value_id"
+    }
+}

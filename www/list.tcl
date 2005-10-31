@@ -116,6 +116,7 @@ list::create \
             layout table
             row {
                 checkbox {}
+		attribute_name {}
                 pretty_name {}
                 sort_order {}
                 answer {}
