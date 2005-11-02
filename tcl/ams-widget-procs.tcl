@@ -783,6 +783,11 @@ ad_proc -private ams::widget::textbox {
 
     @see ams::widget
 } {
+    # We save this value to use in the display
+    set org_value $value
+
+    # We escape all characters, since you can't use a string that has "{" "}" "[" "]"  as a list
+    regsub -all {[\]\[\{\}\"\\$]} $value {\\&} value
     set value_format [lindex $value 0]
     set value [lrange $value 1 end]
     switch $request {
@@ -817,9 +822,13 @@ ad_proc -private ams::widget::textbox {
 	    return [ams::util::text_save -text $value -text_format "text/plain"]
 	}
         value_text {
+	    # We return the original string here without the format part otherwise it will return scaped characters
+	    set value [string range $org_value [expr [string length $value_format] + 1] [string length $org_value]]
 	    return ${value}
 	}
-        value_html {
+	value_html {
+	    # We return the original string here without the format part otherwise it will return scaped characters
+	    set value [string range $org_value [expr [string length $value_format] + 1] [string length $org_value]]
 	    return [ad_html_text_convert -from "text/plain" -to "text/html" -- ${value}]
 	}
         csv_value {
@@ -857,6 +866,11 @@ ad_proc -private ams::widget::textarea {
 
     @see ams::widget
 } {
+    # We save this value to use in the display
+    set org_value $value
+
+    # We escape all characters, since you can't use a string that has "{" "}" "[" "]"  as a list
+    regsub -all {[\]\[\{\}\"\\$]} $value {\\&} value
     set value_format [lindex $value 0]
     set value [lrange $value 1 end]
     switch $request {
@@ -891,9 +905,13 @@ ad_proc -private ams::widget::textarea {
 	    return [ams::util::text_save -text $value -text_format "text/plain"]
 	}
         value_text {
+	    # We return the original string here without the format part otherwise it will return scaped characters
+	    set value [string range $org_value [expr [string length $value_format] + 1] [string length $org_value]]
 	    return ${value}
 	}
         value_html {
+	    # We return the original string here without the format part otherwise it will return scaped characters
+	    set value [string range $org_value [expr [string length $value_format] + 1] [string length $org_value]]
 #	    return [ad_html_text_convert -from "text/plain" -to "text/html" -- ${value}]
 	    return ${value}
 	}
@@ -1263,6 +1281,7 @@ ad_proc -public ams::attribute::save::text {
 				  -object_type "$object_type" -attribute_name "$attribute_name"]
 	}
 	if {[exists_and_not_null attribute_id]} {
+
 	    set value_id [ams::util::text_save \
 			      -text $value \
 			      -text_format "text/plain"]

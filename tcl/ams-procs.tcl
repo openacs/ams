@@ -490,7 +490,15 @@ ad_proc -public ams::values_not_cached {
 		set pretty_name     [lindex $attribute 3]
 		set widget          [lindex $attribute 4]
 		set value           [lindex $attribute 5]
-
+		
+		set val [list]
+		if { [regexp "\{text/.*\}" $value value_format] } {
+		    lappend val [lindex $value_format 0]
+		    lappend val [list [string range $value [expr [string length $value_format] + 1] [string length $value]]]
+		} else {
+		    set val $value
+		}
+	    
 		if { [exists_and_not_null section_heading] } {
 		    set heading $section_heading
 		}
@@ -500,7 +508,8 @@ ad_proc -public ams::values_not_cached {
 									      -request "value_${format}" \
 									      -attribute_name $attribute_name \
 									      -attribute_id $attribute_id \
-									      -value $value -locale $locale]
+									      -value $value \
+									      -locale $locale]
 
 		    ns_log Notice "$attribute_name ($attribute_id):: $value"
 		}
