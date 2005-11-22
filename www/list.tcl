@@ -83,11 +83,16 @@ list::create \
             label "[_ ams.Heading]"
             display_col section_heading
         }
+	html_options {
+	    label "[_ ams.Html_options]"
+	    display_col html_options
+	}
         action {
             label "[_ ams.Action]"
             display_template {
                 <a href="@mapped_attributes.unmap_url@" class="button">[_ ams.Unmap]</a>
                 <a href="@mapped_attributes.heading_url@" class="button"><if @mapped_attributes.section_heading@ nil>[_ ams.Add_Heading]</if><else>[_ ams.EditDelete_Heading]</else></a>
+		<a href="@mapped_attributes.html_options_url@" class="button"><if @mapped_attributes.html_options@ nil>[_ ams.Add_Html_options]</if><else>[_ ams.EditDelete_Html]</else></a>
             }
         }
         answer {
@@ -122,6 +127,7 @@ list::create \
                 answer {}
                 action {}
 		section_heading {}
+		html_options {}
             }
         }
     }
@@ -130,28 +136,26 @@ list::create \
 
 set sort_order_count 10
 
-db_multirow -extend { sort_order_key attribute_url unmap_url heading_url required_url optional_url } -unclobber mapped_attributes select_mapped_attributes {
-        select alam.required_p,
-               alam.section_heading,
-               ams.attribute_id,
-               ams.widget,
-               ams.deprecated_p,
-               ams.attribute_name,
-               ams.pretty_name,
-               ams.pretty_plural,
-               ams.object_type
-          from ams_list_attribute_map alam,
-               ams_attributes ams
-         where alam.list_id = :list_id
-           and alam.attribute_id = ams.attribute_id
-         order by alam.sort_order
-} {
+set extend_list [list \
+		     sort_order_key \
+		     attribute_url \
+		     unmap_url \
+		     heading_url \
+		     required_url \
+		     optional_url \
+		     html_options_url]
+
+db_multirow -extend $extend_list -unclobber mapped_attributes select_mapped_attributes { } {
     set attribute_url "attribute?[export_vars -url {attribute_id}]"
     set sort_order_key $sort_order_count
     set unmap_url [export_vars -base "list-attributes-unmap" -url {list_id attribute_id return_url return_url_label}]
     set heading_url [export_vars -base "list-attribute-section-heading" -url {list_id attribute_id return_url return_url_label}]
     set required_url [export_vars -base "list-attributes-required" -url {list_id attribute_id return_url return_url_label}]
     set optional_url [export_vars -base "list-attributes-optional" -url {list_id attribute_id return_url return_url_label}]
+    set html_options_url [export_vars \
+			      -base "list-attribute-html-options" \
+			      -url {list_id attribute_id}]
+
     incr sort_order_count 10
 }
 
@@ -213,18 +217,7 @@ list::create \
 
 # This query will override the ad_page_contract value entry_id
 
-db_multirow -extend { attribute_url attribute_add_url map_url } -unclobber unmapped_attributes get_unmapped_attributes "
-        select attribute_id,
-               widget,
-               deprecated_p,
-               attribute_name,
-               pretty_name,
-               pretty_plural,
-               object_type
-          from ams_attributes
-         where attribute_id not in ( select alam.attribute_id from ams_list_attribute_map alam where alam.list_id = :list_id )
-           and object_type in ([ams::object_parents -sql -object_type $object_type])
-" {
+db_multirow -extend { attribute_url attribute_add_url map_url } -unclobber unmapped_attributes get_unmapped_attributes " " {
     set attribute_add_url [export_vars -base "attribute-add" -url {object_type attribute_name {return_url $this_url}}]
     set attribute_url [export_vars -base "attribute" -url {attribute_id}]
     set map_url [export_vars -base "list-attributes" -url {list_id attribute_id return_url return_url_label {command "map"}}]
@@ -235,8 +228,3 @@ set return_url_label $provided_return_url_label
 
 
 ad_return_template
-
-
-
-
-
