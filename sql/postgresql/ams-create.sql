@@ -465,6 +465,7 @@ create table ams_list_attribute_map (
         required_p              boolean
                                 constraint ams_list_attribute_map_required_p_nn not null,
         section_heading         varchar(200),
+	html_options            varchar(1000),
         UNIQUE(list_id,attribute_id),
         UNIQUE(list_id,sort_order)
 );
