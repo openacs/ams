@@ -129,6 +129,7 @@
       		alam.attribute_id,
       		alam.required_p,
       		alam.section_heading,
+		alam.html_options,
        		aa.attribute_name,
        		aa.pretty_name,
       		aa.widget
@@ -158,6 +159,7 @@
   <querytext>
         select alam.attribute_id,
                alam.section_heading,
+	       alam.html_options,
                aa.attribute_name,
                aa.pretty_name,
                aa.widget,
