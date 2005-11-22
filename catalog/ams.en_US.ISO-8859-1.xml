@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="ams" package_version="1.1d7" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="ams" package_version="1.1d10" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Action">Action</msg>
   <msg key="Add_an_AMS_Attribute">Add an AMS Attribute</msg>
   <msg key="Add_Attribute">Add Attribute</msg>
   <msg key="Add_Heading">Add Heading</msg>
+  <msg key="Add_Html_options">Add Html Options</msg>
   <msg key="Address">Address</msg>
   <msg key="AMS_Attributes">AMS Attributes</msg>
   <msg key="AMS_Lists">AMS Lists</msg>
@@ -278,12 +279,14 @@
   <msg key="degree">Degree From Previous School</msg>
   <msg key="degree_plural">Degree From Previous Schools</msg>
   <msg key="Delete_Heading">Delete Heading</msg>
+  <msg key="Delete_html">Delete Html Options</msg>
   <msg key="delivery_address">Street</msg>
   <msg key="denomination">Denomination</msg>
   <msg key="denomination_plural">Denominations</msg>
   <msg key="division">App Division</msg>
   <msg key="division_plural">App Divisions</msg>
   <msg key="EditDelete_Heading">Edit/Delete Heading</msg>
+  <msg key="EditDelete_Html">Edit/Delete Html Options</msg>
   <msg key="Email">Email</msg>
   <msg key="enrl_int">Enrollment Interest Level</msg>
   <msg key="enrl_int_plural">Enrollment Interest Levels</msg>
@@ -300,6 +303,8 @@
   <msg key="Heading">Heading</msg>
   <msg key="hsgrad_yr">Bachelor's Graduation Year</msg>
   <msg key="hsgrad_yr_plural">Bachelor's Graduation Years</msg>
+  <msg key="Html_options">Html options</msg>
+  <msg key="Html_options_help">Name Value attribute pairs for the html tag. Example rows 10 cols 50 maxlength 200</msg>
   <msg key="incomplete">Incomplete Application</msg>
   <msg key="incomplete_plural">Incomplete Applications</msg>
   <msg key="inq_type">Inquiry Type</msg>
