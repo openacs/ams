@@ -47,8 +47,25 @@ ad_proc -public template::util::telecom_number::html_view {
     {location {}}
     {phone_type_id {}}
 } {
-    set telecom_number "$national_number $area_city_code-$subscriber_number\x$extension"
-    return [ad_text_to_html $telecom_number]
+    set telecom_number ""
+    if { [parameter::get_from_package_key -parameter "ForceCountryCodeOneFormatting" -package_key "ams" -default "0"] } {
+        if { $national_number != "1" } {
+            set telecom_number "[_ ams.international_dial_code]${national_number}-"
+        }
+    } else {
+        set telecom_number ${national_number}
+        if { [exists_and_not_null telecom_number] } { append telecom_number "-" }
+    }
+    append telecom_number $area_city_code
+    if { [exists_and_not_null telecom_number] } { append telecom_number "-" }
+    append telecom_number "$subscriber_number"
+    if { [exists_and_not_null extension] } { append telecom_number "&nbsp;x$extension" }
+    set phone_url [parameter::get_from_package_key -parameter "PhoneURL" -package_key "ams" -default ""]
+    if {[empty_string_p $phone_url]} {
+	return $telecom_number
+    } else {
+	return "<a href=\"[eval set foo $phone_url]\">$telecom_number</a>"
+    }
 }
 
 ad_proc -public template::util::telecom_number::acquire { type { value "" } } {
@@ -93,17 +110,16 @@ ad_proc -public template::data::validate::telecom_number { value_ref message_ref
     set best_contact_time      [template::util::telecom_number::get_property best_contact_time $telecom_number_list]
     set location               [template::util::telecom_number::get_property location $telecom_number_list]
     set phone_type_id          [template::util::telecom_number::get_property phone_type_id $telecom_number_list]
-
     
-    if { ![parameter::get -parameter "ForceCountryCodeOneFormatting" -default "0"] } {
+    if { ![parameter::get_from_package_key -parameter "ForceCountryCodeOneFormatting" -package_key "ams" -default "0"] } {
         # the number is not required to be formatted in a country code one friendly way
 
         # we need to verify that the number does not contain invalid characters
         set telecom_number_temp "$itu_id$national_number$area_city_code$subscriber_number$extension$sms_enabled_p$best_contact_time"
         regsub -all " " $telecom_number_temp "" telecom_number_temp
         ns_log Notice $telecom_number_temp
-        if { ![regexp {^([0-9]|x|-|\)|\(){1,}$} $telecom_number_temp match telecom_number_temp] } {
-             set message [_ ams.Telecom_numbers_must_only_contain_numbers_dashes_and_x_es_and_rounded_braces]
+        if { ![regexp {^([0-9]|x|-|\+|\)|\(){1,}$} $telecom_number_temp match telecom_number_temp] } {
+	    set message [_ ams.lt_Telecom_numbers_must_only_contain]
         }
     } else {
         # we have a number in country code one that must follow certain formatting guidelines
@@ -114,7 +130,7 @@ ad_proc -public template::data::validate::telecom_number { value_ref message_ref
         # users know how they are supposed to format numbers.
         
         if { ![exists_and_not_null area_city_code] || ![exists_and_not_null national_number] } {
-            set message [_ ams.Telecom_numbers_in_country_code_one_must_be_formatted_like_AAA-SSS-SSSSxXXXX_out_of_country_like_011-CCC-AAAA-SSSS-SSSxXXXX]
+            set message [_ ams.lt_Telecom_numbers_in_country_code]
         }
     }
 
@@ -145,7 +161,7 @@ ad_proc -public template::data::transform::telecom_number { element_ref } {
     # we need to seperate out the returned value into individual elements for a single box entry widget
     set number              [string trim [ns_queryget $element_id.summary_number]]
 
-    if { ![parameter::get -parameter "ForceCountryCodeOneFormatting" -default "0"] } {
+    if { ![parameter::get_from_package_key -parameter "ForceCountryCodeOneFormatting" -package_key "ams" -default "0"] } {
         # we need to verify that the number is formatted correctly
         # if yes we seperate the number into various elements
         set subscriber_number $number
@@ -202,9 +218,9 @@ ad_proc -public template::util::telecom_number::set_property { what telecom_numb
 } {
 
     set itu_id                 [template::util::telecom_number::get_property itu_id $telecom_number_list]
-    set subscriber_number      [template::util::telecom_number::get_property subscriber_number $telecom_number_list]
     set national_number        [template::util::telecom_number::get_property national_number $telecom_number_list]
     set area_city_code         [template::util::telecom_number::get_property area_city_code $telecom_number_list]
+    set subscriber_number      [template::util::telecom_number::get_property subscriber_number $telecom_number_list]
     set extension              [template::util::telecom_number::get_property extension $telecom_number_list]
     set sms_enabled_p          [template::util::telecom_number::get_property sms_enabled_p $telecom_number_list]
     set best_contact_time      [template::util::telecom_number::get_property best_contact_time $telecom_number_list]
@@ -252,12 +268,15 @@ ad_proc -public template::util::telecom_number::get_property { what telecom_numb
     @param what the name of the property. Must be one of:
     <ul>
     <li>itu_id (synonyms street_telecom_number, street)
-    <li>subscriber_number (synonyms zip_code, zip)
     <li>national_number (synonyms city, town)
     <li>area_city_code (synonyms state, province)
+    <li>subscriber_number (synonyms zip_code, zip)
     <li>extension (synonym country)
     <li>addtional_text (this is not implemented in the default US widget)
     <li>best_contact_time (this is not implemented in the default US widget)
+    <li>sms_enabled_p (this is not implemented in the default US widget)
+    <li>location (this is not implemented in the default US widget)
+    <li>phone_type_id (this is not implemented in the default US widget)
     <li>html_view - this returns an nice html formatted view of the telecom_number
     </ul>
     @param telecom_number_list a telecom_number datatype value, usually created with ad_form.
@@ -301,7 +320,7 @@ ad_proc -public template::util::telecom_number::get_property { what telecom_numb
             set best_contact_time      [template::util::telecom_number::get_property best_contact_time $telecom_number_list]
             set location               [template::util::telecom_number::get_property location $telecom_number_list]
             set phone_type_id          [template::util::telecom_number::get_property phone_type_id $telecom_number_list]
-            return [template::util::telecom_number::html_view $itu_id $subscriber_number $national_number $area_city_code $extension $sms_enabled_p $best_contact_time $location $phone_type_id]
+            return [template::util::telecom_number::html_view $itu_id $national_number $area_city_code $subscriber_number $extension $sms_enabled_p $best_contact_time $location $phone_type_id]
         }
         default {
             error "Parameter supplied to util::telecom_number::get_property 'what' must be one of: 'itu_id', 'subscriber_number', 'national_number', 'area_city_code', 'extension', 'sms_enabled_p', 'best_contact_time', 'location', 'phone_type_id'. You specified: '$what'."
@@ -325,9 +344,9 @@ ad_proc -public template::widget::telecom_number { element_reference tag_attribu
 
   if { [info exists element(value)] } {
       set itu_id                 [template::util::telecom_number::get_property itu_id $element(value)]
-      set subscriber_number      [template::util::telecom_number::get_property subscriber_number $element(value)]
       set national_number        [template::util::telecom_number::get_property national_number $element(value)]
       set area_city_code         [template::util::telecom_number::get_property area_city_code $element(value)]
+      set subscriber_number      [template::util::telecom_number::get_property subscriber_number $element(value)]
       set extension              [template::util::telecom_number::get_property extension $element(value)]
       set sms_enabled_p          [template::util::telecom_number::get_property sms_enabled_p $element(value)]
       set best_contact_time      [template::util::telecom_number::get_property best_contact_time $element(value)]
@@ -376,7 +395,7 @@ ad_proc -public template::widget::telecom_number { element_reference tag_attribu
   } else {
       # Display mode
       if { [info exists element(value)] } {
-          append output [template::util::telecom_number::get_property html_view $element(value)]
+          append output "[template::util::telecom_number::get_property html_view $element(value)]"
           append output "<input type=\"hidden\" name=\"$element(id).itu_id\" value=\"[ad_quotehtml $itu_id]\">"
           append output "<input type=\"hidden\" name=\"$element(id).national_number\" value=\"[ad_quotehtml $national_number]\">"
           append output "<input type=\"hidden\" name=\"$element(id).area_city_code\" value=\"[ad_quotehtml $area_city_code]\">"

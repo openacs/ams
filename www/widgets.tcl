@@ -9,7 +9,7 @@ ad_page_contract {
 }
 
 
-set title "Widgets"
+set title "[_ ams.Widgets]"
 set context [list $title]
 
 
@@ -19,7 +19,7 @@ list::create \
     -name widgets \
     -multirow widgets \
     -key widget_name \
-    -row_pretty_plural "Object Types" \
+    -row_pretty_plural "[_ ams.Object_Types]" \
     -checkbox_name checkbox \
     -selected_format "normal" \
     -class "list" \
@@ -32,27 +32,27 @@ list::create \
     } -elements {
         widget_name {
             display_col widget_name
-            label "Widget Name"
+            label "[_ ams.Widget_Name]"
         }
         pretty_name {
             display_col pretty_name
-            label "Pretty Name"
+            label "[_ ams.Pretty_Name_1]"
         }
         pretty_plural {
             display_col pretty_plural
-            label "Pretty Plural"
+            label "[_ ams.Pretty_Plural_1]"
         }
         widget {
             display_col widget
-            label "Widget"
+            label "[_ ams.Widget_1]"
         }
         datatype {
             display_col datatype
-            label "Datatype"
+            label "[_ ams.Datatype]"
         }
         parameters {
             display_col parameters
-            label "Parameters"
+            label "[_ ams.Parameters]"
         }
     } -filters {
         object_type {}
@@ -60,7 +60,7 @@ list::create \
     } -orderby {
     } -formats {
         normal {
-            label "Table"
+            label "[_ ams.Table]"
             layout table
             row {
                 widget_name {}
@@ -83,7 +83,7 @@ db_multirow widgets get_widgets {
 template::multirow foreach widgets {
     set form_element "${widget_name}_widget:${datatype}(${widget}),optional"
     if { [string equal $storage_type "ams_options"] } {
-        append form_element { {options { {"Demo Example One" 1} {"Demo Example Two" 2} {"Demo Example Three" 3} {"Demo Example Four" 4} {"Demo Example Five" 5} {"Demo Example Six" 6} }}}
+        append form_element { {options { {"[_ ams.Demo_Example_One]" 1} {"[_ ams.Demo_Example_Two]" 2} {"[_ ams.Demo_Example_Three]" 3} {"[_ ams.Demo_Example_Four]" 4} {"[_ ams.Demo_Example_Five]" 5} {"[_ ams.Demo_Example_Six]" 6} }}}
     }
     if { [exists_and_not_null parameters] } {
         append form_element " ${parameters}"

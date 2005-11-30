@@ -44,10 +44,52 @@ ad_proc -public template::util::address::html_view {
     {postal_type {}}
 } {
     # MGEDDERT TODO, convert country code to country name via cached proc
-    set country $country_code
-    set address "$delivery_address
-$municipality, $region  $postal_code
+    if { [ad_conn isconnected] } {
+        # We are in an HTTP connection (request) so use that locale
+        set locale [ad_conn locale]
+    } else {
+        # There is no HTTP connection - resort to system locale
+        set locale [lang::system::locale]
+    }
+    set key "ams.country_${country_code}"
+    if { [string is true [lang::message::message_exists_p $locale $key]] } {
+        set country [lang::message::lookup $locale $key]
+    } else {
+        # cache the country codes
+        template::util::address::country_options_not_cached -locale $locale
+
+        if { [string is true [lang::message::message_exists_p $locale $key]] } {
+            set country [lang::message::lookup $locale $key]
+        } else {
+            # we get the default en_US key which was created with the
+            # template::util::address::country_options_not_cached proc
+            set country [lang::message::lookup "en_US" $key]
+        }
+    }
+
+    # Different formats depending on the country
+    switch $country_code {
+	"US" {
+	    set address "$delivery_address
+$municipality, $region $postal_code
 $country"
+	}
+	"DE" {
+	    set address "$delivery_address
+$postal_code $municipality"
+	}	    
+	default {
+	    if { [parameter::get_from_package_key -package_key "ams" -parameter "DefaultAdressLayoutP" -default 1] } {
+		set address "$delivery_address
+$municipality $region $postal_code
+$country"
+	    } else {
+		set address "$delivery_address
+$postal_code $municipality $region
+$country"
+	    }
+	}	    
+    }
     return [ad_text_to_html $address]
 }
 
@@ -62,20 +104,50 @@ ad_proc -public template::util::address::acquire { type { value "" } } {
 ad_proc -public template::util::address::formats {} {
     Returns a list of valid address formats
 } {
-# MGEDDERT NOTE: there needs to be a way to implement a way to portray addresses differently by country
+    # MGEDDERT NOTE: there needs to be a way to implement a way to portray addresses differently by country
     return { US CA DE }
 }
 
 ad_proc -public template::util::address::country_options {} {
     Returns the country list. Cached.
 } {
-    return [util_memoize [list template::util::address::country_options_not_cached]]
+    if { [ad_conn isconnected] } {
+        # We are in an HTTP connection (request) so use that locale
+        set locale [ad_conn locale]
+    } else {
+        # There is no HTTP connection - resort to system locale
+        set locale [lang::system::locale]
+    }
+    return [util_memoize [list template::util::address::country_options_not_cached -locale $locale]]
+#    return [template::util::address::country_options_not_cached]
 }
 
-ad_proc -public template::util::address::country_options_not_cached {} {
+ad_proc -public template::util::address::country_options_not_cached {
+    {-locale "en_US"}
+} {
     Returns the country list.
 } {
-    return [db_list_of_lists get_countries {}]
+    set country_code_list [db_list get_country_codes {}]
+    set return_country_list [list]
+    set reserved_country_codes [parameter::get_from_package_key -parameter "DefaultISOCountryCode" -package_key "ams" -default ""]
+
+    foreach country $country_code_list {
+        if { [lsearch $reserved_country_codes $country] < 0 } {
+            lappend return_country_list [list [lang::message::lookup $locale "ref-countries.${country}"] $country]
+        }
+    }
+    set return_country_list [ams::util::sort_list_of_lists -list $return_country_list]
+    set country_code [list]
+    if { [exists_and_not_null reserved_country_codes] } {
+        foreach country $reserved_country_codes {
+            set country [string toupper $country]
+            lappend country_code [list [lang::message::lookup $locale "ref-countries.${country}"] $country]
+        }
+        set country_code [concat $country_code [list "--" ""] $return_country_list]
+    } else {
+        set country_code $return_country_list
+    }
+    return $country_code
 }
 
 ad_proc -public template::data::validate::address { value_ref message_ref } {
@@ -90,27 +162,62 @@ ad_proc -public template::data::validate::address { value_ref message_ref } {
     set additional_text  [template::util::address::get_property additional_text $address_list]
     set postal_type      [template::util::address::get_property postal_type $address_list]
 
-    set message ""
+    set message [list]
     # this is used to make sure there are no invalid characters in the address
     set address_temp "$delivery_address $municipality $region $postal_code $country_code $additional_text $postal_type"
     if { [::string match "\{" $address_temp] || [::string match "\}" $address_temp] } {
         # for built in display purposes these characters are not allowed, if you need it 
         # to be allowed make SURE that retrieval procs in AMS are also updated
         # to deal with this change
-        if { [exists_and_not_null message_temp] } { append message " " }
-        append message "[_ ams.Your_entry_must_not_contain_the_following_characters]: \{ \}."
+        lappend message "[_ ams.Your_entry_must_not_contain_the_following_characters]: \{ \}."
     }
-    if { $country_code == "US" } {
-        # this should check a cached list
-        # this proc cannot for some reason go in the postgresql file...
-        if { ![db_0or1row validate_state {
-        select 1 from us_states where abbrev = upper(:region) or state_name = upper(:region)
-} ] } {
-            if { [exists_and_not_null message_temp] } { append message " " }
-            append message "\"$region\" [_ ams.is_not_a_valid_US_state]."
+
+    # Country Specific Validation
+    switch $country_code {
+        CA {
+            # Canada
+            if { ![exists_and_not_null region] } {
+                lappend message "\"[_ ams.region]\" is required."
+            }
+            if { [exists_and_not_null postal_code] } {
+                if { ![regexp {^([A-Z][0-9][A-Z] [0-9][A-Z][0-9])$} $postal_code] } {
+                    lappend message "\"$postal_code\" [_ ams.is_not_a_valid_Canadian_postal_code]."
+                }
+            } else {
+                lappend message "\"[_ ams.postal_code]\" is required."
+            }
+            if { ![exists_and_not_null municipality] } {
+                lappend message "\"[_ ams.municipality]\" is required."
+            }
+        }
+        US {
+            # United States
+            if { [exists_and_not_null region] } {
+                # this should check a cached list
+                # this query for some reason cannot go in the address-widget-procs.xql file...
+                if { ![db_0or1row validate_state {
+                    select 1 from us_states where abbrev = upper(:region) or state_name = upper(:region)
+                } ] } {
+                    lappend message "\"$region\" [_ ams.is_not_a_valid_US_state]."
+                }
+            } else {
+                lappend message "\"[_ ams.region]\" is required."
+            }
+            if { [exists_and_not_null postal_code] } {
+                if { ![regexp {^([0-9]{5})(-([0-9]{4}))??$} $postal_code] } {
+                    lappend message "\"$postal_code\" [_ ams.is_not_a_valid_US_zip_code]."
+                }
+            } else {
+                lappend message "\"[_ ams.postal_code]\" is required."
+            }
+            if { ![exists_and_not_null municipality] } {
+                lappend message "\"[_ ams.municipality]\" is required."
+            }
         }
     }
-    if { [exists_and_not_null message_temp] } {
+    set message [join $message " "]
+    ns_log notice "MESSAGE: $message"
+    if { [exists_and_not_null message] } {
         return 0
     } else {
         return 1
@@ -141,6 +248,53 @@ ad_proc -public template::data::transform::address { element_ref } {
         # as a non-value in case of a required element.
         return [list]
     } else {
+        if { $country_code == "US" } {
+            # since we have reference data installed we can automatically fill in these values for
+            # US States and Cities
+            if { [regexp {^([0-9]{5})(-([0-9]{4}))??$} $postal_code] } {
+                regexp {^([0-9]{5})(-([0-9]{4}))??$} $postal_code match zipcode
+                if { ![exists_and_not_null region] } {
+                    set region [db_string get_region {
+                        select abbrev
+                          from us_states
+                         where us_states.fips_state_code = ( select us_zipcodes.fips_state_code
+                                                               from us_zipcodes
+                                                              where zipcode = :zipcode )
+                    } -default {}]
+                }
+                if { ![exists_and_not_null municipality] } {
+                    set municipality [db_string get_municipality {
+                        select name
+                          from us_zipcodes
+                         where zipcode = :zipcode} -default {}]
+                }
+            }
+        }
+        if { $country_code == "CA" && [string length $postal_code] == "6" } {
+            set postal_list [split $postal_code {}]
+            set postal_code_temp [string toupper "[join [lrange $postal_list 0 2] {}] [join [lrange $postal_list 3 5] {}]"]
+            if { [regexp {^([A-Z][0-9][A-Z] [0-9][A-Z][0-9])$} $postal_code_temp] } {
+                set postal_code $postal_code_temp
+            }
+        }
+        if { $country_code == "US" || $country_code == "CA" } {
+            # make the city pretty
+            set municipality_temp [list]
+            foreach word $municipality {
+                # I am sure there are more then "Mc" words when they come up add them here
+                if { [regexp {^MC([a-zA-Z]+?)} [string toupper $word]] } {
+                    lappend municipality_temp [join "Mc[string toupper [lindex [split $word {}] 2]][string tolower [lrange [split $word {}] 3 [llength [split $word {}]]]]" {}]
+                } else {
+                    lappend municipality_temp [string totitle $word]
+                }
+            }
+            set municipality [join $municipality_temp " "]
+                     
+        }
+
+
+        set postal_code [string toupper $postal_code]
+
         return [list [list $delivery_address $municipality $region $postal_code $country_code $additional_text $postal_type]]
     }
 }
@@ -249,10 +403,12 @@ ad_proc -public template::util::address::get_property { what address_list } {
             set country_code     [template::util::address::get_property country_code $address_list]
             set additional_text  [template::util::address::get_property additional_text $address_list]
             set postal_type      [template::util::address::get_property postal_type $address_list]
-            return [template::util::address::html_view $delivery_address $postal_code $municipality $region $country_code $additional_text $postal_type]
+            return [template::util::address::html_view $delivery_address $municipality $region $postal_code $country_code $additional_text $postal_type]
         }
         default {
-            error "Parameter supplied to util::address::get_property 'what' must be one of: 'delivery_address', 'postal_code', 'municipality', 'region', 'country_code', 'additional_text', 'postal_type'. You specified: '$what'."
+            error "Parameter supplied to template::util::address::get_property 'what' must be one of: 'delivery_address', 'postal_code', 'municipality', 'region', 'country_code', 'additional_text', 'postal_type'. You specified: '$what'."
+            ns_log "AMS Address Widget Error: on page [ad_conn url] template::util::address::get_property asked for $what"
+            return ""
         }
         
     }
@@ -284,7 +440,7 @@ ad_proc -public template::widget::address { element_reference tag_attributes } {
       set postal_code      {}
       set municipality     {}
       set region           {}
-      set country_code     [parameter::get -parameter "DefaultISOCountryCode" -default "US"]
+      set country_code     [lindex [parameter::get_from_package_key -parameter "DefaultISOCountryCode" -package_key "ams" -default ""] 0]
       set additional_text  {}
       set postal_type      {}
   }
@@ -294,26 +450,43 @@ ad_proc -public template::widget::address { element_reference tag_attributes } {
   if { [string equal $element(mode) "edit"] } {
       
 
-      set attributes(id) \"address__$element(form_id)__$element(id)\"
+#      set attributes(id) "address__$element(form_id)__$element(id)"
+      set attributes(class) "address-widget-country-code"
 
       append output "
-<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\">
+<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"address-widget\">
   <tr>
-    <td colspan=\"3\"><textarea name=\"$element(id).delivery_address\" rows=\"2\" cols=\"50\" wrap=\"virtual\">[ad_quotehtml $delivery_address]</textarea></td>
+    <td colspan=\"3\"><textarea name=\"$element(id).delivery_address\" rows=\"2\" cols=\"50\" wrap=\"virtual\" class=\"address-widget-delivery-address\" >[ad_quotehtml $delivery_address]</textarea></td>
   </tr>
   <tr>
     <td colspan=\"3\"><small>[_ ams.delivery_address]</small><br></td>
   </tr>
   <tr>
-    <td><input type=\"text\" name=\"$element(id).municipality\" value=\"[ad_quotehtml $municipality]\" size=\"20\">&nbsp;&nbsp;</td>
-    <td><input type=\"text\" name=\"$element(id).region\" value=\"[ad_quotehtml $region]\" size=\"10\">&nbsp;&nbsp;</td>
-    <td><input type=\"text\" name=\"$element(id).postal_code\" value=\"[ad_quotehtml $postal_code]\" size=\"7\">&nbsp;&nbsp;</td>
-  </tr>
-  <tr>
-    <td><small>[_ ams.municipality]</small></td>
-    <td><small>[_ ams.region]</small></td>
-    <td><small>[_ ams.postal_code]</small></td>
-  </tr>
+"
+      if  { [parameter::get_from_package_key -package_key "ams" -parameter "DefaultAdressLayoutP" -default 1] } {
+	  append output "
+            <td><input type=\"text\" name=\"$element(id).municipality\" value=\"[ad_quotehtml $municipality]\" size=\"20\" class=\"address-widget-municipality\" ></td>
+            <td><input type=\"text\" name=\"$element(id).region\" value=\"[ad_quotehtml $region]\" size=\"10\" class=\"address-widget-region\" ></td>
+            <td><input type=\"text\" name=\"$element(id).postal_code\" value=\"[ad_quotehtml $postal_code]\" size=\"7\" class=\"address-widget-postal_code\" ></td>
+        </tr>
+        <tr>
+           <td align=\"left\"><small>[_ ams.municipality]</small></td>
+           <td align=\"left\"><small>[_ ams.region]</small></td>
+           <td align=\"left\"><small>[_ ams.postal_code]</small></td>
+        </tr>"
+      } else {
+	  append output "
+            <td><input type=\"text\" name=\"$element(id).postal_code\" value=\"[ad_quotehtml $postal_code]\" size=\"7\" class=\"address-widget-postal_code\" ></td>
+            <td><input type=\"text\" name=\"$element(id).municipality\" value=\"[ad_quotehtml $municipality]\" size=\"20\" class=\"address-widget-municipality\" ></td>
+            <td><input type=\"text\" name=\"$element(id).region\" value=\"[ad_quotehtml $region]\" size=\"10\" class=\"address-widget-region\" ></td>
+        </tr>
+        <tr>
+           <td align=\"left\"><small>[_ ams.postal_code]</small></td>
+           <td align=\"left\"><small>[_ ams.municipality]</small></td>
+           <td align=\"left\"><small>[_ ams.region]</small></td>
+        </tr>"
+      }
+      append output "
   <tr>
     <td colspan=\"3\">[menu $element(id).country_code [template::util::address::country_options] $country_code attributes]</td>
   </tr>

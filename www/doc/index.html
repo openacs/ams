@@ -21,9 +21,47 @@ code {
 <body>
 
 <a href="/api-doc/proc-view?proc="></a>
+
+
 <h1>AMS (Attribute Management System)</h1>
 
 <p>AMS lets developers (via tcl api) and site wide administrators (via the the ams admin UI) add attributes to acs_object. These attributes can be dynamically added at any time on a live system. AMS then helps you collect attribute information for these defined acs_objects via input forms and helps you present them to users via your website. Whenever AMS stores ams attribute information about an object it keeps track of changes made via the content repository. This way you can see who and when a user changed an object's attributes and are able to revert back to a previous state.</p>
+
+<h2>Widgets</h2>
+<p>The following procs associated with it in the tcl files, this is done via tcl so
+people can actually have a "widget" represent a series of widgets in ad_form or template::form</p>
+<pre>
+::widget::${widget}::ad_form_widget       - returns a string suitable for input into ad_form, it gets: attribute, pretty_name, value
+::widget::${widget}::ad_form_save         - saves the input to an ad_form widget and returns a value_id
+::widget::${widget}::ad_form_value        - returns a value suitable for input into ad_form, it gets, attribute, attribute_id and value
+::widget::${widget}::template_form_widget - runs a proc suitable for template::form, it gets: pretty_name, attribute, attribute_id, value
+::widget::${widget}::template_form_save   - saves the input to an termplate::form widget and returns a value_id
+::widget::${widget}::template_form_value  - returns a value suitable for input into ad_form, it gets, attribute, attribute_id and value
+::widget::${widget}::value_text           - return the value formatted for text output, value is provided - this in the future will allow for search indexing of this data
+::widget::${widget}::value_html           - return the value formatted for html output, value is provided
+::widget::${widget}::csv_value            - return the value formatted for csv output, value and attribute are provided
+::widget::${widget}::csv_headers          - return the value formatted for csv output, attribute is provided, for example, if returning a postal address we woudl return ${attribute}__country and ${attribute}__city, etc. For something such as gender we would simply return ${attribute}
+::widget::${widget}::csv_save             - save the value provided by csv, the input into this proc will be ${attribute}__subitem $value ${attribute}__subitem $value, its assumed that the cvs_headers will all be provided and that if there is no input a blank field will be supplied.
+
+
+
+::widget::${widget}::datatypes
+
+-- ams_widget_datatype_map is simplifies the selection of widgets to associate
+-- with an attribute. This allows us to present an administrator with list of valid
+-- widgets she can select for assocation with a particular datatype.
+
+create table ams_widget_datatype_map (
+        widget                  varchar(100)
+                                constraint ams_widget_datatype_map_fk references ams_widgets(widget)
+                                constraint ams_widget_datatype_map_nn not null,
+        datatype                varchar(50)
+                                constraint ams_widget_datatype_map_datatype_fk references acs_datatypes(datatype)
+                                constraint ams_widget_datatype_map_datatype_nn not null
+);
+
+
+</pre>
 
 <h2>Defining an Attribute</h2>
 

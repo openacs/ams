@@ -10,31 +10,66 @@ ad_page_contract {
 } {
     sort_key:array
     list_id:integer,notnull
-}
-
-
-set ams_attribute_ids [db_list get_attribute_ids { select ams_attribute_id from ams_list_attribute_map where list_id = :list_id order by sort_order }]
-
-
-# first we get the highest sort_order so variables without a sort_order can be given one
-set highest_sort 0
-set used_sorts [list]
-foreach ams_attribute_id $ams_attribute_ids {
-    if { $sort_key(${ams_attribute_id}) > $highest_sort } {
-        set highest_sort $sort_key(${ams_attribute_id})
+} -validate {
+    ordering_is_valid -requires {sort_key} {
+	set no_value_supplied [list]
+	set no_integer_supplied [list]
+	set used_sort_orders [list]
+	set doubled_sort_orders [list]
+	foreach {attribute_id sort_order} [array get sort_key] {
+	    set sort_order [string trim $sort_order]
+	    if { $sort_order == "" } {
+		lappend no_value_supplied $attribute_id
+	    } elseif { [string is false [string is integer $sort_order]] } {
+		lappend no_integer_supplied $attribute_id $sort_order
+	    } elseif { [info exists order($sort_order)] } {
+		lappend doubled_sort_orders $attribute_id $order($sort_order)
+	    } else {
+		set order($sort_order) $attribute_id
+	    }
+	}
+	set error_messages [list]
+	if { [llength $no_value_supplied] } {
+	    foreach attribute_id $no_value_supplied {
+		lappend error_messages "[_ ams.No_ordering_integer_was_supplied_for] <strong>[attribute::pretty_name -attribute_id $attribute_id]</strong>"
+	    }
+	}
+	if { [llength $no_integer_supplied] } {
+	    foreach { attribute_id sort_order } $no_integer_supplied {
+		lappend error_messages "[_ ams.The_ordering_number_is_not_an_integer_for] <strong>[attribute::pretty_name -attribute_id $attribute_id]</strong>"
+	    }
+	}
+	if { [llength $doubled_sort_orders] } {
+	    foreach { one_attribute_id two_attribute_id } $doubled_sort_orders {
+		lappend error_messages "[_ ams.The_ordering_number_is_the_same_for] <strong>[attribute::pretty_name -attribute_id $one_attribute_id]</strong> [_ ams.and] <strong>[attribute::pretty_name -attribute_id $two_attribute_id]</strong>"
+	    }
+	}
+	if { [llength $error_messages] > 0 } {
+	    foreach message $error_messages {
+		ad_complain $message
+	    }
+	}
     }
 }
 
+set attribute_order [list]
+set sort_key_list [array get sort_key]
+foreach {attribute_id sort_order} $sort_key_list {
+    set order($sort_order) $attribute_id
+    lappend attribute_order $sort_order
+}
+set ordered_list [lsort -integer $attribute_order]	
+
+set highest_sort [db_string get_highest_sort { select sort_order from ams_list_attribute_map where list_id = :list_id order by sort_order desc limit 1 }]
+incr highest_sort
+set sort_number 1
 db_transaction {
-    foreach ams_attribute_id $ams_attribute_ids {
-        set sort_order $sort_key(${ams_attribute_id})
-        incr highest_sort 1
-        db_dml update_sort_order { update ams_list_attribute_map set sort_order = :highest_sort where sort_order = :sort_order and list_id = :list_id }
-        if { ![exists_and_not_null sort_order] } {
-            incr highest_sort 1
-            set sort_order $highest_sort 
-        }
-        db_dml update_sort_order { update ams_list_attribute_map set sort_order = :sort_order where ams_attribute_id = :ams_attribute_id and list_id = :list_id }
+    foreach sort_order $ordered_list {
+	set attribute_id $order($sort_order)
+	db_dml update_sort_order { update ams_list_attribute_map set sort_order = :highest_sort where sort_order = :sort_number and list_id = :list_id }
+	db_dml update_sort_order { update ams_list_attribute_map set sort_order = :sort_number where attribute_id = :attribute_id and list_id = :list_id }
+	incr highest_sort
+	incr sort_number
     }
 }
 

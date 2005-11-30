@@ -20,7 +20,7 @@ list::create \
     -name object_attributes \
     -multirow object_attributes \
     -key attribute_name \
-    -row_pretty_plural "AMS Attributes" \
+    -row_pretty_plural "[_ ams.AMS_Attributes]" \
     -checkbox_name checkbox \
     -selected_format "normal" \
     -class "list" \
@@ -28,7 +28,7 @@ list::create \
     -sub_class "narrow" \
     -pass_properties {
         object_type
-    } -actions [list "Add" "attribute-add?object_type=$object_type" "Add an AMS Attribute"] \
+    } -actions [list "[_ acs-kernel.common_Add]" "attribute-add?object_type=$object_type" "[_ ams.Add_an_AMS_Attribute]"] \
     -bulk_actions {
     } -elements {
         edit {
@@ -36,23 +36,17 @@ list::create \
         }
         pretty_name {
             display_col pretty_name
-            label "Pretty Name"
+            label "[_ ams.Pretty_Name_1]"
             link_url_eval $ams_attribute_url
         }
         attribute_name {
             display_col attribute_name
-            label "Attribute Name"
-            link_url_eval $ams_attribute_url
+            label "[_ ams.Attribute_Name]"
         }
-        widget_name {
-            display_col widget_name
-            label "Widget Name"
-            link_url_eval widgets
-        }
-        actions {
-            label ""
+        widget {
+            label "[_ ams.Widget_1]"
             display_template {
-                <if @object_attributes.ams_attribute_id@ nil><a href="ams-attribute-create-from-acs-attribute?attribute_id=@object_attributes.attribute_id@" class="button">Upgrade to AMS Attribute</a></if>
+                <if @object_attributes.widget@ nil><a href="attribute-add?object_type=@object_type@&attribute_name=@object_attributes.attribute_name@" class="button">[_ ams.Define_Widget]</a></if><else><a href="widgets">@object_attributes.widget@</else>
             }
         }
     } -filters {
@@ -72,42 +66,35 @@ list::create \
             label attribute_name
             multirow_cols {ams_attribute_p attribute_name pretty_name}
         }
-        widget_name {
+        widget {
             label widget_name
-            multirow_cols {ams_attribute_p widget_name pretty_name attribute_name}
+            multirow_cols {ams_attribute_p widget pretty_name attribute_name}
         }
     } -formats {
         normal {
-            label "Table"
+            label "[_ ams.Table]"
             layout table
             row {
                 pretty_name {}
                 attribute_name {}
-                widget_name {}
-                actions {}
+                widget {}
             }
         }
     }
 
 
 db_multirow -extend { ams_attribute_url ams_attribute_p } object_attributes select_object_attributes {
-    select acs.attribute_name,
-           acs.pretty_name,
-           acs.pretty_plural,
-           acs.attribute_id,
-           ams.ams_attribute_id,
-           ams.widget_name
-      from acs_attributes acs, ams_attributes ams
-     where acs.object_type = :object_type
-       and acs.attribute_id = ams.attribute_id
+    select attribute_name,
+           pretty_name,
+           pretty_plural,
+           attribute_id,
+           widget
+      from ams_attributes
+     where object_type = :object_type
+     order by upper(pretty_name)
 } {
     if { [exists_and_not_null ams_attribute_id] } { set ams_attribute_p 1 } else { set ams_attribute_p 0 }
-
-    if { [exists_and_not_null ams_attribute_id] } {
-        set ams_attribute_url "attribute?ams_attribute_id=$ams_attribute_id"
-    } else {
-        set ams_attribute_url ""
-    }
+    set ams_attribute_url "attribute?attribute_id=$attribute_id"
     if { [lang::message::message_exists_p en_US $pretty_name] } {
         set pretty_name [_ $pretty_name]
     }
@@ -126,68 +113,6 @@ db_multirow -extend { ams_attribute_url ams_attribute_p } object_attributes sele
 
 
 
-
-
-# This code lets me setup AMS Attribute Upgrades for Attributes that were not created by AMS
-#
-# eventually we will allow these attributes to be "upgraded" to ams_attributes. We first need to provision a way
-# for them to not be deleted at package drop time, since other packages created these attributes they may need them.
-
-list::create \
-    -name non_ams_attributes \
-    -multirow non_ams_object_attributes \
-    -key attribute_name \
-    -row_pretty_plural "Attributes not managed by AMS" \
-    -checkbox_name checkbox \
-    -selected_format "normal" \
-    -class "list" \
-    -main_class "list" \
-    -sub_class "narrow" \
-    -pass_properties {
-        variable
-    } -actions {
-    } -bulk_actions {
-    } -elements {
-        pretty_name {
-            display_col pretty_name
-            label "Pretty Name"
-        }
-        attribute_name {
-            display_col attribute_name
-            label "Attribute Name"
-        }
-        actions {
-            label ""
-            display_template {
-                <a href="ams-attribute-create-from-acs-attribute?attribute_id=@non_ams_object_attributes.attribute_id@" class="button">Upgrade to AMS Attribute</a>
-            }
-        }
-    } -filters {
-        object_type {}
-    } -groupby {
-    } -orderby {
-    } -formats {
-        normal {
-            label "Table"
-            layout table
-            row {
-                pretty_name {}
-                attribute_name {}
-            }
-        }
-    }
-
-
-db_multirow non_ams_object_attributes select_non_ams_object_attributess {
-    select acs.attribute_name,
-           acs.pretty_name,
-           acs.pretty_plural,
-           acs.attribute_id
-      from acs_attributes acs
-     where acs.object_type = :object_type
-       and acs.attribute_id not in ( select attribute_id from ams_attributes )
-} {
-}
 
 
 
@@ -279,14 +204,6 @@ db_multirow -extend { description_html list_link } ams_lists select_ams_lists {
     set list_link "list?[export_vars -url {package_key object_type list_name}]"
     set description_html [ad_html_text_convert -from $description_mime_type -to "text/html" -truncate_len "175" $description]
 }
-
-
-
-
-
-
-
-
 
 
 
