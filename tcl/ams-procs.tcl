@@ -379,19 +379,16 @@ ad_proc -public ams::ad_form::elements {
 	    lappend control_list $attribute_id
 	    set required_p      [lindex $attribute 1]
 	    set section_heading [lindex $attribute 2]
-	    set html_options    [lindex $attribute 3]
-	    set attribute_name  [lindex $attribute 4]
-	    set pretty_name     [lindex $attribute 5]
-	    set widget          [lindex $attribute 6]
+	    set attribute_name  [lindex $attribute 3]
+	    set pretty_name     [lindex $attribute 4]
+	    set widget          [lindex $attribute 5]
 
 	    set element [ams::widget \
 			     -widget $widget \
 			     -request "ad_form_widget" \
 			     -attribute_name $attribute_name \
 			     -pretty_name $pretty_name \
-			     -optional_p [string is false $required_p] \
-			     -html_options $html_options \
-			     -attribute_id $attribute_id]
+			     -optional_p [string is false $required_p] -attribute_id $attribute_id]
 
 	    if { [exists_and_not_null section_heading] } {
 		lappend element [list section $section_heading]
@@ -477,7 +474,6 @@ ad_proc -public ams::values_not_cached {
     if { [exists_and_not_null list_ids] } {
         set values [list]
         set heading ""
-	set html_opt ""
 	
 	# Control list to know which attributes are already in the
 	# elements list so we don't en up with duplicates
@@ -490,11 +486,10 @@ ad_proc -public ams::values_not_cached {
 	    if { [string equal [lsearch $control_list $attribute_id] "-1"] } {
 		lappend control_list $attribute_id
 		set section_heading [lindex $attribute 1]
-		set html_options    [lindex $attribute 2]
-		set attribute_name  [lindex $attribute 3]
-		set pretty_name     [lindex $attribute 4]
-		set widget          [lindex $attribute 5]
-		set value           [lindex $attribute 6]
+		set attribute_name  [lindex $attribute 2]
+		set pretty_name     [lindex $attribute 3]
+		set widget          [lindex $attribute 4]
+		set value           [lindex $attribute 5]
 		
 		set val [list]
 		if { [regexp "\{text/.*\}" $value value_format] } {
@@ -507,11 +502,6 @@ ad_proc -public ams::values_not_cached {
 		if { [exists_and_not_null section_heading] } {
 		    set heading $section_heading
 		}
-		
-		if { [exists_and_not_null html_options] } {
-		    set html_opt $html_options
-		}
-
 		if { [exists_and_not_null value] } {
 		    lappend values $heading $attribute_name $pretty_name [ams::widget \
 									      -widget $widget \
@@ -519,7 +509,7 @@ ad_proc -public ams::values_not_cached {
 									      -attribute_name $attribute_name \
 									      -attribute_id $attribute_id \
 									      -value $value \
-									      -locale $locale] $html_opt
+									      -locale $locale]
 
 		    ns_log Notice "$attribute_name ($attribute_id):: $value"
 		}
