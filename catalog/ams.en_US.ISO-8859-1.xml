@@ -438,4 +438,5 @@
   <msg key="wk_permit_plural">Work Permits</msg>
   <msg key="you_must_provide_list_id">You must provide either &lt;b&gt;list_id&lt;/b&gt; or &lt;b&gt;list_name&lt;/b&gt;</msg>
   <msg key="you_must_provide_list_name">You must provide either &lt;b&gt;list_name&lt;/b&gt; or &lt;b&gt;list_names&lt;/b&gt;</msg>
+  <msg key="Your_delivery_address_is_too_long">Your delivery address is too long</msg>
 </message_catalog>

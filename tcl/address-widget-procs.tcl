@@ -171,6 +171,9 @@ ad_proc -public template::data::validate::address { value_ref message_ref } {
         # to deal with this change
         lappend message "[_ ams.Your_entry_must_not_contain_the_following_characters]: \{ \}."
     }
+    if {[::string length $delivery_address] > [parameter::get_from_package_key -parameter "DefaultStreetSize" -package_key "ams" -default "100"] } {
+	lappend message "[_ ams.Your_delivery_address_is_too_long]"
+    }
 
     # Country Specific Validation
     switch $country_code {
@@ -456,7 +459,7 @@ ad_proc -public template::widget::address { element_reference tag_attributes } {
       append output "
 <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"address-widget\">
   <tr>
-    <td colspan=\"3\"><textarea name=\"$element(id).delivery_address\" rows=\"2\" cols=\"50\" wrap=\"virtual\" class=\"address-widget-delivery-address\" >[ad_quotehtml $delivery_address]</textarea></td>
+    <td colspan=\"3\"><textarea name=\"$element(id).delivery_address\" rows=\"2\" cols=\"50\" wrap=\"virtual\" maxlength=\"100\" class=\"address-widget-delivery-address\" >[ad_quotehtml $delivery_address]</textarea></td>
   </tr>
   <tr>
     <td colspan=\"3\"><small>[_ ams.delivery_address]</small><br></td>
@@ -476,9 +479,9 @@ ad_proc -public template::widget::address { element_reference tag_attributes } {
         </tr>"
       } else {
 	  append output "
-            <td><input type=\"text\" name=\"$element(id).postal_code\" value=\"[ad_quotehtml $postal_code]\" size=\"7\" class=\"address-widget-postal_code\" ></td>
-            <td><input type=\"text\" name=\"$element(id).municipality\" value=\"[ad_quotehtml $municipality]\" size=\"20\" class=\"address-widget-municipality\" ></td>
-            <td><input type=\"text\" name=\"$element(id).region\" value=\"[ad_quotehtml $region]\" size=\"10\" class=\"address-widget-region\" ></td>
+            <td><input type=\"text\" name=\"$element(id).postal_code\" value=\"[ad_quotehtml $postal_code]\" size=\"7\" maxlength=\"38\" class=\"address-widget-postal_code\" ></td>
+            <td><input type=\"text\" name=\"$element(id).municipality\" value=\"[ad_quotehtml $municipality]\" size=\"20\" maxlength=\"38\" class=\"address-widget-municipality\" ></td>
+            <td><input type=\"text\" name=\"$element(id).region\" value=\"[ad_quotehtml $region]\" size=\"10\" maxlength=\"38\" class=\"address-widget-region\" ></td>
         </tr>
         <tr>
            <td align=\"left\"><small>[_ ams.postal_code]</small></td>
