@@ -118,7 +118,7 @@ ad_proc -public template::data::validate::telecom_number { value_ref message_ref
         set telecom_number_temp "$itu_id$national_number$area_city_code$subscriber_number$extension$sms_enabled_p$best_contact_time"
         regsub -all " " $telecom_number_temp "" telecom_number_temp
         ns_log Notice $telecom_number_temp
-        if { ![regexp {^([0-9]|x|-|\+|\)|\(){1,}$} $telecom_number_temp match telecom_number_temp] } {
+        if { ![regexp {^([0-9]|x|-|\+|/|\)|\(){1,}$} $telecom_number_temp match telecom_number_temp] } {
 	    set message [_ ams.lt_Telecom_numbers_must_only_contain]
         }
     } else {
