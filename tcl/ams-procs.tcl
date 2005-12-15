@@ -370,8 +370,13 @@ ad_proc -public ams::ad_form::elements {
     # Control list to know which attributes are already in the
     # elements list so we don't en up with duplicates
     set control_list [list]
-
-    set all_attributes [db_list_of_lists select_elements " "]
+    
+    # If we do not have a list_id then don't bother to try and get any attributes...
+    if {[string eq "" $list_ids]} {
+        set all_attributes [list]
+    } else {
+        set all_attributes [db_list_of_lists select_elements " "]
+    }
 
     foreach attribute $all_attributes {
 	set attribute_id [lindex $attribute 0]

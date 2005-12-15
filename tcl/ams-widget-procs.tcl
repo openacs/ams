@@ -1510,7 +1510,6 @@ ad_proc -public ams::attribute::save::mc {
 	switch $value {
 	    "TRUE" {set value "t" }
 	    "FALSE" {set value "f" }
-	    default {set value "#acs-translations.organization_[set attribute]_$value#"}
 	}
 	set option_id [db_string get_option {select option_id from ams_option_types where attribute_id = :attribute_id and option = :value} \
 			   -default {}]
