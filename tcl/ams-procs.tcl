@@ -527,10 +527,10 @@ ad_proc -public ams::values_not_cached {
 									      -value $value \
 									      -locale $locale]
 
-		    ns_log Notice "$attribute_name ($attribute_id):: $value"
+		    ns_log Debug "$attribute_name ($attribute_id):: $value"
 		}
 
-		ns_log Notice "$attribute_name ($attribute_id):: $value"
+		ns_log Debug "$attribute_name ($attribute_id):: $value"
 	    }
 	}
         return $values
