@@ -226,6 +226,10 @@ ad_proc -private ams::widget::postal_address {
             foreach {delivery_address municipality region postal_code country_code additional_text postal_type} $value {}
 	    return [template::util::address::html_view $delivery_address $municipality $region $postal_code $country_code $additional_text $postal_type]
 	}
+	value_list {
+            foreach {delivery_address municipality region postal_code country_code additional_text postal_type} $value {}
+	    return [list [list delivery_address $delivery_address] [list municipality $municipality] [list region $region] [list postal_code $postal_code] [list country_code $country_code] [list additional_text $additional_text] [list postal_type $postal_type]]
+	}
         csv_value {
 	    # not yet implemented
 	}
