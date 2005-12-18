@@ -253,7 +253,18 @@ ad_proc -public ams::util::edit_lang_key_url {
  } {
  save and attribute value
  } {
-     db_exec_plsql attribute_value_save {}
+     # db_exec_plsql attribute_value_save {}
+     # This seems to be faster. Don't ask why....
+     db_dml clean_up "        delete from ams_attribute_values
+         where object_id = :object_id
+           and attribute_id = :attribute_id"
+     if {[exists_and_not_null value_id]} {
+	 db_dml insert "
+                insert into ams_attribute_values
+                (object_id,attribute_id,value_id)
+                values
+                (:object_id,:attribute_id,:value_id)"
+     }
  }
 
  ad_proc -public ams::option::new {
