@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<message_catalog package_key="ams" package_version="1.1d10" locale="en_US" charset="ISO-8859-1">
+<message_catalog package_key="ams" package_version="1.1d12" locale="en_US" charset="ISO-8859-1">
 
   <msg key="Action">Action</msg>
   <msg key="Add_an_AMS_Attribute">Add an AMS Attribute</msg>
@@ -404,6 +404,7 @@
   <msg key="select_one">Select One</msg>
   <msg key="sms_trans">Transferred to Student Management System</msg>
   <msg key="sms_trans_plural">Transferred to Student Management System</msg>
+  <msg key="Sort_Order">Sort order</msg>
   <msg key="suffix">Suffix</msg>
   <msg key="suffix_plural">Suffixes</msg>
   <msg key="Telecom_Number">Phone Number</msg>

@@ -458,7 +458,8 @@ ad_proc -private ams::widget::select {
 	    return ${value}
 	}
         value_html {
-	    return [ad_html_text_convert -from "text/plain" -to "text/html" -- ${value}]
+#	    return [ad_html_text_convert -from "text/plain" -to "text/html" -- ${value}]
+	    return $value
 	}
         csv_value {
 	    # not yet implemented
@@ -833,7 +834,8 @@ ad_proc -private ams::widget::textbox {
 	value_html {
 	    # We return the original string here without the format part otherwise it will return scaped characters
 	    set value [string range $org_value [expr [string length $value_format] + 1] [string length $org_value]]
-	    return [ad_html_text_convert -from "text/plain" -to "text/html" -- ${value}]
+#	    return [ad_html_text_convert -from "text/plain" -to "text/html" -- ${value}]
+	    return $value
 	}
         csv_value {
 	    # not yet implemented
