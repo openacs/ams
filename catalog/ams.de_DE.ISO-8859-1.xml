@@ -59,4 +59,5 @@
   <msg key="Url">Website URL</msg>
   <msg key="Widget_1">Widget</msg>
   <msg key="Your_delivery_address_is_too_long">Ihre Strasse ist zu lange</msg>
+  <msg key="Your_delivery_address_is_too_many_lines">Ihre Strasse hat zu viele Linien</msg>
 </message_catalog>

@@ -174,6 +174,10 @@ ad_proc -public template::data::validate::address { value_ref message_ref } {
     if {[::string length $delivery_address] > [parameter::get_from_package_key -parameter "DefaultStreetSize" -package_key "ams" -default "100"] } {
 	lappend message "[_ ams.Your_delivery_address_is_too_long]"
     }
+    if { [::llength [::split $delivery_address "\n"]] > [parameter::get_from_package_key -parameter "DefaultStreetLines" -package_key "ams" -default "3"] } {
+	lappend message "[_ ams.Your_delivery_address_is_too_many_lines]"
+    }
+
 
     # Country Specific Validation
     switch $country_code {
@@ -219,7 +223,7 @@ ad_proc -public template::data::validate::address { value_ref message_ref } {
         }
     }
     set message [join $message " "]
-    ns_log notice "MESSAGE: $message"
+    # ns_log notice "MESSAGE: $message"
     if { [exists_and_not_null message] } {
         return 0
     } else {
