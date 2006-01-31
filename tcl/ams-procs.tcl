@@ -194,6 +194,14 @@ ad_proc -public ams::util::edit_lang_key_url {
      }
  }
 
+ad_proc -public ams::object_flush {
+     -object_id:required
+ } {
+     flush cached information about an object
+ } {
+     util_memoize_flush_regexp "^ams(.*?)-object_id $object_id"
+ }
+
  ad_proc -public ams::object_copy {
      -from:required
      -to:required
@@ -251,7 +259,7 @@ ad_proc -public ams::util::edit_lang_key_url {
      -attribute_id:required
      -value_id:required
  } {
- save and attribute value
+     save and attribute value
  } {
      # db_exec_plsql attribute_value_save {}
      # This seems to be faster. Don't ask why....
@@ -336,6 +344,8 @@ ad_proc -public ams::ad_form::save {
             ams::attribute::value_save -object_id $object_id -attribute_id $attribute_id -value_id $value_id
 	}
     }
+    # release the information that has been memoized about this object
+    ams::object_flush -object_id $object_id
 }
 
 ad_proc -public ams::ad_form::elements {
