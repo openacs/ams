@@ -311,7 +311,7 @@ ad_proc -public ams::option::name {
 } {
     Delete an ams option
 
-@param option_id
+    @param option_id
 } {
     return [lang::util::localize [db_string get_option {} -default {}]]
 }
@@ -439,18 +439,32 @@ ad_proc -public ams::values {
     -object_id:required
     {-format "text"}
     {-locale ""}
+    {-upvar:boolean}
+    {-include_empty "f"}
 } {
     This returns a list with the first element as the pretty_attribute name 
     and the second the value. Cached
 } {
-    return [util_memoize [list ams::values_not_cached \
-			      -package_key $package_key \
-			      -object_type $object_type \
-			      -list_name $list_name \
-			      -list_names $list_names \
-			      -object_id $object_id \
-			      -format $format \
-			      -locale $locale]]
+    set values [util_memoize [list ams::values_not_cached \
+				  -package_key $package_key \
+				  -object_type $object_type \
+				  -list_name $list_name \
+				  -list_names $list_names \
+				  -object_id $object_id \
+				  -format $format \
+				  -locale $locale \
+				  -include_empty $include_empty]]
+
+    if { [string is false $upvar_p] } {
+	return $values
+    } else {
+	set attributes [ns_set create]
+	foreach {heading attribute_name pretty_name value} $values {
+   		ns_set put $attributes $attribute_name $value
+	}
+	ad_ns_set_to_tcl_vars -level 2 $attributes
+	ns_set free $attributes
+    }
 }
 
 
@@ -462,6 +476,7 @@ ad_proc -public ams::values_not_cached {
     -object_id:required
     {-format "text"}
     {-locale ""}
+    {-include_empty "f"}
 } {
     this returns a list with the first element as the pretty_attribute name and the second the value
 } {
@@ -477,6 +492,7 @@ ad_proc -public ams::values_not_cached {
 	set list_names $list_name
     }
 
+    set list_ids [list]
     foreach l_name $list_names {
 	set list_id [ams::list::get_list_id -package_key $package_key -object_type $object_type -list_name $l_name]
 	if {![empty_string_p $list_id]} {
@@ -528,6 +544,8 @@ ad_proc -public ams::values_not_cached {
 									      -locale $locale]
 
 		    ns_log Debug "$attribute_name ($attribute_id):: $value"
+		} elseif { [string is true $include_empty] } {
+		    lappend values $heading $attribute_name $pretty_name ""
 		}
 
 		ns_log Debug "$attribute_name ($attribute_id):: $value"
