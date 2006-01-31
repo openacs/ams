@@ -62,7 +62,8 @@
                  attribute_id,
                  value_id
             from ams_attribute_values
-           where object_id = :from )
+           where object_id = :from 
+             and attribute_id not in ( select attribute_id from ams_attribute_values where object_id = :to ))
   </querytext>
 </fullquery>
 
