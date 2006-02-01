@@ -139,7 +139,7 @@
         where 
 		alam.attribute_id = aa.attribute_id
         	and alam.list_id in ($list_ids)
-     		order by alam.sort_order
+        $orderby_clause
   </querytext>
 </fullquery>
 
@@ -175,7 +175,7 @@
         where 
 		alam.attribute_id = aa.attribute_id
          	and alam.list_id in ($list_ids)
-        order by alam.sort_order
+        $orderby_clause
   </querytext>
 </fullquery>
   

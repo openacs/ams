@@ -382,6 +382,7 @@ ad_proc -public ams::ad_form::elements {
     }
     
     # To use in the query
+    set orderby_clause [ams::util::orderby_clause -list_ids $list_ids]
     set list_ids [template::util::tcl_to_sql_list $list_ids]
     set element_list ""
     if { [exists_and_not_null key] } {
@@ -477,6 +478,25 @@ ad_proc -public ams::values {
     }
 }
 
+ad_proc -private ams::util::orderby_clause {
+    {-list_ids ""}
+} {
+    this gets and sql orderby clause for attributes and lists
+} {
+    if { [llength $list_ids] <= "1" } {
+	set orderby "order by alam.sort_order"
+    } else {
+	set orderby "order by CASE "
+	set count 0
+	foreach list_id $list_ids {
+	    append orderby "\n      WHEN alam.list_id = $list_id THEN $count "
+	    incr count
+	}
+	append orderby " END, alam.sort_order"
+    }
+    return $orderby
+}
+
 
 ad_proc -public ams::values_not_cached {
     -package_key:required
@@ -511,6 +531,7 @@ ad_proc -public ams::values_not_cached {
     }
 
     # To use in the query
+    set orderby_clause [ams::util::orderby_clause -list_ids $list_ids]
     set list_ids [template::util::tcl_to_sql_list $list_ids]
 
     if { [exists_and_not_null list_ids] } {
