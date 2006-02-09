@@ -22,6 +22,7 @@ set attribute_id [attribute::new \
               -datatype "@attributes.datatype@" \
               -pretty_name "@attributes.pretty_name@" \
               -pretty_plural "@attributes.pretty_plural@" \
+	      -help_text "@attributes.help_text@" \
               -table_name "@attributes.table_name@" \
               -column_name "@attributes.column_name@" \
               -default_value "@attributes.default_value@" \

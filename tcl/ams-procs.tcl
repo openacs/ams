@@ -47,12 +47,26 @@ ad_proc -public attribute::pretty_plural_not_cached {
     return [db_string get_pretty_plural {} -default {}]
 }
 
+ad_proc -public attribute::help_text {
+    {-attribute_id:required}
+} {
+    get the help_text of an attribute.
+} {
+    set help_text [lang::util::localize "#acs-translations.ams_attribute_${attribute_id}_help_text#"]
+    if {[string match "MESSAGE KEY MISSING*" $help_text]} {
+	return ""
+    } else {
+	return $help_text
+    }
+}
+
 ad_proc -public attribute::new {
     -object_type:required
     -attribute_name:required
     -datatype:required
     -pretty_name:required
     -pretty_plural:required
+    {-help_text ""}
     {-table_name ""}
     {-column_name ""}
     {-default_value ""}
@@ -80,6 +94,12 @@ ad_proc -public attribute::new {
     set pretty_name   [lang::util::convert_to_i18n -message_key "ams_attribute_${attribute_id}_pretty_name" -text "$pretty_name"]
     set pretty_plural [lang::util::convert_to_i18n -message_key "ams_attribute_${attribute_id}_pretty_plural" -text "$pretty_plural"]
     db_dml update_pretty_names "update acs_attributes set pretty_name = :pretty_name, pretty_plural = :pretty_plural where attribute_id = :attribute_id"
+    
+    # Set and update the helptext
+    # Note: We are not storing the help_text in the attributes table. It is just an I18N string.
+    if {![string eq "" $help_text]} {
+	set help_text [lang::util::convert_to_i18n -message_key "ams_attribute_${attribute_id}_help_text" -text "$help_text"]
+    }
     return $attribute_id
 }
 
@@ -104,7 +124,7 @@ TODO: Get the AMS package ID, not the connection package_id
 
 ad_proc -public ams::util::edit_lang_key_url {
     -message:required
-    {-package_key "ams"}
+    {-package_key "acs-translations"}
 } {
 } {
     if { [regsub "^${package_key}." [string trim $message "\#"] {} message_key] } {

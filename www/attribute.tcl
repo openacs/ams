@@ -11,11 +11,18 @@ ad_page_contract {
 
 #db_1row get_attribute_info {}
 ams::attribute::get -attribute_id $attribute_id -array "attribute_info"
+set attribute_info(help_text) [attribute::help_text -attribute_id $attribute_id]
 acs_object_type::get -object_type $attribute_info(object_type) -array "object_info"
 
 
-set pretty_name_url   [ams::util::edit_lang_key_url -message $attribute_info(pretty_name)]
-set pretty_plural_url [ams::util::edit_lang_key_url -message $attribute_info(pretty_plural)]
+set pretty_name_url   [lang::util::edit_lang_key_url -message $attribute_info(pretty_name)]
+set pretty_plural_url [lang::util::edit_lang_key_url -message $attribute_info(pretty_plural)]
+if {[string eq "" $attribute_info(help_text)]} {
+    set help_text_url [lang::util::edit_lang_key_url -message "#acs-translations.ams_attribute_${attribute_id}_help_text#"]    
+} else {
+    set help_text_url [lang::util::edit_lang_key_url -message $attribute_info(help_text)]
+}
+
 set title $attribute_info(pretty_name)
 set context [list [list objects Objects] [list "object?object_type=$attribute_info(object_type)" $object_info(pretty_name)] $title]
 
@@ -104,7 +111,7 @@ db_multirow -extend { sort_order sort_key delete_url edit_url } options select_o
     incr sort_count 10
     incr sort_key_count 1
     set delete_url [export_vars -base "attribute-option-delete" -url {attribute_id option_id}]
-    set edit_url [ams::util::edit_lang_key_url -message $option]
+    set edit_url [lang::util::edit_lang_key_url -message $option]
 }
 
 if { [template::multirow size options] > 0 } {

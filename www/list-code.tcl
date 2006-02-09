@@ -26,7 +26,7 @@ set context [list [list lists Lists] $title]
 regsub -all {"} $list_info(description) {\"} list_info(description)
 
 
-db_multirow -extend {message_key option_key true_pretty true_plural true_option} -unclobber attributes select_mapped_attributes {
+db_multirow -extend {message_key option_key true_pretty true_plural help_text true_option} -unclobber attributes select_mapped_attributes {
     select alam.required_p,
     alam.section_heading,
     alam.sort_order as list_sort_order,
@@ -41,12 +41,11 @@ db_multirow -extend {message_key option_key true_pretty true_plural true_option}
     order by alam.sort_order
 } {
     regsub -all {"} $section_heading {\"} section_heading
-    set message_key "${object_type}_${attribute_name}"
-#    set option [lang::message::lookup en_US [string trim $option "#"]]
-	set pretty_name [lang::message::lookup en_US [string trim $pretty_name "#"]]
+    set message_key "${object_type}_${attribute_name}" 
+    set pretty_name [lang::message::lookup en_US [string trim $pretty_name "#"]]
 	set pretty_plural [lang::message::lookup en_US [string trim $pretty_plural "#"]]
-
-# set true_option [lang::message::lookup en_US acs-translations.$option_key]
+	set help_text [attribute::help_text -attribute_id $attribute_id]
+	
 }
 
     

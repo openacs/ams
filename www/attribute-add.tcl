@@ -28,6 +28,7 @@ ad_form -name attribute_form -form {
     {attribute_name:text,optional {label "[_ ams.Attribute_Name]"} {html {size 30 maxlength 100}} {help_text {This name must be lower case, contain only letters and underscores, and contain no spaces. If not specified one will be generated for you.}}}
     {pretty_name:text,optional {label "[_ ams.Pretty_Name_1]"} {html {size 30 maxlength 100}}}
     {pretty_plural:text,optional {label "[_ ams.Pretty_Plural_1]"} {html {size 30 maxlength 100}}}
+    {help_text:text,optional {label "[_ ams.Help_text]"} {html {size 30 maxlength 200}}}
 }
 
 
@@ -93,7 +94,7 @@ ad_form -extend -name attribute_form -on_request {
 	    ::template::element::set_value attribute_form attribute_name $attribute_name
 	}
     }
-    set required_fields [list widget pretty_name pretty_plural]
+    set required_fields [list widget pretty_name]
     if { [exists_and_not_null option_fields_count] } {
 	lappend required_fields "option1"
     }
@@ -104,9 +105,10 @@ ad_form -extend -name attribute_form -on_request {
     }
 
 
-    # Replace the pretty_name and pretty_plural with the message key, so it is inserted correctly in the database
-#    set pretty_name [lang::util::convert_to_i18n -text $pretty_name -prefix $object_type]
-#    set pretty_plural [lang::util::convert_to_i18n -text $pretty_plural -prefix $object_type]
+    # If there is not pretty_plural, set it to pretty_name
+    if {[string eq "" $pretty_plural]} {
+	set pretty_plural $pretty_name 
+    }
 
     if { [exists_and_not_null widget] } {
 	::template::element::set_properties attribute_form widget -widget select -mode display
@@ -149,7 +151,9 @@ ad_form -extend -name attribute_form -on_request {
 				      -attribute_name $attribute_name \
 				      -datatype [::ams::widget -widget $widget -request "widget_datatypes"] \
 				      -pretty_name $pretty_name \
-				      -pretty_plural $pretty_plural]
+				      -pretty_plural $pretty_plural \
+				      -help_text $help_text
+				 ]
 		set dynamic_p 1
 	    } else {
 		set attribute_id [attribute::id \

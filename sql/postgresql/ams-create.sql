@@ -45,6 +45,7 @@ create table ams_attribute_items (
                                 constraint ams_attribute_items_dynamic_p_nn not null,
         deprecated_p            boolean default 'f'
                                 constraint ams_attribute_items_deprecated_nn not null,
+	help_text		varchar(50),
         UNIQUE(attribute_id)
 );
 

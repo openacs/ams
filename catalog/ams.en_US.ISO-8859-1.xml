@@ -19,6 +19,7 @@
   <msg key="app_rec_plural">Applications Recieved</msg>
   <msg key="app_visa">Application Visa</msg>
   <msg key="app_visa_plural">Application Visas</msg>
+  <msg key="Attribute">Attribute</msg>
   <msg key="Attribute_Name">Attribute Name</msg>
   <msg key="birthday">Birthday</msg>
   <msg key="birthday_plural">Birthdays</msg>
@@ -301,6 +302,7 @@
   <msg key="gender_plural">Genders</msg>
   <msg key="has_been_added_as_an_attribute_to">has been added as an attribute to</msg>
   <msg key="Heading">Heading</msg>
+  <msg key="Help_text">Help text</msg>
   <msg key="hsgrad_yr">Bachelor's Graduation Year</msg>
   <msg key="hsgrad_yr_plural">Bachelor's Graduation Years</msg>
   <msg key="Html_options">Html options</msg>
@@ -356,6 +358,7 @@
   <msg key="Objects">Objects</msg>
   <msg key="Option">Option</msg>
   <msg key="Optional">Optional</msg>
+  <msg key="Options_Updated">Options Updated</msg>
   <msg key="Ordering">Ordering</msg>
   <msg key="organization_name">Organization Name</msg>
   <msg key="organization_name_plural">Organization Names</msg>
@@ -423,6 +426,7 @@
   <msg key="trm_ofint_plural">Terms of Interest</msg>
   <msg key="Unmap">Unmap</msg>
   <msg key="Unmapped_Attributes">Unmapped Attributes</msg>
+  <msg key="Update_Options">Update Options</msg>
   <msg key="Update_Ordering">Update Ordering</msg>
   <msg key="Url">Website Url</msg>
   <msg key="visa_cntry">Visa Country</msg>
