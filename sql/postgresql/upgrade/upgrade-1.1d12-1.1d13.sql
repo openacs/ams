@@ -82,3 +82,25 @@ begin
 
         return v_address_id;
 end;' language 'plpgsql';
+
+
+create or replace function ams_util__next_instance_of_date(timestamptz)
+returns date as '
+declare
+        p_date          alias for $1;
+        v_years         integer;
+        v_next_instance date;
+begin
+
+    v_years := extract(year from now()) - extract(year from p_date);
+
+    v_next_instance := p_date + (v_years::varchar || '' years'')::interval;
+
+    -- if this already happend we and one more year
+    if v_next_instance::date < now()::date then
+        v_next_instance := v_next_instance + ''1 year''::interval;
+    end if;
+
+    return v_next_instance;
+end;' language 'plpgsql';
+

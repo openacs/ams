@@ -63,6 +63,7 @@ select drop_package('ams_attribute');
 select drop_package('ams_list');
 select drop_package('ams_value');
 select drop_package('ams_widget');
+select drop_package('ams_util');
 
 -- select acs_object__delete(address_id) from ams_attribute_values where address_id is not null;
 -- select acs_object__delete(number_id) from ams_attribute_values where number_id is not null;
