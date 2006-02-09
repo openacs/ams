@@ -186,9 +186,9 @@ ad_proc -private ams::widget::postal_address {
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:address(address),optional {help_text $help_text} {[list label ${pretty_name}]}"
+		return "${attribute_name}:address(address),optional {help_text \"$help_text\"} {[list label ${pretty_name}]}"
 	    } else {
-		return "${attribute_name}:address(address) {help_text $help_text} {[list label ${pretty_name}]}"
+		return "${attribute_name}:address(address) {help_text \"$help_text\"} {[list label ${pretty_name}]}"
 	    }
 	}
         template_form_widget  {
@@ -271,9 +271,9 @@ ad_proc -private ams::widget::telecom_number {
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:telecom_number(telecom_number),optional {help_text $help_text} {[list label ${pretty_name}]}"
+		return "${attribute_name}:telecom_number(telecom_number),optional {help_text \"$help_text\"} {[list label ${pretty_name}]}"
 	    } else {
-		return "${attribute_name}:telecom_number(telecom_number) {help_text $help_text} {[list label ${pretty_name}]}"
+		return "${attribute_name}:telecom_number(telecom_number) {help_text \"$help_text\"} {[list label ${pretty_name}]}"
 	    }
 	}
         template_form_widget  {
@@ -355,9 +355,9 @@ ad_proc -private ams::widget::date {
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:date(date),optional {help_text $help_text} {[list label ${pretty_name}]}"
+		return "${attribute_name}:date(date),optional {help_text \"$help_text\"} {[list label ${pretty_name}]}"
 	    } else {
-		return "${attribute_name}:date(date) {help_text $help_text} {[list label ${pretty_name}]}"
+		return "${attribute_name}:date(date) {help_text \"$help_text\"} {[list label ${pretty_name}]}"
 	    }
 	}
         template_form_widget  {
@@ -433,10 +433,10 @@ ad_proc -private ams::widget::select {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
 		set options [concat [list [list "" ""]] $options]
-		return "${attribute_name}:integer(select),optional {help_text $help_text} {[list label ${pretty_name}]} {[list options $options]}"
+		return "${attribute_name}:integer(select),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list options $options]}"
 	    } else {
 		set options [concat [list [list "- [_ ams.select_one] -" ""]] $options]
-		return "${attribute_name}:integer(select) {help_text $help_text} {[list label ${pretty_name}]} {[list options $options]}"
+		return "${attribute_name}:integer(select) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list options $options]}"
 	    }
 	}
         template_form_widget  {
@@ -508,9 +508,9 @@ ad_proc -private ams::widget::radio {
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:integer(radio),optional {help_text $help_text} {[list label ${pretty_name}]} {[list options $options]}"
+		return "${attribute_name}:integer(radio),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list options $options]}"
 	    } else {
-		return "${attribute_name}:integer(radio) {help_text $help_text} {[list label ${pretty_name}]} {[list options $options]}"
+		return "${attribute_name}:integer(radio) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list options $options]}"
 	    }
 	}
         template_form_widget  {
@@ -581,9 +581,9 @@ ad_proc -private ams::widget::checkbox {
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:integer(checkbox),multiple,optional {help_text $help_text} {[list label ${pretty_name}]} {[list options $options]}"
+		return "${attribute_name}:integer(checkbox),multiple,optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list options $options]}"
 	    } else {
-		return "${attribute_name}:integer(checkbox),multiple {help_text $help_text} {[list label ${pretty_name}]} {[list options $options]}"
+		return "${attribute_name}:integer(checkbox),multiple {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list options $options]}"
 	    }
 	}
         template_form_widget  {
@@ -656,9 +656,9 @@ ad_proc -private ams::widget::multiselect {
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:integer(multiselect),multiple,optional {help_text $help_text} {[list label ${pretty_name}]} {[list options $options]}"
+		return "${attribute_name}:integer(multiselect),multiple,optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list options $options]}"
 	    } else {
-		return "${attribute_name}:integer(multiselect),multiple {help_text $help_text} {[list label ${pretty_name}]} {[list options $options]}"
+		return "${attribute_name}:integer(multiselect),multiple {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list options $options]}"
 	    }
 	}
         template_form_widget  {
@@ -733,9 +733,9 @@ ad_proc -private ams::widget::integer {
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:integer(text),optional {html {size 6}} {help_text $help_text} {[list label ${pretty_name}]}"
+		return "${attribute_name}:integer(text),optional {html {size 6}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
 	    } else {
-		return "${attribute_name}:integer(text) {html {size 6}} {help_text $help_text} {[list label ${pretty_name}]}"
+		return "${attribute_name}:integer(text) {html {size 6}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
 	    }
 	}
         template_form_widget  {
@@ -809,9 +809,9 @@ ad_proc -private ams::widget::textbox {
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:text(text),optional {html {size 30}} {help_text $help_text} {[list label ${pretty_name}]}"
+		return "${attribute_name}:text(text),optional {html {size 30}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
 	    } else {
-		return "${attribute_name}:text(text) {html {size 30}} {help_text $help_text} {[list label ${pretty_name}]}"
+		return "${attribute_name}:text(text) {html {size 30}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
 	    }
 	}
         template_form_widget  {
@@ -881,13 +881,13 @@ ad_proc -private ams::widget::textarea {
     @see ams::widget
 } {
     set value [ams::util::text_value -value $value]
-        set help_text [attribute::help_text -attribute_id $attribute_id] 
+    set help_text [attribute::help_text -attribute_id $attribute_id] 
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:text(textarea),optional {html {cols 60 rows 6}} {help_text $help_text} {[list label ${pretty_name}]}"
+		return "${attribute_name}:text(textarea),optional {html {cols 60 rows 6}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
 	    } else {
-		return "${attribute_name}:text(textarea) {html {cols 60 rows 10}} {help_text $help_text} {[list label ${pretty_name}]}"
+		return "${attribute_name}:text(textarea) {html {cols 60 rows 10}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
 	    }
 	}
         template_form_widget  {
@@ -963,9 +963,9 @@ ad_proc -private ams::widget::richtext {
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:richtext(richtext),optional {html {cols 60 rows 14}} {help_text $help_text} {[list label ${pretty_name}]}"
+		return "${attribute_name}:richtext(richtext),optional {html {cols 60 rows 14}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
 	    } else {
-		return "${attribute_name}:richtext(richtext) {html {cols 60 rows 14}} {help_text $help_text} {[list label ${pretty_name}]}"
+		return "${attribute_name}:richtext(richtext) {html {cols 60 rows 14}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
 	    }
 	}
         template_form_widget  {
@@ -1040,9 +1040,9 @@ ad_proc -private ams::widget::email {
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:email(text),optional {html {size 30}} {help_text $help_text} {[list label ${pretty_name}]}"
+		return "${attribute_name}:email(text),optional {html {size 30}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
 	    } else {
-		return "${attribute_name}:email(text) {html {size 30}} {help_text $help_text} {[list label ${pretty_name}]}"
+		return "${attribute_name}:email(text) {html {size 30}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
 	    }
 	}
         template_form_widget  {
@@ -1115,9 +1115,9 @@ ad_proc -private ams::widget::url {
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:url(text),optional {html {size 30}} {help_text $help_text} {[list label ${pretty_name}]}"
+		return "${attribute_name}:url(text),optional {html {size 30}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
 	    } else {
-		return "${attribute_name}:url(text) {html {size 30}} {help_text $help_text} {[list label ${pretty_name}]}"
+		return "${attribute_name}:url(text) {html {size 30}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
 	    }
 	}
         template_form_widget  {

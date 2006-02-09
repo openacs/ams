@@ -17,11 +17,7 @@ acs_object_type::get -object_type $attribute_info(object_type) -array "object_in
 
 set pretty_name_url   [lang::util::edit_lang_key_url -message $attribute_info(pretty_name)]
 set pretty_plural_url [lang::util::edit_lang_key_url -message $attribute_info(pretty_plural)]
-if {[string eq "" $attribute_info(help_text)]} {
-    set help_text_url [lang::util::edit_lang_key_url -message "#acs-translations.ams_attribute_${attribute_id}_help_text#"]    
-} else {
-    set help_text_url [lang::util::edit_lang_key_url -message $attribute_info(help_text)]
-}
+set help_text_url [lang::util::edit_lang_key_url -message "#acs-translations.ams_attribute_${attribute_id}_help_text#"]    
 
 set title $attribute_info(pretty_name)
 set context [list [list objects Objects] [list "object?object_type=$attribute_info(object_type)" $object_info(pretty_name)] $title]
