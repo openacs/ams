@@ -20,7 +20,7 @@ set list_name $list_info(list_name)
 
 # Now we are going to get the default 
 # list_id according to the object_type
-set default_list_id [db_string get_default_list { }]
+set default_list_id [db_string get_default_list { } -default {}]
 
 if { [string equal $default_list_id $list_id] } {
     # We are assigning values to the default list
