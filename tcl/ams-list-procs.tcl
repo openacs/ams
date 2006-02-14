@@ -223,7 +223,8 @@ ad_proc -public ams::list::new {
 
 
 ad_proc -public ams::list::attribute::map {
-    -list_id:required
+    {-list_id ""}
+    {-list_ids ""}
     -attribute_id:required
     {-sort_order ""}
     {-required_p "f"}
@@ -238,7 +239,14 @@ ad_proc -public ams::list::attribute::map {
     if { ![exists_and_not_null sort_order] } {
         set sort_order [expr 1 + [db_string get_highest_sort_order {} -default "0"]]
     }
-    return [db_exec_plsql ams_list_attribute_map {}]
+    
+    if {![string eq "" $list_id]} {
+	return [db_exec_plsql ams_list_attribute_map {}]
+    } elseif {![string eq "" $list_ids]} {
+	foreach list_id $list_ids {
+	    db_exec_plsql ams_list_attribute_map {}
+	}
+    } 
 }
 
 ad_proc -public ams::list::attribute::unmap {

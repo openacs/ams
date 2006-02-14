@@ -12,9 +12,6 @@ ad_page_contract {
 set title "[_ ams.Widgets]"
 set context [list $title]
 
-
-
-
 list::create \
     -name widgets \
     -multirow widgets \
@@ -76,7 +73,7 @@ list::create \
 db_multirow widgets get_widgets {
     select *
       from ams_widgets
-     order by widget_name
+     order by pretty_name
 } {
 }
 

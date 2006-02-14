@@ -47,8 +47,25 @@ db_multirow -extend {message_key option_key true_pretty true_plural help_text tr
 	set help_text [attribute::help_text -attribute_id $attribute_id]
 	
 }
-
     
+db_multirow -extend {message_key option_key true_pretty true_plural help_text true_option} -unclobber attributes2 select_mapped_attributes2 {
+    select alam.required_p,
+    alam.section_heading,
+    alam.sort_order as list_sort_order,
+    ams.*
+    from ams_list_attribute_map alam,
+    ams_attributes ams
+    where alam.list_id = :list_id
+    and alam.attribute_id = ams.attribute_id
+    order by alam.sort_order
+} {
+    regsub -all {"} $section_heading {\"} section_heading
+    set message_key "${object_type}_${attribute_name}" 
+    set pretty_name [lang::message::lookup en_US [string trim $pretty_name "#"]]
+	set pretty_plural [lang::message::lookup en_US [string trim $pretty_plural "#"]]
+	set help_text [attribute::help_text -attribute_id $attribute_id]
+	
+}
 
 
 ad_return_template

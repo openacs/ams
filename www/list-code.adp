@@ -38,13 +38,6 @@ ams::attribute::new \
               -widget "@attributes.widget@" \
               -dynamic_p "@attributes.dynamic_p@"
 
-ams::list::attribute::map \
-              -list_id $list_id \
-              -attribute_id $attribute_id \
-              -sort_order "@attributes.list_sort_order@" \
-              -required_p "@attributes.required_p@" \
-              -section_heading "@attributes.section_heading@"
-
 <group column=attribute_id>
 <if @attributes.option_id@ not nil>
 set option_id [ams::option::new \
@@ -54,6 +47,24 @@ set option_id [ams::option::new \
 </if>
 </group>
 </multiple>
+
+#################################
+###
+### End Of Attribute definition
+###
+#################################
+
+<multiple name="attributes2">
+
+set attribute_id [attribute::id -object_type "@attributes2.object_type@" -attribute_name "@attributes2.attribute_name@"]
+ams::list::attribute::map \
+              -list_id $list_id \
+              -attribute_id $attribute_id \
+              -sort_order "@attributes2.list_sort_order@" \
+              -required_p "@attributes2.required_p@" \
+              -section_heading "@attributes2.section_heading@"
+</multiple>
+
 </if>
 </pre>
 
