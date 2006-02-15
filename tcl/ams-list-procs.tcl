@@ -240,7 +240,7 @@ ad_proc -public ams::list::attribute::map {
         set sort_order [expr 1 + [db_string get_highest_sort_order {} -default "0"]]
     }
     
-    if {![string eq "" $list_id]} {
+    if {![string eq "" $list_id]} {
 	return [db_exec_plsql ams_list_attribute_map {}]
     } elseif {![string eq "" $list_ids]} {
 	foreach list_id $list_ids {
