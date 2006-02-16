@@ -205,19 +205,29 @@ ad_proc -public ams::list::new {
 
     @return group_id
 } {
-    if { [empty_string_p $context_id] } {
-        set context_id [ams::package_id]
-    }
-    if { ![exists_and_not_null description] } {
-        set description_mime_type ""
-    }
-    
-    set pretty_name [lang::util::convert_to_i18n -message_key "ams_list.${object_type}.${list_name}" -text "$pretty_name"]
-    set extra_vars [ns_set create]
-    oacs_util::vars_to_ns_set -ns_set $extra_vars -var_list { list_id package_key object_type list_name pretty_name description description_mime_type }
-    set list_id [package_instantiate_object -extra_vars $extra_vars ams_list]
 
-    return $list_id
+    # Check if the list id already exists
+    if {[string eq "" $list_id]} {
+	set existing_list_id [db_string get_list_id "select list_id from ams_lists where package_key = :package_key and object_type = :object_type and list_name = :list_name" -default ""]
+    } 	
+    
+    if {[exists_and_not_null existing_list_id]} {
+	return $existing_list_id
+    } else {
+	if { [empty_string_p $context_id] } {
+	    set context_id [ams::package_id]
+	}
+	if { ![exists_and_not_null description] } {
+	    set description_mime_type ""
+	}
+	
+	set pretty_name [lang::util::convert_to_i18n -message_key "ams_list.${object_type}.${list_name}" -text "$pretty_name"]
+	set extra_vars [ns_set create]
+	oacs_util::vars_to_ns_set -ns_set $extra_vars -var_list { list_id package_key object_type list_name pretty_name description description_mime_type }
+	set list_id [package_instantiate_object -extra_vars $extra_vars ams_list]
+	
+	return $list_id
+    }
 }
 
 
@@ -236,14 +246,20 @@ ad_proc -public ams::list::attribute::map {
 
     @return option_map_id
 } {
+
     if { ![exists_and_not_null sort_order] } {
         set sort_order [expr 1 + [db_string get_highest_sort_order {} -default "0"]]
     }
     
     if {![string eq "" $list_id]} {
+	db_dml delete_old_entry "delete from ams_list_attribute_map where list_id = :list_id and (attribute_id = :attribute_id or sort_order=:sort_order)"
 	return [db_exec_plsql ams_list_attribute_map {}]
     } elseif {![string eq "" $list_ids]} {
 	foreach list_id $list_ids {
+	    
+	    # We need to update, therefore we delete
+	    db_dml delete_old_entry "delete from ams_list_attribute_map where list_id = :list_id and (attribute_id = :attribute_id or sort_order=:sort_order)"
+	    ns_log Notice "$list_id :: $attribute_id"
 	    db_exec_plsql ams_list_attribute_map {}
 	}
     } 
