@@ -4,15 +4,6 @@
 
 <p>#ams.lt_Here_is_the_code_nece#</p>
 <pre style="border: 1px solid #CCC; background-color: #EEE; padding: 10px;">
-set list_id [ams::list::new \
-                -package_key "@list_info.package_key@" \
-                -object_type "@list_info.object_type@" \
-                -list_name "@list_info.list_name@" \
-                -pretty_name "@list_info.pretty_name@" \
-                -description "@list_info.description@" \
-                -description_mime_type "@list_info.description_mime_type@"]
-
-
 <if @attributes:rowcount@ gt 0>
 <multiple name="attributes">
 
@@ -54,13 +45,23 @@ set option_id [ams::option::new \
 ###
 #################################
 
+set list_id [ams::list::new \
+                -package_key "@list_info.package_key@" \
+                -object_type "@list_info.object_type@" \
+                -list_name "@list_info.list_name@" \
+                -pretty_name "@list_info.pretty_name@" \
+                -description "@list_info.description@" \
+                -description_mime_type "@list_info.description_mime_type@"]
+
+
+
 <multiple name="attributes2">
 
 set attribute_id [attribute::id -object_type "@attributes2.object_type@" -attribute_name "@attributes2.attribute_name@"]
 ams::list::attribute::map \
               -list_id $list_id \
               -attribute_id $attribute_id \
-              -sort_order "@attributes2.list_sort_order@" \
+              -sort_order "@attributes2.list_sort_order@0" \
               -required_p "@attributes2.required_p@" \
               -section_heading "@attributes2.section_heading@"
 </multiple>

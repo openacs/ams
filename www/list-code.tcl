@@ -45,7 +45,7 @@ db_multirow -extend {message_key option_key true_pretty true_plural help_text tr
     set pretty_name [lang::message::lookup en_US [string trim $pretty_name "#"]]
 	set pretty_plural [lang::message::lookup en_US [string trim $pretty_plural "#"]]
 	set help_text [attribute::help_text -attribute_id $attribute_id]
-	
+		
 }
     
 db_multirow -extend {message_key option_key true_pretty true_plural help_text true_option} -unclobber attributes2 select_mapped_attributes2 {
