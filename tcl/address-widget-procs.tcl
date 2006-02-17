@@ -51,32 +51,39 @@ ad_proc -public template::util::address::html_view {
         # There is no HTTP connection - resort to system locale
         set locale [lang::system::locale]
     }
-    set key "ams.country_${country_code}"
-    if { [string is true [lang::message::message_exists_p $locale $key]] } {
-        set country [lang::message::lookup $locale $key]
-    } else {
-        # cache the country codes
-        template::util::address::country_options_not_cached -locale $locale
 
-        if { [string is true [lang::message::message_exists_p $locale $key]] } {
-            set country [lang::message::lookup $locale $key]
-        } else {
-            # we get the default en_US key which was created with the
-            # template::util::address::country_options_not_cached proc
-            set country [lang::message::lookup "en_US" $key]
-        }
+    if { [lsearch [parameter::get_from_package_key -package_key "ams" -parameter "HideISOCountryCode" -default {}] $country_code] >= 0 } {
+	set country ""
+    } else {
+	set key "ams.country_${country_code}"
+	if { [string is true [lang::message::message_exists_p $locale $key]] } {
+	    set country [lang::message::lookup $locale $key]
+	} else {
+	    # cache the country codes
+	    template::util::address::country_options_not_cached -locale $locale
+	    
+	    if { [string is true [lang::message::message_exists_p $locale $key]] } {
+		set country [lang::message::lookup $locale $key]
+	    } else {
+		# we get the default en_US key which was created with the
+		# template::util::address::country_options_not_cached proc
+		set country [lang::message::lookup "en_US" $key]
+	    }
+	}
     }
+
 
     # Different formats depending on the country
     switch $country_code {
-	"US" {
+	"US" - "CA" {
 	    set address "$delivery_address
 $municipality, $region $postal_code
 $country"
 	}
 	"DE" {
 	    set address "$delivery_address
-$postal_code $municipality"
+$postal_code $municipality
+$country"
 	}	    
 	default {
 	    if { [parameter::get_from_package_key -package_key "ams" -parameter "DefaultAdressLayoutP" -default 1] } {
@@ -90,6 +97,8 @@ $country"
 	    }
 	}	    
     }
+    # now we remove the ending country line if no country exists
+    set address [string trim $address]
     return [ad_text_to_html $address]
 }
 
