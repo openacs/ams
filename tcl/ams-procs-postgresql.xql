@@ -126,19 +126,17 @@
 
 <fullquery name="ams::ad_form::elements.select_elements">
   <querytext>
-	select 
-      		alam.attribute_id,
-      		alam.required_p,
-      		alam.section_heading,
-       		aa.attribute_name,
-       		aa.pretty_name,
-      		aa.widget
-       	from 
-		ams_list_attribute_map alam,
-        	ams_attributes aa
-        where 
-		alam.attribute_id = aa.attribute_id
-        	and alam.list_id in ($list_ids)
+        select alam.attribute_id,
+               alam.required_p,
+               alam.section_heading,
+               aa.attribute_name,
+               aa.pretty_name,
+               aa.widget,
+               alam.html_options
+       	  from ams_list_attribute_map alam,
+               ams_attributes aa
+         where alam.attribute_id = aa.attribute_id
+               and alam.list_id in ($list_ids)
         $orderby_clause
   </querytext>
 </fullquery>

@@ -438,12 +438,14 @@ ad_proc -public ams::ad_form::elements {
 	    set attribute_name  [lindex $attribute 3]
 	    set pretty_name     [lindex $attribute 4]
 	    set widget          [lindex $attribute 5]
+            set html_options    [lindex $attribute 6]
 
 	    set element [ams::widget \
 			     -widget $widget \
 			     -request "ad_form_widget" \
 			     -attribute_name $attribute_name \
 			     -pretty_name $pretty_name \
+			     -html_options $html_options \
 			     -optional_p [string is false $required_p] -attribute_id $attribute_id]
 
 	    if { [exists_and_not_null section_heading] } {

@@ -208,7 +208,11 @@ ad_proc -public ams::list::new {
 
     # Check if the list id already exists
     if {[string eq "" $list_id]} {
-	set existing_list_id [db_string get_list_id "select list_id from ams_lists where package_key = :package_key and object_type = :object_type and list_name = :list_name" -default ""]
+	# we use the not cached proc so that if
+        # it does not exists a blank value
+        # is not saved for the list we are
+        # creating here
+	set existing_list_id_not_cached [ams::list::get_list_id -package_key $package_id -object_type $object_type -list_name $list_name]
     } 	
     
     if {[exists_and_not_null existing_list_id]} {
@@ -246,23 +250,16 @@ ad_proc -public ams::list::attribute::map {
 
     @return option_map_id
 } {
-
-    if { ![exists_and_not_null sort_order] } {
-        set sort_order [expr 1 + [db_string get_highest_sort_order {} -default "0"]]
-    }
-    
-    if {![string eq "" $list_id]} {
-	db_dml delete_old_entry "delete from ams_list_attribute_map where list_id = :list_id and (attribute_id = :attribute_id or sort_order=:sort_order)"
-	return [db_exec_plsql ams_list_attribute_map {}]
-    } elseif {![string eq "" $list_ids]} {
-	foreach list_id $list_ids {
-	    
-	    # We need to update, therefore we delete
-	    db_dml delete_old_entry "delete from ams_list_attribute_map where list_id = :list_id and (attribute_id = :attribute_id or sort_order=:sort_order)"
-	    ns_log Notice "$list_id :: $attribute_id"
-	    db_exec_plsql ams_list_attribute_map {}
+    foreach list_id [concat $list_id $list_ids] {
+	if { ![exists_and_not_null sort_order] } {
+	    set sort_order [expr 1 + [db_string get_highest_sort_order {} -default "0"]]
 	}
-    } 
+	# We need to update, therefore we delete
+	db_dml delete_old_entry {}
+	# ns_log Notice "$list_id :: $attribute_id"
+	db_exec_plsql ams_list_attribute_map {}
+    }
+
 }
 
 ad_proc -public ams::list::attribute::unmap {

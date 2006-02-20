@@ -72,6 +72,13 @@
   </querytext>
 </fullquery>
 
+<fullquery name="ams::list::attribute::map.delete_old_entry">
+  <querytext>
+        delete from ams_list_attribute_map
+         where list_id = :list_id
+           and ( attribute_id = :attribute_id or sort_order = :sort_order )
+  </querytext>
+</fullquery>
 
 <fullquery name="ams::list::attribute::map.ams_list_attribute_map">
   <querytext>

@@ -23,6 +23,7 @@ ad_proc -public ams::widget {
     {-value ""}
     {-optional_p "1"}
     {-locale ""}
+    {-html_options ""}
 } {
     This proc defers its responses to all other <a href="/api-doc/proc-search?show_deprecated_p=0&query_string=ams::widget::&source_weight=0&param_weight=3&name_weight=5&doc_weight=2&show_private_p=1&search_type=All+matches">ams::widget::${widget}</a> procs.
 
@@ -54,7 +55,7 @@ ad_proc -public ams::widget {
         switch $request {
             ad_form_widget - template_form_widget - form_save_value {
 		if { [::ams::widget_has_options_p -widget $widget] } {
-		    set options [::ams::widget_options -attribute_id $attribute_id] 
+		    set options [::ams::widget_options -attribute_id $attribute_id]
 		} else {
 		    set options {}
 		}
@@ -78,7 +79,7 @@ ad_proc -public ams::widget {
 	    }
 	}
 	ns_log Debug "MGEDDERT DEBUG: 	return ::ams::widget::${widget} -request $request -attribute_name $attribute_name -pretty_name $pretty_name -value $value -optional_p $optional_p -form_name $form_name -options $options"
-	return [::ams::widget::${widget} -request $request -attribute_name $attribute_name -pretty_name $pretty_name -value $value -optional_p $optional_p -form_name $form_name -options $options -attribute_id $attribute_id]
+	return [::ams::widget::${widget} -request $request -attribute_name $attribute_name -pretty_name $pretty_name -value $value -optional_p $optional_p -form_name $form_name -options $options -attribute_id $attribute_id -html_options $html_options]
     } else {
 	# the widget requested did not exist
 	ns_log Debug "AMS: the ams widget \"${widget}\" was requested and the associated ::ams::widget::${widget} procedure does not exist"
@@ -177,6 +178,7 @@ ad_proc -private ams::widget::postal_address {
     -optional_p:required
     -options:required
     -attribute_id:required
+    -html_options:required
 } {
     This proc responds to the ams::widget procs.
 
@@ -186,9 +188,9 @@ ad_proc -private ams::widget::postal_address {
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:address(address),optional {help_text \"$help_text\"} {[list label ${pretty_name}]}"
+		return "${attribute_name}:address(address),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    } else {
-		return "${attribute_name}:address(address) {help_text \"$help_text\"} {[list label ${pretty_name}]}"
+		return "${attribute_name}:address(address) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    }
 	}
         template_form_widget  {
@@ -197,12 +199,14 @@ ad_proc -private ams::widget::postal_address {
 		    -label ${pretty_name} \
 		    -datatype address \
 		    -widget address \
+                    -html $html_options \
 		    -optional
 	    } else {
 		::template::element::create ${form_name} ${attribute_name} \
 		    -label ${pretty_name} \
 		    -datatype address \
-		    -widget address
+		    -widget address \
+                    -html $html_options
 	    }
 	}
         form_set_value {
@@ -262,6 +266,7 @@ ad_proc -private ams::widget::telecom_number {
     -optional_p:required
     -options:required
     -attribute_id:required
+    -html_options:required
 } {
     This proc responds to the ams::widget procs.
 
@@ -271,9 +276,9 @@ ad_proc -private ams::widget::telecom_number {
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:telecom_number(telecom_number),optional {help_text \"$help_text\"} {[list label ${pretty_name}]}"
+		return "${attribute_name}:telecom_number(telecom_number),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    } else {
-		return "${attribute_name}:telecom_number(telecom_number) {help_text \"$help_text\"} {[list label ${pretty_name}]}"
+		return "${attribute_name}:telecom_number(telecom_number) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    }
 	}
         template_form_widget  {
@@ -282,12 +287,14 @@ ad_proc -private ams::widget::telecom_number {
 		    -label ${pretty_name} \
 		    -datatype telecom_number \
 		    -widget telecom_number \
+                    -html $html_options \
 		    -optional
 	    } else {
 		::template::element::create ${form_name} ${attribute_name} \
 		    -label ${pretty_name} \
 		    -datatype telecom_number \
-		    -widget telecom_number
+		    -widget telecom_number \
+                    -html $html_options
 	    }
 	}
         form_set_value {
@@ -345,19 +352,20 @@ ad_proc -private ams::widget::date {
     -optional_p:required
     -options:required
     -attribute_id:required
+    -html_options:required
 } {
     This proc responds to the ams::widget procs.
 
     @see ams::widget
 } {
 
-        set help_text [attribute::help_text -attribute_id $attribute_id] 
+    set help_text [attribute::help_text -attribute_id $attribute_id] 
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:date(date),optional {help_text \"$help_text\"} {[list label ${pretty_name}]}"
+		return "${attribute_name}:date(date),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    } else {
-		return "${attribute_name}:date(date) {help_text \"$help_text\"} {[list label ${pretty_name}]}"
+		return "${attribute_name}:date(date) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    }
 	}
         template_form_widget  {
@@ -366,6 +374,7 @@ ad_proc -private ams::widget::date {
 		    -label ${pretty_name} \
 		    -datatype date \
 		    -widget date \
+                    -html $html_options \
 		    -help \
 		    -optional
 	    } else {
@@ -373,6 +382,7 @@ ad_proc -private ams::widget::date {
 		    -label ${pretty_name} \
 		    -datatype date \
 		    -widget date \
+                    -html $html_options \
 		    -help
 	    }
 	}
@@ -422,21 +432,22 @@ ad_proc -private ams::widget::select {
     -optional_p:required
     -options:required
     -attribute_id:required
+    -html_options:required
 } {
     This proc responds to the ams::widget procs.
 
     @see ams::widget
 } {
 
-        set help_text [attribute::help_text -attribute_id $attribute_id] 
+    set help_text [attribute::help_text -attribute_id $attribute_id] 
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
 		set options [concat [list [list "" ""]] $options]
-		return "${attribute_name}:integer(select),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list options $options]}"
+		return "${attribute_name}:integer(select),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]}"
 	    } else {
 		set options [concat [list [list "- [_ ams.select_one] -" ""]] $options]
-		return "${attribute_name}:integer(select) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list options $options]}"
+		return "${attribute_name}:integer(select) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]}"
 	    }
 	}
         template_form_widget  {
@@ -445,12 +456,14 @@ ad_proc -private ams::widget::select {
 		    -label ${pretty_name} \
 		    -datatype integer \
 		    -widget select \
+                    -html $html_options \
 		    -optional
 	    } else {
 		::template::element::create ${form_name} ${attribute_name} \
 		    -label ${pretty_name} \
 		    -datatype integer \
-		    -widget select
+		    -widget select \
+                    -html $html_options
 	    }
 	}
         form_set_value {
@@ -498,19 +511,20 @@ ad_proc -private ams::widget::radio {
     -optional_p:required
     -options:required
     -attribute_id:required
+    -html_options:required
 } {
     This proc responds to the ams::widget procs.
 
     @see ams::widget
 } {
 
-        set help_text [attribute::help_text -attribute_id $attribute_id] 
+    set help_text [attribute::help_text -attribute_id $attribute_id] 
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:integer(radio),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list options $options]}"
+		return "${attribute_name}:integer(radio),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]}"
 	    } else {
-		return "${attribute_name}:integer(radio) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list options $options]}"
+		return "${attribute_name}:integer(radio) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]}"
 	    }
 	}
         template_form_widget  {
@@ -519,12 +533,14 @@ ad_proc -private ams::widget::radio {
 		    -label ${pretty_name} \
 		    -datatype integer \
 		    -widget radio \
+                    -html $html_options \
 		    -optional
 	    } else {
 		::template::element::create ${form_name} ${attribute_name} \
 		    -label ${pretty_name} \
 		    -datatype integer \
-		    -widget radio
+		    -widget radio \
+                    -html $html_options
 	    }
 	}
         form_set_value {
@@ -571,19 +587,20 @@ ad_proc -private ams::widget::checkbox {
     -optional_p:required
     -options:required
     -attribute_id:required
+    -html_options:required
 } {
     This proc responds to the ams::widget procs.
 
     @see ams::widget
 } {
 
-        set help_text [attribute::help_text -attribute_id $attribute_id] 
+    set help_text [attribute::help_text -attribute_id $attribute_id] 
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:integer(checkbox),multiple,optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list options $options]}"
+		return "${attribute_name}:integer(checkbox),multiple,optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]}"
 	    } else {
-		return "${attribute_name}:integer(checkbox),multiple {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list options $options]}"
+		return "${attribute_name}:integer(checkbox),multiple {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]}"
 	    }
 	}
         template_form_widget  {
@@ -592,6 +609,7 @@ ad_proc -private ams::widget::checkbox {
 		    -label ${pretty_name} \
 		    -datatype integer \
 		    -widget checkbox \
+                    -html $html_options \
 		    -multiple \
 		    -optional
 	    } else {
@@ -599,6 +617,7 @@ ad_proc -private ams::widget::checkbox {
 		    -label ${pretty_name} \
 		    -datatype integer \
 		    -widget checkbox \
+                    -html $html_options \
 		    -multiple
 	    }
 	}
@@ -646,19 +665,20 @@ ad_proc -private ams::widget::multiselect {
     -optional_p:required
     -options:required
     -attribute_id:required
+    -html_options:required
 } {
     This proc responds to the ams::widget procs.
 
     @see ams::widget
 } {
 
-        set help_text [attribute::help_text -attribute_id $attribute_id] 
+    set help_text [attribute::help_text -attribute_id $attribute_id] 
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:integer(multiselect),multiple,optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list options $options]}"
+		return "${attribute_name}:integer(multiselect),multiple,optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]}"
 	    } else {
-		return "${attribute_name}:integer(multiselect),multiple {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list options $options]}"
+		return "${attribute_name}:integer(multiselect),multiple {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]}"
 	    }
 	}
         template_form_widget  {
@@ -668,12 +688,14 @@ ad_proc -private ams::widget::multiselect {
 		    -datatype integer \
 		    -widget multiselect \
 		    -multiple \
+                    -html $html_options \
 		    -optional
 	    } else {
 		::template::element::create ${form_name} ${attribute_name} \
 		    -label ${pretty_name} \
 		    -datatype integer \
 		    -widget multiselect \
+                    -html $html_options \
 		    -multiple
 	    }
 	}
@@ -723,19 +745,23 @@ ad_proc -private ams::widget::integer {
     -optional_p:required
     -options:required
     -attribute_id:required
+    -html_options:required
 } {
     This proc responds to the ams::widget procs.
 
     @see ams::widget
 } {
 
-        set help_text [attribute::help_text -attribute_id $attribute_id] 
+    set help_text [attribute::help_text -attribute_id $attribute_id] 
+    if { $html_options eq "" } {
+	set html_options "size 6"
+    }
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:integer(text),optional {html {size 6}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
+		return "${attribute_name}:integer(text),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    } else {
-		return "${attribute_name}:integer(text) {html {size 6}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
+		return "${attribute_name}:integer(text) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    }
 	}
         template_form_widget  {
@@ -744,14 +770,14 @@ ad_proc -private ams::widget::integer {
 		    -label ${pretty_name} \
 		    -datatype integer \
 		    -widget text \
-		    -html {size 6} \
+		    -html $html_options \
 		    -optional
 	    } else {
 		::template::element::create ${form_name} ${attribute_name} \
 		    -label ${pretty_name} \
 		    -datatype integer \
 		    -widget text \
-		    -html {size 6}
+		    -html $html_options
 	    }
 	}
         form_set_value {
@@ -798,6 +824,7 @@ ad_proc -private ams::widget::textbox {
     -optional_p:required
     -options:required
     -attribute_id:required
+    -html_options:required
 } {
     This proc responds to the ams::widget procs.
 
@@ -806,12 +833,15 @@ ad_proc -private ams::widget::textbox {
 
     set help_text [attribute::help_text -attribute_id $attribute_id] 
     set value [ams::util::text_value -value $value]
+    if { $html_options eq "" } {
+	set html_options "size 30"
+    }
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:text(text),optional {html {size 30}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
+		return "${attribute_name}:text(text),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    } else {
-		return "${attribute_name}:text(text) {html {size 30}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
+		return "${attribute_name}:text(text) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    }
 	}
         template_form_widget  {
@@ -820,14 +850,14 @@ ad_proc -private ams::widget::textbox {
 		    -label ${pretty_name} \
 		    -datatype text \
 		    -widget text \
-		    -html {size 30} \
+		    -html $html_options \
 		    -optional
 	    } else {
 		::template::element::create ${form_name} ${attribute_name} \
 		    -label ${pretty_name} \
 		    -datatype text \
 		    -widget text \
-		    -html {size 30}
+		    -html $html_options
 	    }
 	}
         form_set_value {
@@ -875,6 +905,7 @@ ad_proc -private ams::widget::textarea {
     -optional_p:required
     -options:required
     -attribute_id:required
+    -html_options:required
 } {
     This proc responds to the ams::widget procs.
 
@@ -882,12 +913,15 @@ ad_proc -private ams::widget::textarea {
 } {
     set value [ams::util::text_value -value $value]
     set help_text [attribute::help_text -attribute_id $attribute_id] 
+    if { $html_options eq "" } {
+	set html_options "cols 60 rows 6"
+    }
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:text(textarea),optional {html {cols 60 rows 6}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
+		return "${attribute_name}:text(textarea),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    } else {
-		return "${attribute_name}:text(textarea) {html {cols 60 rows 10}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
+		return "${attribute_name}:text(textarea) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    }
 	}
         template_form_widget  {
@@ -896,7 +930,7 @@ ad_proc -private ams::widget::textarea {
 		    -label ${pretty_name} \
 		    -datatype text \
 		    -widget textarea \
-		    -html {cols 60 rows 10} \
+		    -html $html_options \
 		    -help_text test\
 		    -optional
 	    } else {
@@ -904,7 +938,7 @@ ad_proc -private ams::widget::textarea {
 		    -label ${pretty_name} \
 		    -datatype text \
 		    -widget textarea \
-		    -html {cols 60 rows 10} \
+		    -html $html_options \
 		    -help_text test
 	    }
 	}
@@ -952,6 +986,7 @@ ad_proc -private ams::widget::richtext {
     -optional_p:required
     -options:required
     -attribute_id:required
+    -html_options:required
 } {
     This proc responds to the ams::widget procs.
 
@@ -960,12 +995,15 @@ ad_proc -private ams::widget::richtext {
     set value_format [ams::util::text_format -value $value]
     set value [ams::util::text_value -value $value]
     set help_text [attribute::help_text -attribute_id $attribute_id] 
+    if { $html_options eq "" } {
+	set html_options "cols 60 rows 14"
+    }
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:richtext(richtext),optional {html {cols 60 rows 14}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
+		return "${attribute_name}:richtext(richtext),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    } else {
-		return "${attribute_name}:richtext(richtext) {html {cols 60 rows 14}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
+		return "${attribute_name}:richtext(richtext) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    }
 	}
         template_form_widget  {
@@ -974,14 +1012,14 @@ ad_proc -private ams::widget::richtext {
 		    -label ${pretty_name} \
 		    -datatype richtext \
 		    -widget richtext \
-		    -html {cols 60 rows 14} \
+		    -html $html_options \
 		    -optional
 	    } else {
 		::template::element::create ${form_name} ${attribute_name} \
 		    -label ${pretty_name} \
 		    -datatype richtext \
 		    -widget richtext \
-		    -html {cols 60 rows 14}
+		    -html $html_options
 	    }
 	}
         form_set_value {
@@ -1030,6 +1068,7 @@ ad_proc -private ams::widget::email {
     -optional_p:required
     -options:required
     -attribute_id:required
+    -html_options:required
 } {
     This proc responds to the ams::widget procs.
 
@@ -1037,12 +1076,15 @@ ad_proc -private ams::widget::email {
 } {
     set value [ams::util::text_value -value $value]
     set help_text [attribute::help_text -attribute_id $attribute_id] 
+    if { $html_options eq "" } {
+	set html_options "size 30"
+    }
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:email(text),optional {html {size 30}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
+		return "${attribute_name}:email(text),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    } else {
-		return "${attribute_name}:email(text) {html {size 30}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
+		return "${attribute_name}:email(text) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    }
 	}
         template_form_widget  {
@@ -1051,14 +1093,14 @@ ad_proc -private ams::widget::email {
 		    -label ${pretty_name} \
 		    -datatype email \
 		    -widget text \
-		    -html {size 30} \
+		    -html $html_options \
 		    -optional
 	    } else {
 		::template::element::create ${form_name} ${attribute_name} \
 		    -label ${pretty_name} \
 		    -datatype email \
 		    -widget text \
-		    -html {size 30}
+		    -html $html_options
 	    }
 	}
         form_set_value {
@@ -1105,6 +1147,7 @@ ad_proc -private ams::widget::url {
     -optional_p:required
     -options:required
     -attribute_id:required
+    -html_options:required
 } {
     This proc responds to the ams::widget procs.
 
@@ -1112,12 +1155,15 @@ ad_proc -private ams::widget::url {
 } {
     set value [ams::util::text_value -value $value]
     set help_text [attribute::help_text -attribute_id $attribute_id] 
+    if { $html_options eq "" } {
+	set html_options "size 30"
+    }
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:url(text),optional {html {size 30}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
+		return "${attribute_name}:url(text),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    } else {
-		return "${attribute_name}:url(text) {html {size 30}} {help_text \"$help_text\"} {[list label ${pretty_name}]}"
+		return "${attribute_name}:url(text) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    }
 	}
         template_form_widget  {
@@ -1126,14 +1172,14 @@ ad_proc -private ams::widget::url {
 		    -label ${pretty_name} \
 		    -datatype url \
 		    -widget text \
-		    -html {size 30} \
+		    -html $html_options \
 		    -optional
 	    } else {
 		::template::element::create ${form_name} ${attribute_name} \
 		    -label ${pretty_name} \
 		    -datatype url \
 		    -widget text \
-		    -html {size 30}
+		    -html $html_options
 	    }
 	}
         form_set_value {

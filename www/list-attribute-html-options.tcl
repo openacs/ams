@@ -28,7 +28,7 @@ ad_form -name html_options -form {
     {attribute_id:text(hidden)
 	{value $attribute_id}
     }
-    {html_options:text(text)
+    {html_options:text(text),optional
 	{label "[_ ams.Html_options]"}
 	{html {size 80 maxlength 1000}}
 	{help_text "[_ ams.Html_options_help]"}
@@ -43,6 +43,7 @@ ad_form -name html_options -form {
     if { [string is true [exists_and_not_null delete]] } {
 	set html_options ""
     }
+    set html_options [string trim $html_options]
     db_dml update_html_options { }
 } -after_submit {
     ad_returnredirect $return_url
