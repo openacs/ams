@@ -107,6 +107,15 @@ ad_proc -public attribute::id {
     -object_type:required
     -attribute_name:required
 } {
+    return the attribute_id for the specified attribute. Cached.
+} {
+    return [util_memoize [list ::attribute::id_not_cached -object_type $object_type -attribute_name $attribute_name]]
+}
+
+ad_proc -public attribute::id_not_cached {
+    -object_type:required
+    -attribute_name:required
+} {
     return the attribute_id for the specified attribute
 } {
     return [db_string get_attribute_id {} -default {}]

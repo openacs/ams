@@ -37,7 +37,7 @@
   </querytext>
 </fullquery>
 
-<fullquery name="attribute::id.get_attribute_id">
+<fullquery name="attribute::id_not_cached.get_attribute_id">
   <querytext>
         select attribute_id
           from acs_attributes
