@@ -212,7 +212,7 @@ ad_proc -public ams::list::new {
         # it does not exists a blank value
         # is not saved for the list we are
         # creating here
-	set existing_list_id_not_cached [ams::list::get_list_id -package_key $package_id -object_type $object_type -list_name $list_name]
+	set existing_list_id_not_cached [ams::list::get_list_id -package_key $package_key -object_type $object_type -list_name $list_name]
     } 	
     
     if {[exists_and_not_null existing_list_id]} {
