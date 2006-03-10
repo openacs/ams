@@ -342,6 +342,272 @@ ad_proc -private ams::widget::telecom_number {
     }
 }
 
+ad_proc -private ams::widget::mobile_number {
+    -request:required
+    -attribute_name:required
+    -pretty_name:required
+    -form_name:required
+    -value:required
+    -optional_p:required
+    -options:required
+    -attribute_id:required
+    -html_options:required
+} {
+    This proc responds to the ams::widget procs.
+
+    @see ams::widget
+} {
+    if { [llength $html_options] == 0 } {
+	set html_options [list]
+    }
+    switch $request {
+        ad_form_widget  {
+	    set element [list]
+	    if { [string is true $optional_p] } {
+		lappend element ${attribute_name}:mobile_number(mobile_number),optional 
+	    } else {
+		lappend element ${attribute_name}:mobile_number(mobile_number)
+	    }
+	    lappend element [list label ${pretty_name}]
+	    lappend element [list html $html_options]
+	    return $element
+	}
+        template_form_widget  {
+	    if { [string is true $optional_p] } {
+		::template::element::create ${form_name} ${attribute_name} \
+		    -label ${pretty_name} \
+		    -datatype telecom_number \
+		    -widget mobile_number \
+		    -optional \
+		    -html $html_options
+	    } else {
+		::template::element::create ${form_name} ${attribute_name} \
+		    -label ${pretty_name} \
+		    -datatype telecom_number \
+		    -widget mobile_number \
+		    -html $html_options
+	    }
+	}
+        form_set_value {
+	    ::template::element::set_value ${form_name} ${attribute_name} $value
+	}
+        form_save_value {
+	    set value [::template::element::get_value ${form_name} ${attribute_name}]
+	    return [ams::util::telecom_number_save \
+			-itu_id [template::util::mobile_number::get_property itu_id $value] \
+			-national_number [template::util::mobile_number::get_property national_number $value] \
+			-area_city_code "" \
+			-subscriber_number [template::util::mobile_number::get_property subscriber_number $value] \
+			-extension "" \
+			-sms_enabled_p "" \
+			-best_contact_time [template::util::mobile_number::get_property best_contact_time $value] \
+			-location "" \
+			-phone_type_id ""]
+	}
+        value_text {
+            foreach {itu_id national_number area_city_code subscriber_number extension sms_enabled_p best_contact_time location phone_type_id} $value {}
+	    return [ad_html_to_text -showtags -no_format [template::util::mobile_number::html_view $itu_id $national_number $subscriber_number $best_contact_time]]
+	}
+        value_html {
+            foreach {itu_id national_number area_city_code subscriber_number extension sms_enabled_p best_contact_time location phone_type_id} $value {}
+	    return [template::util::mobile_number::html_view $itu_id $national_number $subscriber_number $best_contact_time]
+	}
+        csv_value {
+	    # not yet implemented
+	}
+        csv_headers {
+	    # not yet implemented
+	}
+        csv_save {
+	    # not yet implemented
+	}
+	widget_datatypes {
+	    return [list "string"]
+	}
+	widget_name {
+	    return [_ "ams.Mobile_Number"]
+	}
+	value_method {
+	    return "ams_value__telecom_number"
+	}
+    }
+}
+
+ad_proc -private ams::widget::aim {
+    -request:required
+    -attribute_name:required
+    -pretty_name:required
+    -form_name:required
+    -value:required
+    -optional_p:required
+    -options:required
+    -attribute_id:required
+    -html_options:required
+} {
+    This proc responds to the ams::widget procs.
+
+    @see ams::widget
+} {
+    set value [ams::util::text_value -value $value]
+    if { [llength $html_options] == 0 } {
+	set html_options [list]
+    }
+    switch $request {
+        ad_form_widget  {
+	    set element [list]
+	    if { [string is true $optional_p] } {
+		lappend element ${attribute_name}:text(text),optional 
+	    } else {
+		lappend element ${attribute_name}:text(text)
+	    }
+	    lappend element [list label ${pretty_name}]
+	    lappend element [list html $html_options]
+	    return $element
+	}
+        template_form_widget  {
+	    if { [string is true $optional_p] } {
+		::template::element::create ${form_name} ${attribute_name} \
+		    -label ${pretty_name} \
+		    -datatype text \
+		    -widget text \
+		    -optional \
+		    -html $html_options
+	    } else {
+		::template::element::create ${form_name} ${attribute_name} \
+		    -label ${pretty_name} \
+		    -datatype text \
+		    -widget text \
+		    -html $html_options
+	    }
+	}
+        form_set_value {
+	    ::template::element::set_value ${form_name} ${attribute_name} $value
+	}
+        form_save_value {
+	    set value [::template::element::get_value ${form_name} ${attribute_name}]
+	    return [ams::util::text_save -text $value -text_format "text/plain"]
+	}
+        value_text {
+#	    set status [template::util::aim::status -username $value]
+#
+            # getting the status can take too long. so we return it for html views
+            # but do not return it for text. This is in part because text exports 
+            # are often used for csv export and the like.
+	    return $value
+	}
+        value_html {
+#	    switch $status {
+#		"online"  {set status_html "<img src=\"/resources/ams/aim_online.gif\" alt\"online\" />"}
+#		"offline" {set status_html "<img src=\"/resources/ams/aim_offline.gif\" alt=\"offline\" />"}
+#		default   {set status_html "Not A Valid ID"}
+#	    }
+	    return "$value [template::util::aim::status_img -username $value]"
+	}
+        csv_value {
+	    # not yet implemented
+	}
+        csv_headers {
+	    # not yet implemented
+	}
+        csv_save {
+	    # not yet implemented
+	}
+	widget_datatypes {
+	    return [list "string"]
+	}
+	widget_name {
+	    return [_ "ams.AIM"]
+	}
+	value_method {
+	    return "ams_value__text"
+	}
+    }
+}
+
+ad_proc -private ams::widget::skype {
+    -request:required
+    -attribute_name:required
+    -pretty_name:required
+    -form_name:required
+    -value:required
+    -optional_p:required
+    -options:required
+    -attribute_id:required
+    -html_options:required
+} {
+    This proc responds to the ams::widget procs.
+
+    @see ams::widget
+} {
+    set value [ams::util::text_value -value $value]
+    if { [llength $html_options] == 0 } {
+	set html_options [list]
+    }
+    switch $request {
+        ad_form_widget  {
+	    set element [list]
+	    if { [string is true $optional_p] } {
+		lappend element ${attribute_name}:text(text),optional 
+	    } else {
+		lappend element ${attribute_name}:text(text)
+	    }
+	    lappend element [list label ${pretty_name}]
+	    lappend element [list html $html_options]
+	    return $element
+	}
+        template_form_widget  {
+	    if { [string is true $optional_p] } {
+		::template::element::create ${form_name} ${attribute_name} \
+		    -label ${pretty_name} \
+		    -datatype text \
+		    -widget text \
+		    -optional \
+		    -html $html_options
+	    } else {
+		::template::element::create ${form_name} ${attribute_name} \
+		    -label ${pretty_name} \
+		    -datatype text \
+		    -widget text \
+		    -html $html_options
+	    }
+	}
+        form_set_value {
+	    ::template::element::set_value ${form_name} ${attribute_name} $value
+	}
+        form_save_value {
+	    set value [::template::element::get_value ${form_name} ${attribute_name}]
+	    return [ams::util::text_save -text $value -text_format "text/plain"]
+	}
+        value_text {
+	    set status [template::util::skype::status_txt -username $value]
+	    return "$value - $status"
+	}
+        value_html {
+	    set status [template::util::skype::status_img -username $value -image_type "small_icon"]
+	    return "$value $status"
+	}
+        csv_value {
+	    # not yet implemented
+	}
+        csv_headers {
+	    # not yet implemented
+	}
+        csv_save {
+	    # not yet implemented
+	}
+	widget_datatypes {
+	    return [list "string"]
+	}
+	widget_name {
+	    return [_ "ams.Skype"]
+	}
+	value_method {
+	    return "ams_value__text"
+	}
+    }
+}
+
+
 
 ad_proc -private ams::widget::date {
     -request:required
