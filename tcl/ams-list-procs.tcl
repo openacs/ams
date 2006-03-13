@@ -219,7 +219,7 @@ ad_proc -public ams::list::new {
 	return $existing_list_id
     } else {
 	if { [empty_string_p $context_id] } {
-	    set context_id [ams::package_id]
+	    set context_id [apm_package_id_from_key ams]
 	}
 	if { ![exists_and_not_null description] } {
 	    set description_mime_type ""

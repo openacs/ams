@@ -41,7 +41,7 @@
   <querytext>
         select attribute_id
           from acs_attributes
-         where object_type = :object_type
+         where object_type in ([ams::object_parents -sql -show_root -object_type $object_type])
            and attribute_name = :attribute_name
   </querytext>
 </fullquery>

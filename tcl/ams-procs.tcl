@@ -116,23 +116,10 @@ ad_proc -public attribute::id_not_cached {
     -object_type:required
     -attribute_name:required
 } {
-    return the attribute_id for the specified attribute
+    return the attribute_id for the specified attribute, this proc checks
+    all parent attributes as well
 } {
-    # Special case for emails
-    if {$attribute_name eq "email"} {
-	set object_type "party"
-    }
     return [db_string get_attribute_id {} -default {}]
-}
-
-ad_proc -public ams::package_id {
-} {
-TODO: Get the AMS package ID, not the connection package_id
-    Get the package_id of the ams instance
-
-@return package_id
-} {
-    return [ad_conn package_id]
 }
 
 ad_proc -public ams::util::edit_lang_key_url {
