@@ -10,7 +10,5 @@
 <p><strong>#ams.Widget#</strong> <a href="widgets">@attribute_info.widget@</a></p>
 
 
-<if @options:rowcount@ gt 0>
 <listtemplate name="options"></listtemplate>
-</if>
 

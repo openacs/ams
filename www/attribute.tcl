@@ -110,11 +110,9 @@ db_multirow -extend { sort_order sort_key delete_url edit_url } options select_o
     set edit_url [lang::util::edit_lang_key_url -message $option]
 }
 
-if { [template::multirow size options] > 0 } {
-    set sort_order $sort_count
-    set sort_key $sort_key_count
-    template::multirow append options {new1} {} 1 $sort_count $sort_key
-    template::multirow append options {new2} {} 1 [incr sort_count 10] [incr sort_key 1]
-    template::multirow append options {new3} {} 1 [incr sort_count 10] [incr sort_key 1]
-}
+set sort_order $sort_count
+set sort_key $sort_key_count
+template::multirow append options {new1} {} 1 $sort_count $sort_key
+template::multirow append options {new2} {} 1 [incr sort_count 10] [incr sort_key 1]
+template::multirow append options {new3} {} 1 [incr sort_count 10] [incr sort_key 1]
 ad_return_template
