@@ -161,27 +161,33 @@ ad_proc -public ams::util::edit_lang_key_url {
      return $list_output
  }
 
- ad_proc -public ams::util::sort_list_of_lists {
+ ad_proc -public -deprecated ams::util::sort_list_of_lists {
      {-list}
      {-position "0"}
  } {
      sort a list_of_lists
  } {
-     set sort_output [list]
-     foreach item $list {
-	 set sort_key [string toupper [lindex $item $position]]
+#     set sort_output [list]
+#     foreach item $list {
+#	 set sort_key [string toupper [lindex $item $position]]
 	 # we need to replace spaces because it prevents
 	 # multi word sort keys from recieving curly
 	 # brackets during the sort, which skews results
-	 regsub -all " " $sort_key "_" sort_key
-	 lappend sort_output [list $sort_key $item]
-     }
-     set sort_output [lsort $sort_output]
-     set list_output [list]
-     foreach item $sort_output {
-	 lappend list_output [lindex $item 1]
-     }
-     return $list_output
+#	 regsub -all " " $sort_key "_" sort_key
+#	 lappend sort_output [list $sort_key $item]
+#     }
+#     set sort_output [lsort $sort_output]
+#     set list_output [list]
+#     foreach item $sort_output {
+#	 lappend list_output [lindex $item 1]
+#     }
+#     return $list_output
+
+     # I had previously made this WAY more complicated than
+     # it had to be
+     return [lsort -dictionary -index $position $list]
+
+
  }
 
  ad_proc -public ams::object_parents {
