@@ -34,6 +34,67 @@ ad_proc -public template::util::address::create {
     return [list $delivery_address $municipality $region $postal_code $country_code $additional_text $postal_type]
 }
 
+ad_proc -public template::util::address::country {
+    {-country_code}
+} {
+    The returns a i18n'inized pretty country
+    name for the provided country_code
+} {
+    if { [ad_conn isconnected] } {
+	# We are in an HTTP connection (request) so use that locale
+	set locale [ad_conn locale]
+    } else {
+	# There is no HTTP connection - resort to system locale
+	set locale [lang::system::locale]
+    }
+    
+    set key "ams.country_${country_code}"
+
+    if { [string is true [lang::message::message_exists_p $locale $key]] } {
+	set country [lang::message::lookup $locale $key]
+    } else {
+	# cache the country codes
+	template::util::address::country_options_not_cached -locale $locale
+	
+	if { [string is true [lang::message::message_exists_p $locale $key]] } {
+	    set country [lang::message::lookup $locale $key]
+	} else {
+	    # we get the default en_US key which was created with the
+	    # template::util::address::country_options_not_cached proc
+	    set country [lang::message::lookup "en_US" $key]
+	}
+    }
+    return $country
+}
+
+ad_proc -public template::util::address::town_line {
+    {-municipality}
+    {-region}
+    {-postal_code}
+    {-country_code}
+} {
+    returns a town_line formatted correctly for the country_code
+} {
+    # Different formats depending on the country_code
+    switch $country_code {
+	"CA" - "UK" - "US" {
+	    # note that two spaces between region and postal_code is intentional
+	    set town_line "$municipality, $region  $postal_code"
+	}
+	"CH" - "DE" {
+	    set town_line "$postal_code $municipality"
+	}
+	default {
+	    if { [parameter::get_from_package_key -package_key "ams" -parameter "DefaultAdressLayoutP" -default 1] } {
+		set town_line "$municipality $region $postal_code"
+	    } else {
+		set town_line "$postal_code $municipality $region"
+	    }
+	}
+    }
+    return $town_line
+}
+
 ad_proc -public template::util::address::html_view {
     {delivery_address {}}
     {municipality {}}
@@ -43,60 +104,18 @@ ad_proc -public template::util::address::html_view {
     {additional_text {}}
     {postal_type {}}
 } {
-    # MGEDDERT TODO, convert country code to country name via cached proc
-    if { [ad_conn isconnected] } {
-        # We are in an HTTP connection (request) so use that locale
-        set locale [ad_conn locale]
-    } else {
-        # There is no HTTP connection - resort to system locale
-        set locale [lang::system::locale]
-    }
 
     if { [lsearch [parameter::get_from_package_key -package_key "ams" -parameter "HideISOCountryCode" -default {}] $country_code] >= 0 } {
 	set country ""
     } else {
-	set key "ams.country_${country_code}"
-	if { [string is true [lang::message::message_exists_p $locale $key]] } {
-	    set country [lang::message::lookup $locale $key]
-	} else {
-	    # cache the country codes
-	    template::util::address::country_options_not_cached -locale $locale
-	    
-	    if { [string is true [lang::message::message_exists_p $locale $key]] } {
-		set country [lang::message::lookup $locale $key]
-	    } else {
-		# we get the default en_US key which was created with the
-		# template::util::address::country_options_not_cached proc
-		set country [lang::message::lookup "en_US" $key]
-	    }
-	}
+	set country [template::util::address::country -country_code $country_code]
     }
+    set town_line [template::util::address::town_line -municipality $municipality -region $region -postal_code $postal_code -country_code $country_code]
 
+    set address "$delivery_address
+$town_line
+$country"
 
-    # Different formats depending on the country
-    switch $country_code {
-	"US" - "CA" {
-	    set address "$delivery_address
-$municipality, $region $postal_code
-$country"
-	}
-	"DE" {
-	    set address "$delivery_address
-$postal_code $municipality
-$country"
-	}	    
-	default {
-	    if { [parameter::get_from_package_key -package_key "ams" -parameter "DefaultAdressLayoutP" -default 1] } {
-		set address "$delivery_address
-$municipality $region $postal_code
-$country"
-	    } else {
-		set address "$delivery_address
-$postal_code $municipality $region
-$country"
-	    }
-	}	    
-    }
     # now we remove the ending country line if no country exists
     set address [string trim $address]
     return [ad_text_to_html $address]
