@@ -37,6 +37,9 @@ ad_proc -public ams::widget {
     <li><strong>form_save_value</strong> - saves the form value(s), and returns a value_id suitable for inclusion in the ams_attribute_values table. This value_id can be an object_id or any other integer id. The value id is used by the value_method command to get a value suitable for use with ams::widget procs.</li>
     <li><strong>value_text</strong> - returns the value formatted as text/plain</li>
     <li><strong>value_html</strong> - returns the value formatted as text/html</li>
+    <li><strong>value_list_html</strong> - returns a list of sub_attributes that can be converted to an array with <code>array set myarray \$list</code> where the value formatted as text/html. If no sub_attributes exists then nothing should be returned. For example with a postal_address this would return a list of <code>delivery_address {1234 Main Street} region {CA} country {United States}</code> etc.</li>
+    <li><strong>value_list_text</strong> - returns a list of sub_attributes that can be converted to an array with <code>array set myarray \$list</code> where the value formatted as text/plain. If no sub_attributes exists then nothing should be returned. For example with a postal_address this would return a list of <code>delivery_address {1234 Main Street} region {CA} country {United States}</code> etc.</li>
+    <li><strong>value_list_headings</strong> - returns a list of sub_attributes and their pretty names. e.g. for postal_address in en_US: <code>delivery_address {Steet} region {State/Province}</code> etc.
     <li><strong>csv_value</strong> - not yet implemented</li>
     <li><strong>csv_headers</strong> - not yet implemented</li>
     <li><strong>csv_save</strong> - not yet implemented</li>
@@ -231,9 +234,47 @@ ad_proc -private ams::widget::postal_address {
             foreach {delivery_address municipality region postal_code country_code additional_text postal_type} $value {}
 	    return [template::util::address::html_view $delivery_address $municipality $region $postal_code $country_code $additional_text $postal_type]
 	}
-	value_list {
+	value_list_text {
             foreach {delivery_address municipality region postal_code country_code additional_text postal_type} $value {}
-	    return [list [list delivery_address $delivery_address] [list municipality $municipality] [list region $region] [list postal_code $postal_code] [list country_code $country_code] [list additional_text $additional_text] [list postal_type $postal_type]]
+
+	    # in addition to the standard postal_address attributes we also return 
+	    # the country - which is automatically localized for the user, since
+            # most programs would want it anyways
+	    set country [template::util::address::country -country_code $country_code]
+	    return [list delivery_address $delivery_address municipality $municipality region $region postal_code $postal_code country_code $country_code additional_text $additional_text postal_type $postal_type country $country]
+	}
+	value_list_html {
+            foreach {delivery_address municipality region postal_code country_code additional_text postal_type} $value {}
+
+	    # in addition to the standard postal_address attributes we also return 
+	    # the country - which is automatically localized for the user, since
+            # most programs would want it anyways
+	    set country [template::util::address::country -country_code $country_code]
+
+	    set delivery_address [ad_html_text_convert -from "text/plain" -to "text/html" -- $delivery_address]
+	    set municipality [ad_html_text_convert -from "text/plain" -to "text/html" -- $municipality]
+	    set region [ad_html_text_convert -from "text/plain" -to "text/html" -- $region]
+	    set postal_code [ad_html_text_convert -from "text/plain" -to "text/html" -- $postal_code]
+	    # country_code is two characters and doesn't need to be converted
+	    # country shouldn't need to be converted
+	    # not in use no need for overhead:
+	    # set additional_text [ad_html_text_convert -from "text/plain" -to "text/html" -- $additional_text]
+	    # set postal_type [ad_html_text_convert -from "text/plain" -to "text/html" -- $postal_type]
+
+	    return [list delivery_address $delivery_address municipality $municipality region $region postal_code $postal_code country_code $country_code additional_text $additional_text postal_type $postal_type country $country]
+	}
+	value_list_headings {
+	    # this returns the pretty names for the results returned by the value_list
+            # this is used by contracting packages to get pretty_names for attributes
+            # of postal_address. The list is in the order in which the user would
+            # expect to encounter these attributes... i.e. in a csv list, form, etc.
+	    #
+            # we are not including additional_text or postal_type here
+            # because they are either are not implemented in the widget
+            # country code is not returned because most users are happy
+            # with the country and having both country and country_code
+            # can be confusing
+	    return [list delivery_address [_ ams.delivery_address] municipality [_ ams.municipality] region [_ ams.region] postal_code [_ ams.postal_code] country [_ ams.country]]
 	}
         csv_value {
 	    # not yet implemented
@@ -1302,6 +1343,15 @@ ad_proc -private ams::widget::richtext {
 	}
         value_html {
 	    return [ad_html_text_convert -from $value_format -to "text/html" -- ${value}]
+	}
+	value_list_text {
+	    return [list content [ad_html_text_convert -from $value_format -to "text/plain" -- ${value}] format $value_format]
+	}
+	value_list_html {
+	    return [list content [ad_html_text_convert -from $value_format -to "text/html" -- ${value}] format $value_format]
+	}
+	value_list_headings {
+	    return [list content [_ ams.Content] format [_ ams.Format]]
 	}
         csv_value {
 	    # not yet implemented
