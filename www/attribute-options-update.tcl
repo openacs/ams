@@ -52,5 +52,6 @@ db_transaction {
         db_dml update_sort_order {update ams_option_types set sort_order = :sort_order where option_id = :option_id}
     }
 }
+ams::widget_options_flush -attribute_id $attribute_id
 ad_returnredirect -message "[_ ams.Options_Updated]" "attribute?[export_vars \
 -url {attribute_id}]"

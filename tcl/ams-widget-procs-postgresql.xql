@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <queryset>
 
-<fullquery name="ams::widget_options.get_options">
+<fullquery name="ams::widget_options_not_cached.get_options">
   <querytext>
     select option,
            option_id,

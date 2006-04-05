@@ -94,6 +94,15 @@ ad_proc -private ams::widget_options {
     -attribute_id:required
     {-locale ""}
 } {
+    Return all widget procs. Each list element is a list of the first then pretty_name then the widget. Cached
+} {
+    return [util_memoize [list ams::widget_options_not_cached -attribute_id $attribute_id -locale $locale]]
+}
+
+ad_proc -private ams::widget_options_not_cached {
+    -attribute_id:required
+    {-locale ""}
+} {
     Return all widget procs. Each list element is a list of the first then pretty_name then the widget
 } {
     set return_list [list]
@@ -102,6 +111,14 @@ ad_proc -private ams::widget_options {
 	lappend return_list [list $pretty_name $option_id]
     }
     return $return_list
+}
+
+ad_proc -private ams::widget_options_flush {
+    -attribute_id:required
+} {
+    flush ams::widget_options_not_cached
+} {
+    util_memoize_flush_regexp "ams::widget_options_not_cached(.*?)$attribute_id"
 }
 
 ad_proc -private ams::widget_list {
