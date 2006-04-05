@@ -52,11 +52,15 @@ ad_proc -public attribute::help_text {
 } {
     get the help_text of an attribute.
 } {
-    set help_text [lang::util::localize "#acs-translations.ams_attribute_${attribute_id}_help_text#"]
-    if {[string match "MESSAGE KEY MISSING*" $help_text]} {
+    if { $attribute_id eq "" } {
 	return ""
     } else {
-	return $help_text
+	set help_text [lang::util::localize "#acs-translations.ams_attribute_${attribute_id}_help_text#"]
+	if {[string match "MESSAGE KEY MISSING*" $help_text]} {
+	    return ""
+	} else {
+	    return $help_text
+	}
     }
 }
 
@@ -133,9 +137,9 @@ ad_proc -public ams::util::edit_lang_key_url {
 	 set edit_url ""
      }
      return $edit_url
- }
+}
 
- ad_proc -public ams::util::localize_and_sort_list_of_lists {
+ad_proc -public ams::util::localize_and_sort_list_of_lists {
      {-list}
      {-position "0"}
  } {
