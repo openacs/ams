@@ -768,10 +768,10 @@ ad_proc -private ams::widget::select {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
 		set options [concat [list [list "" ""]] $options]
-		return "${attribute_name}:integer(select),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]}"
+		return "${attribute_name}:integer(select),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]} {[list value [attribute::default_value -attribute_id $attribute_id]]}"
 	    } else {
 		set options [concat [list [list "- [_ ams.select_one] -" ""]] $options]
-		return "${attribute_name}:integer(select) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]}"
+		return "${attribute_name}:integer(select) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]} {[list value [attribute::default_value -attribute_id $attribute_id]]}"
 	    }
 	}
         template_form_widget  {
@@ -846,9 +846,9 @@ ad_proc -private ams::widget::radio {
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:integer(radio),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]}"
+		return "${attribute_name}:integer(radio),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]} {[list value [attribute::default_value -attribute_id $attribute_id]]}"
 	    } else {
-		return "${attribute_name}:integer(radio) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]}"
+		return "${attribute_name}:integer(radio) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]} {[list value [attribute::default_value -attribute_id $attribute_id]]}"
 	    }
 	}
         template_form_widget  {
@@ -922,9 +922,9 @@ ad_proc -private ams::widget::checkbox {
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:integer(checkbox),multiple,optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]}"
+		return "${attribute_name}:integer(checkbox),multiple,optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]} {[list value [attribute::default_value -attribute_id $attribute_id]]}"
 	    } else {
-		return "${attribute_name}:integer(checkbox),multiple {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]}"
+		return "${attribute_name}:integer(checkbox),multiple {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]} {[list value [attribute::default_value -attribute_id $attribute_id]]}"
 	    }
 	}
         template_form_widget  {
@@ -1000,9 +1000,9 @@ ad_proc -private ams::widget::multiselect {
     switch $request {
         ad_form_widget  {
 	    if { [string is true $optional_p] } {
-		return "${attribute_name}:integer(multiselect),multiple,optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]}"
+		return "${attribute_name}:integer(multiselect),multiple,optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]} {[list value [attribute::default_value -attribute_id $attribute_id]]}"
 	    } else {
-		return "${attribute_name}:integer(multiselect),multiple {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]}"
+		return "${attribute_name}:integer(multiselect),multiple {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]} {[list value [attribute::default_value -attribute_id $attribute_id]]}"
 	    }
 	}
         template_form_widget  {

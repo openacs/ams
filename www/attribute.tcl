@@ -6,7 +6,21 @@ ad_page_contract {
 
 } {
     {attribute_id:notnull}
+    {set_default_option_id:integer,optional}
     orderby:optional
+}
+
+
+set default_option_id [attribute::default_value -attribute_id $attribute_id]
+if { [exists_and_not_null set_default_option_id] } {
+    if { $default_option_id eq $set_default_option_id } {
+	# they are removing the option_id as the default
+	set set_default_option_id ""
+    }
+    attribute::default_value_set -attribute_id $attribute_id -default_value $set_default_option_id
+    attribute::default_value_flush -attribute_id $attribute_id
+    ad_returnredirect [export_vars -base "attribute" -url {attribute_id}]
+
 }
 
 #db_1row get_attribute_info {}
@@ -63,6 +77,14 @@ list::create \
                 <input name="sort_key.@options.option_id@" value="@options.sort_order@" size="4">
             }
         }
+	default_p {
+	    label "[_ ams.Default]"
+	    display_template {
+                <if @options.option@ not nil>
+		<a href="@options.default_url@"><img src="/resources/acs-subsite/checkbox<if @options.default_p@>checked</if>.gif" border="0" width="13" height="13" /></a>
+		</if>
+	    }
+	}
         actions {
             label ""
             display_template {
@@ -84,8 +106,8 @@ list::create \
             layout table
             row {
                 option {}
-		pretty_name {}
                 sort_order {}
+		default_p {}
                 actions {}
             }
         }
@@ -94,7 +116,7 @@ list::create \
 
 set sort_count 10
 set sort_key_count 10000
-db_multirow -extend { sort_order sort_key delete_url edit_url } options select_options {
+db_multirow -extend { sort_order sort_key delete_url edit_url default_p default_url } options select_options {
     select option_id, option, title as pretty_name,
            CASE WHEN ( select '1' from ams_options where ams_options.option_id = ams_option_types.option_id limit 1 ) IS NULL THEN 0 ELSE 1 END as in_use_p
       from ams_option_types aot, acs_objects o
@@ -108,6 +130,12 @@ db_multirow -extend { sort_order sort_key delete_url edit_url } options select_o
     incr sort_key_count 1
     set delete_url [export_vars -base "attribute-option-delete" -url {attribute_id option_id}]
     set edit_url [lang::util::edit_lang_key_url -message $option]
+    if { $option_id eq $default_option_id } {
+	set default_p 1
+    } else {
+	set default_p 0
+    }
+    set default_url [export_vars -base "attribute" -url {attribute_id {set_default_option_id $option_id}}]
 }
 
 set sort_order $sort_count

@@ -97,7 +97,7 @@ ad_proc -public attribute::new {
     # Update the pretty names
     set pretty_name   [lang::util::convert_to_i18n -message_key "ams_attribute_${attribute_id}_pretty_name" -text "$pretty_name"]
     set pretty_plural [lang::util::convert_to_i18n -message_key "ams_attribute_${attribute_id}_pretty_plural" -text "$pretty_plural"]
-    db_dml update_pretty_names "update acs_attributes set pretty_name = :pretty_name, pretty_plural = :pretty_plural where attribute_id = :attribute_id"
+    db_dml update_pretty_names {}
     
     # Set and update the helptext
     # Note: We are not storing the help_text in the attributes table. It is just an I18N string.
@@ -125,6 +125,47 @@ ad_proc -public attribute::id_not_cached {
 } {
     return [db_string get_attribute_id {} -default {}]
 }
+
+ad_proc -public attribute::default_value {
+    -attribute_id:required
+} {
+    Get default option for an attribute. Cached.
+
+    @param attribute_id
+} {
+    return [util_memoize [list attribute::default_value_not_cached -attribute_id $attribute_id]]
+}
+
+ad_proc -public attribute::default_value_not_cached {
+    -attribute_id:required
+} {
+    Get default option for an attribute. Cached. Defaults to Null
+
+    @param attribute_id
+} {
+    return [db_string select_default_value {} -default {}]
+}
+
+ad_proc -public attribute::default_value_flush {
+    -attribute_id:required
+} {
+    Get default option for an attribute. Cached. Defaults to Null
+
+    @param attribute_id
+} {
+    util_memoize_flush [list attribute::default_value_not_cached -attribute_id $attribute_id]
+}
+
+ad_proc -public attribute::default_value_set {
+    -attribute_id:required
+    -default_value:required
+} {
+    @param attribute_id
+    @param default_value
+} {
+    db_dml update_default_value {}
+}
+
 
 ad_proc -public ams::util::edit_lang_key_url {
     -message:required
@@ -293,15 +334,9 @@ ad_proc -public ams::object_flush {
  } {
      # db_exec_plsql attribute_value_save {}
      # This seems to be faster. Don't ask why....
-     db_dml clean_up "        delete from ams_attribute_values
-         where object_id = :object_id
-           and attribute_id = :attribute_id"
+     db_dml clean_up {}
      if {[exists_and_not_null value_id]} {
-	 db_dml insert "
-                insert into ams_attribute_values
-                (object_id,attribute_id,value_id)
-                values
-                (:object_id,:attribute_id,:value_id)"
+	 db_dml insert_value {}
      }
  }
 
@@ -316,7 +351,7 @@ ad_proc -public ams::object_flush {
      Create a new ams option for an attribute
  } {
 
-     set option_id [db_string get_option_id { select option_id from ams_option_types where option = :option and attribute_id = :attribute_id } -default {}]
+     set option_id [db_string get_option_id {} -default {}]
 
      if { $option_id == "" } {
 
@@ -328,7 +363,7 @@ ad_proc -public ams::object_flush {
 	 
 	 # For whatever the reason it does not insert the pretty_name,
 	 # let's do it manually then...
-	 db_dml update_pretty_name  "update acs_objects set title = :pretty_name where object_id = :option_id"
+	 db_dml update_pretty_name {}
      }
     
     return $option_id
@@ -574,7 +609,7 @@ ad_proc -public ams::values_not_cached {
 	# elements list so we don't en up with duplicates
 	set control_list [list]
 	
-	set all_attributes [db_list_of_lists select_values " "]
+	set all_attributes [db_list_of_lists select_values {}]
 	
         foreach attribute $all_attributes {
 	    set attribute_id [lindex $attribute 0]
