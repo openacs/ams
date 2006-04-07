@@ -37,12 +37,37 @@
   </querytext>
 </fullquery>
 
+<fullquery name="attribute::new.update_pretty_names">
+  <querytext>
+        update acs_attributes
+           set pretty_name = :pretty_name,
+               pretty_plural = :pretty_plural
+         where attribute_id = :attribute_id
+  </querytext>
+</fullquery>
+
 <fullquery name="attribute::id_not_cached.get_attribute_id">
   <querytext>
         select attribute_id
           from acs_attributes
          where object_type in ([ams::object_parents -sql -show_root -object_type $object_type])
            and attribute_name = :attribute_name
+  </querytext>
+</fullquery>
+
+<fullquery name="attribute::default_value_not_cached.select_default_value">
+  <querytext>
+        select default_value
+          from ams_attributes
+         where attribute_id = :attribute_id
+  </querytext>
+</fullquery>
+
+<fullquery name="attribute::default_value_set.update_default_value">
+  <querytext>
+        update acs_attributes
+           set default_value = :default_value
+         where attribute_id = :attribute_id
   </querytext>
 </fullquery>
 
@@ -90,13 +115,37 @@
   </querytext>
 </fullquery>
 
-<fullquery name="ams::attribute::value_save.attribute_value_save">
+<fullquery name="ams::attribute::value_save.clean_up">
   <querytext>
-    select ams_attribute_value__save (
-      :object_id,
-      :attribute_id,
-      :value_id
-    )
+    delete from ams_attribute_values
+     where object_id = :object_id
+       and attribute_id = :attribute_id
+  </querytext>
+</fullquery>
+
+<fullquery name="ams::attribute::value_save.insert_value">
+  <querytext>
+    insert into ams_attribute_values
+           (object_id,attribute_id,value_id)
+           values
+           (:object_id,:attribute_id,:value_id)
+  </querytext>
+</fullquery>
+
+<fullquery name="ams::option::new.get_option_id">
+  <querytext>
+    select option_id
+      from ams_option_types
+     where option = :option
+       and attribute_id = :attribute_id
+  </querytext>
+</fullquery>
+
+<fullquery name="ams::option::new.update_pretty_name">
+  <querytext>
+    update acs_objects
+       set title = :pretty_name
+     where object_id = :option_id
   </querytext>
 </fullquery>
 
