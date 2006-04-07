@@ -276,6 +276,7 @@
   <msg key="date_inq_plural">Dates of Inquiry</msg>
   <msg key="date_rec">Applicatoin Recieved Date</msg>
   <msg key="date_rec_plural">Application Recieved Dates</msg>
+  <msg key="Default">Default</msg>
   <msg key="Define_Widget">Define Widget</msg>
   <msg key="degree">Degree From Previous School</msg>
   <msg key="degree_plural">Degree From Previous Schools</msg>
