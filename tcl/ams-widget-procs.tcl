@@ -1653,7 +1653,9 @@ ad_proc -public ams::util::options_save {
     set value_id [db_string options_value_id {} -default {}]
     if { [string is false [exists_and_not_null value_id]] } {
 	foreach option_id $options {
-	    set value_id [db_string option_map {}]
+	    if {![string eq "" $option_id]} {
+		set value_id [db_string option_map {}]
+	    }
 	}
     }
     return $value_id
