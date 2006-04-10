@@ -164,14 +164,21 @@ list::create \
     -multirow unmapped_attributes \
     -key attribute_id \
     -row_pretty_plural "[_ ams.Unmapped_Attributes]" \
-    -checkbox_name checkbox \
+    -checkbox_name checkbox_unmap \
     -selected_format "normal" \
     -class "list" \
     -main_class "list" \
     -sub_class "narrow" \
     -pass_properties {
-    } -actions {
-    } -elements {
+     } -bulk_actions {
+	 "#ams.Map#" "list-attributes" "#ams.lt_Map_check_attribute#"
+     } -bulk_action_export_vars { 
+	 list_id
+	 return_url
+	 return_url_label
+	 {command "map"}
+     } -actions {
+     } -elements {
         attribute_name {
             label "[_ ams.Attribute]"
             display_col attribute_name
@@ -205,6 +212,7 @@ list::create \
             label "[_ ams.Table]"
             layout table
             row {
+		checkbox_unmap {}
                 pretty_name {}
                 widget {}
                 action {}

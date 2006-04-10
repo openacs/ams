@@ -9,7 +9,7 @@
 		ams_lists 
 	where 
 		object_type = :object_type 
-		and list_name like '%__-2'
+		and list_name = :default_list_name
     </querytext>
 </fullquery>
 
