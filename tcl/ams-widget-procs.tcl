@@ -719,11 +719,18 @@ ad_proc -private ams::widget::date {
 	    set value [::template::element::get_value ${form_name} ${attribute_name}]
 	    return [ams::util::time_save -time [template::util::date::get_property ansi $value]]
 	}
-        value_text {
+	value_text - value_html {
 	    return [lc_time_fmt $value %q]
+#	    return [ad_html_text_convert -from "text/plain" -to "text/html" [lc_time_fmt $value %q]]
 	}
-        value_html {
-	    return [ad_html_text_convert -from "text/plain" -to "text/html" [lc_time_fmt $value %q]]
+        value_list_text - value_list_html {
+	    set date [lc_time_fmt $value %q]
+	    set year [lc_time_fmt $value %Y]
+	    set month [lc_time_fmt $value "%m (%b)"]
+	    return [list date $date year $year month $month]
+	}
+	value_list_headings {
+	    return [list date [_ ams.Date] month [_ acs-templating.Month] year [_ acs-templating.Year]]
 	}
         csv_value {
 	    # not yet implemented
