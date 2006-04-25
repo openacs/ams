@@ -204,9 +204,9 @@ ad_proc -private ams::widget::postal_address {
 
     @see ams::widget
 } {
-    set help_text [attribute::help_text -attribute_id $attribute_id] 
     switch $request {
         ad_form_widget  {
+	    set help_text [attribute::help_text -attribute_id $attribute_id] 
 	    if { [string is true $optional_p] } {
 		return "${attribute_name}:address(address),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    } else {
@@ -244,15 +244,15 @@ ad_proc -private ams::widget::postal_address {
                         -postal_type [template::util::address::get_property postal_type $value]]
 	}
         value_text {
-            foreach {delivery_address municipality region postal_code country_code additional_text postal_type} $value {}
+            util_unlist $value delivery_address municipality region postal_code country_code additional_text postal_type
 	    return [ad_html_to_text -showtags -no_format [template::util::address::html_view $delivery_address $municipality $region $postal_code $country_code $additional_text $postal_type]]
 	}
         value_html {
-            foreach {delivery_address municipality region postal_code country_code additional_text postal_type} $value {}
+            util_unlist $value delivery_address municipality region postal_code country_code additional_text postal_type
 	    return [template::util::address::html_view $delivery_address $municipality $region $postal_code $country_code $additional_text $postal_type]
 	}
 	value_list_text {
-            foreach {delivery_address municipality region postal_code country_code additional_text postal_type} $value {}
+            util_unlist $value delivery_address municipality region postal_code country_code additional_text postal_type
 
 	    # in addition to the standard postal_address attributes we also return 
 	    # the country - which is automatically localized for the user, since
@@ -261,7 +261,7 @@ ad_proc -private ams::widget::postal_address {
 	    return [list delivery_address $delivery_address municipality $municipality region $region postal_code $postal_code country_code $country_code additional_text $additional_text postal_type $postal_type country $country]
 	}
 	value_list_html {
-            foreach {delivery_address municipality region postal_code country_code additional_text postal_type} $value {}
+            util_unlist $value delivery_address municipality region postal_code country_code additional_text postal_type
 
 	    # in addition to the standard postal_address attributes we also return 
 	    # the country - which is automatically localized for the user, since
@@ -330,9 +330,9 @@ ad_proc -private ams::widget::telecom_number {
 
     @see ams::widget
 } {
-    set help_text [attribute::help_text -attribute_id $attribute_id] 
     switch $request {
         ad_form_widget  {
+	    set help_text [attribute::help_text -attribute_id $attribute_id] 
 	    if { [string is true $optional_p] } {
 		return "${attribute_name}:telecom_number(telecom_number),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    } else {
@@ -372,11 +372,11 @@ ad_proc -private ams::widget::telecom_number {
 			-phone_type_id [template::util::telecom_number::get_property phone_type_id $value]]
 	}
         value_text {
-            foreach {itu_id national_number area_city_code subscriber_number extension sms_enabled_p best_contact_time location phone_type_id} $value {}
+	    util_unlist $value itu_id national_number area_city_code subscriber_number extension sms_enabled_p best_contact_time location phone_type_id
 	    return [ad_html_to_text -showtags -no_format [template::util::telecom_number::html_view $itu_id $national_number $area_city_code $subscriber_number $extension $sms_enabled_p $best_contact_time $location $phone_type_id]]
 	}
         value_html {
-            foreach {itu_id national_number area_city_code subscriber_number extension sms_enabled_p best_contact_time location phone_type_id} $value {}
+	    util_unlist $value itu_id national_number area_city_code subscriber_number extension sms_enabled_p best_contact_time location phone_type_id
 	    return [template::util::telecom_number::html_view $itu_id $national_number $area_city_code $subscriber_number $extension $sms_enabled_p $best_contact_time $location $phone_type_id]
 	}
         csv_value {
@@ -420,6 +420,7 @@ ad_proc -private ams::widget::mobile_number {
     }
     switch $request {
         ad_form_widget  {
+	    set help_text [attribute::help_text -attribute_id $attribute_id] 
 	    set element [list]
 	    if { [string is true $optional_p] } {
 		lappend element ${attribute_name}:mobile_number(mobile_number),optional 
@@ -428,6 +429,7 @@ ad_proc -private ams::widget::mobile_number {
 	    }
 	    lappend element [list label ${pretty_name}]
 	    lappend element [list html $html_options]
+	    lappend element [list help_text $help_text]
 	    return $element
 	}
         template_form_widget  {
@@ -463,11 +465,11 @@ ad_proc -private ams::widget::mobile_number {
 			-phone_type_id ""]
 	}
         value_text {
-            foreach {itu_id national_number area_city_code subscriber_number extension sms_enabled_p best_contact_time location phone_type_id} $value {}
+	    util_unlist $value itu_id national_number area_city_code subscriber_number extension sms_enabled_p best_contact_time location phone_type_id
 	    return [ad_html_to_text -showtags -no_format [template::util::mobile_number::html_view $itu_id $national_number $subscriber_number $best_contact_time]]
 	}
         value_html {
-            foreach {itu_id national_number area_city_code subscriber_number extension sms_enabled_p best_contact_time location phone_type_id} $value {}
+	    util_unlist $value itu_id national_number area_city_code subscriber_number extension sms_enabled_p best_contact_time location phone_type_id
 	    return [template::util::mobile_number::html_view $itu_id $national_number $subscriber_number $best_contact_time]
 	}
         csv_value {
@@ -512,6 +514,7 @@ ad_proc -private ams::widget::aim {
     }
     switch $request {
         ad_form_widget  {
+	    set help_text [attribute::help_text -attribute_id $attribute_id] 
 	    set element [list]
 	    if { [string is true $optional_p] } {
 		lappend element ${attribute_name}:text(text),optional 
@@ -520,6 +523,7 @@ ad_proc -private ams::widget::aim {
 	    }
 	    lappend element [list label ${pretty_name}]
 	    lappend element [list html $html_options]
+	    lappend element [list help_text $help_text]
 	    return $element
 	}
         template_form_widget  {
@@ -603,6 +607,7 @@ ad_proc -private ams::widget::skype {
     }
     switch $request {
         ad_form_widget  {
+	    set help_text [attribute::help_text -attribute_id $attribute_id] 
 	    set element [list]
 	    if { [string is true $optional_p] } {
 		lappend element ${attribute_name}:text(text),optional 
@@ -611,6 +616,7 @@ ad_proc -private ams::widget::skype {
 	    }
 	    lappend element [list label ${pretty_name}]
 	    lappend element [list html $html_options]
+	    lappend element [list help_text $help_text]
 	    return $element
 	}
         template_form_widget  {
@@ -683,9 +689,9 @@ ad_proc -private ams::widget::date {
     @see ams::widget
 } {
 
-    set help_text [attribute::help_text -attribute_id $attribute_id] 
     switch $request {
         ad_form_widget  {
+	    set help_text [attribute::help_text -attribute_id $attribute_id] 
 	    if { [string is true $optional_p] } {
 		return "${attribute_name}:date(date),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    } else {
@@ -770,9 +776,9 @@ ad_proc -private ams::widget::select {
     @see ams::widget
 } {
 
-    set help_text [attribute::help_text -attribute_id $attribute_id] 
     switch $request {
         ad_form_widget  {
+	    set help_text [attribute::help_text -attribute_id $attribute_id] 
 	    if { [string is true $optional_p] } {
 		set options [concat [list [list "" ""]] $options]
 		return "${attribute_name}:integer(select),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]} {[list value [attribute::default_value -attribute_id $attribute_id]]}"
@@ -849,9 +855,9 @@ ad_proc -private ams::widget::radio {
     @see ams::widget
 } {
 
-    set help_text [attribute::help_text -attribute_id $attribute_id] 
     switch $request {
         ad_form_widget  {
+	    set help_text [attribute::help_text -attribute_id $attribute_id] 
 	    if { [string is true $optional_p] } {
 		return "${attribute_name}:integer(radio),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]} {[list value [attribute::default_value -attribute_id $attribute_id]]}"
 	    } else {
@@ -925,9 +931,9 @@ ad_proc -private ams::widget::checkbox {
     @see ams::widget
 } {
 
-    set help_text [attribute::help_text -attribute_id $attribute_id] 
     switch $request {
         ad_form_widget  {
+	    set help_text [attribute::help_text -attribute_id $attribute_id] 
 	    if { [string is true $optional_p] } {
 		return "${attribute_name}:integer(checkbox),multiple,optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]} {[list value [attribute::default_value -attribute_id $attribute_id]]}"
 	    } else {
@@ -1003,9 +1009,9 @@ ad_proc -private ams::widget::multiselect {
     @see ams::widget
 } {
 
-    set help_text [attribute::help_text -attribute_id $attribute_id] 
     switch $request {
         ad_form_widget  {
+	    set help_text [attribute::help_text -attribute_id $attribute_id] 
 	    if { [string is true $optional_p] } {
 		return "${attribute_name}:integer(multiselect),multiple,optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]} {[list options $options]} {[list value [attribute::default_value -attribute_id $attribute_id]]}"
 	    } else {
@@ -1083,12 +1089,12 @@ ad_proc -private ams::widget::integer {
     @see ams::widget
 } {
 
-    set help_text [attribute::help_text -attribute_id $attribute_id] 
     if { $html_options eq "" } {
 	set html_options "size 6"
     }
     switch $request {
         ad_form_widget  {
+	    set help_text [attribute::help_text -attribute_id $attribute_id] 
 	    if { [string is true $optional_p] } {
 		return "${attribute_name}:integer(text),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    } else {
@@ -1162,13 +1168,13 @@ ad_proc -private ams::widget::textbox {
     @see ams::widget
 } {
 
-    set help_text [attribute::help_text -attribute_id $attribute_id] 
     set value [ams::util::text_value -value $value]
     if { $html_options eq "" } {
 	set html_options "size 30"
     }
     switch $request {
         ad_form_widget  {
+	    set help_text [attribute::help_text -attribute_id $attribute_id] 
 	    if { [string is true $optional_p] } {
 		return "${attribute_name}:text(text),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    } else {
@@ -1243,12 +1249,12 @@ ad_proc -private ams::widget::textarea {
     @see ams::widget
 } {
     set value [ams::util::text_value -value $value]
-    set help_text [attribute::help_text -attribute_id $attribute_id] 
     if { $html_options eq "" } {
 	set html_options "cols 60 rows 6"
     }
     switch $request {
         ad_form_widget  {
+	    set help_text [attribute::help_text -attribute_id $attribute_id] 
 	    if { [string is true $optional_p] } {
 		return "${attribute_name}:text(textarea),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    } else {
@@ -1262,15 +1268,13 @@ ad_proc -private ams::widget::textarea {
 		    -datatype text \
 		    -widget textarea \
 		    -html $html_options \
-		    -help_text test\
 		    -optional
 	    } else {
 		::template::element::create ${form_name} ${attribute_name} \
 		    -label ${pretty_name} \
 		    -datatype text \
 		    -widget textarea \
-		    -html $html_options \
-		    -help_text test
+		    -html $html_options
 	    }
 	}
         form_set_value {
@@ -1325,12 +1329,12 @@ ad_proc -private ams::widget::richtext {
 } {
     set value_format [ams::util::text_format -value $value]
     set value [ams::util::text_value -value $value]
-    set help_text [attribute::help_text -attribute_id $attribute_id] 
     if { $html_options eq "" } {
 	set html_options "cols 60 rows 14"
     }
     switch $request {
         ad_form_widget  {
+	    set help_text [attribute::help_text -attribute_id $attribute_id] 
 	    if { [string is true $optional_p] } {
 		return "${attribute_name}:richtext(richtext),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    } else {
@@ -1415,12 +1419,12 @@ ad_proc -private ams::widget::email {
     @see ams::widget
 } {
     set value [ams::util::text_value -value $value]
-    set help_text [attribute::help_text -attribute_id $attribute_id] 
     if { $html_options eq "" } {
 	set html_options "size 30"
     }
     switch $request {
         ad_form_widget  {
+	    set help_text [attribute::help_text -attribute_id $attribute_id] 
 	    if { [string is true $optional_p] } {
 		return "${attribute_name}:email(text),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    } else {
@@ -1494,12 +1498,12 @@ ad_proc -private ams::widget::url {
     @see ams::widget
 } {
     set value [ams::util::text_value -value $value]
-    set help_text [attribute::help_text -attribute_id $attribute_id] 
     if { $html_options eq "" } {
 	set html_options "size 30"
     }
     switch $request {
         ad_form_widget  {
+	    set help_text [attribute::help_text -attribute_id $attribute_id] 
 	    if { [string is true $optional_p] } {
 		return "${attribute_name}:url(text),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    } else {
