@@ -55,11 +55,14 @@ ad_proc -public attribute::help_text {
     if { $attribute_id eq "" } {
 	return ""
     } else {
-	set help_text [lang::util::localize "#acs-translations.ams_attribute_${attribute_id}_help_text#"]
-	if {[string match "MESSAGE KEY MISSING*" $help_text]} {
-	    return ""
+	# in order to prevent numbers message key errors
+        # we check first if the message exists for the
+        # connected locale (the same locale lang::util::localize
+        # use
+	if { [lang::message::message_exists_p [ad_conn locale] "acs-translations.ams_attribute_${attribute_id}_help_text"] } {
+	    return [lang::util::localize "#acs-translations.ams_attribute_${attribute_id}_help_text#"]
 	} else {
-	    return $help_text
+	    return ""
 	}
     }
 }
