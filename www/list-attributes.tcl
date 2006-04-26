@@ -18,6 +18,7 @@ set package_key $list_info(package_key)
 set object_type $list_info(object_type)
 set list_name $list_info(list_name)
 
+set attribute_ids $attribute_id
 # If we have contacts installed we can do some duplicate checking
 
 if {[apm_package_installed_p "contacts"]} {
@@ -45,7 +46,7 @@ if {[apm_package_installed_p "contacts"]} {
     # if they don't exist in the mapped attribute 
     # list, otherwise we would have duplicates
     
-    foreach attribute_id $attribute_id {
+    foreach attribute_id $attribute_ids {
 	if { ![string equal [lsearch $mapped_attributes_list $attribute_id] "-1"] } {
 	    ad_return_complaint 1 "[_ ams.$error_message]"
 	    ad_script_abort
@@ -54,7 +55,7 @@ if {[apm_package_installed_p "contacts"]} {
 }
 
 # If it reachs this point it means that we can map all attributes.
-foreach attribute_id $attribute_id {
+foreach attribute_id $attribute_ids {
     ams::list::attribute::${command} -list_id $list_id -attribute_id $attribute_id
 }
 

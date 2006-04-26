@@ -490,7 +490,9 @@ ad_proc -public ams::ad_form::elements {
 	    if { [exists_and_not_null section_heading] } {
 		lappend element [list section $section_heading]
 	    }
-	    lappend element_list $element
+	    if { [exists_and_not_null element]} {
+		lappend element_list $element
+	    }
 	}
     }
     

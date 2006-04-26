@@ -48,6 +48,7 @@
 					alam.list_id = :list_id 
 				)
            	and object_type in ([ams::object_parents -sql -object_type $object_type])
+	order by attribute_name
     </querytext>
 </fullquery>
 
