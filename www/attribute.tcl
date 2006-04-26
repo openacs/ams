@@ -36,7 +36,6 @@ set help_text_url [lang::util::edit_lang_key_url -message "#acs-translations.ams
 set title $attribute_info(pretty_name)
 set context [list [list objects Objects] [list "object?object_type=$attribute_info(object_type)" $object_info(pretty_name)] $title]
 
-
 list::create \
     -name options \
     -multirow options \
@@ -61,16 +60,13 @@ list::create \
             label "[_ ams.Option]"
             display_template {
                 <if @options.option@ not nil>
-                  @options.option@
+                  @options.pretty_name@
                 </if>
                 <else>
                   <input name="option.@options.option_id@" value="" size="35">
                 </else>
             }
         }
-	pretty_name {
-	    label "[_ ams.Pretty_Name]"
-	}
         sort_order {
             label "[_ ams.Sort_Order]"
             display_template {
@@ -90,6 +86,7 @@ list::create \
             display_template {
                 <if @options.edit_url@ not nil><a href="@options.edit_url@"><img src="/shared/images/Edit16.gif" height="16" width="16" alt="Edit" border="0"></a></if>
                 <if @options.in_use_p@></if><else><a href="@options.delete_url@"><img src="/shared/images/Delete16.gif" height="16" width="16" alt="Delete" border="0"></a></else>
+                <if @options.swa_p@> | <a href="@options.purge_url@" title="Delete option and purge the record from all users" class="button">Purge</a></if>
             }
         }
     } -filters {
@@ -116,9 +113,9 @@ list::create \
 
 set sort_count 10
 set sort_key_count 10000
-db_multirow -extend { sort_order sort_key delete_url edit_url default_p default_url } options select_options {
+db_multirow -extend { sort_order sort_key delete_url edit_url default_p purge_url default_url swa_p} options select_options {
     select option_id, option, title as pretty_name,
-           CASE WHEN ( select '1' from ams_options where ams_options.option_id = ams_option_types.option_id limit 1 ) IS NULL THEN 0 ELSE 1 END as in_use_p
+      (select '1' from ams_options where ams_options.option_id = ams_option_types.option_id limit 1 ) as in_use_p
       from ams_option_types aot, acs_objects o
      where attribute_id = :attribute_id
      and aot.option_id = o.object_id
@@ -129,12 +126,14 @@ db_multirow -extend { sort_order sort_key delete_url edit_url default_p default_
     incr sort_count 10
     incr sort_key_count 1
     set delete_url [export_vars -base "attribute-option-delete" -url {attribute_id option_id}]
-    set edit_url [lang::util::edit_lang_key_url -message $option]
+    set purge_url [export_vars -base "attribute-option-delete" -url {attribute_id option_id {purge_p 1}}]
+    set edit_url [lang::util::edit_lang_key_url -message $pretty_name]
     if { $option_id eq $default_option_id } {
 	set default_p 1
     } else {
 	set default_p 0
     }
+    set swa_p [acs_user::site_wide_admin_p]
     set default_url [export_vars -base "attribute" -url {attribute_id {set_default_option_id $option_id}}]
 }
 
