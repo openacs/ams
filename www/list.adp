@@ -14,6 +14,7 @@
 <p><strong>#ams.Package_Key#</strong> @package_key@</p>
 <p><strong>#ams.Object_Type#</strong> <a href="object?object_type=@object_type@">@object_type@</a></p>
 <p><strong>#ams.List_Name#</strong> @list_name@</p>
+<p><strong>#ams.List_ID#</strong> @list_id@</p>
 
 <h3>#ams.Mapped_Attributes#</h3>
 
