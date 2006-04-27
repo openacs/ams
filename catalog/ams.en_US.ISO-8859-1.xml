@@ -420,6 +420,7 @@
   <msg key="Telecom_numbers_in_country_code_one_must_be_formatted_like_AAA-SSS-SSSSxXXXX_out_of_country_like_011-CCC-AAAA-SSSS-SSSxXXXX">Invalid phone number format. Phone Numbers must by either formatted as AAA-999-9999xEEEE for Country Code &quot;1&quot; (i.e. the United States, Canada, etc.) or 011-CCC-AAA-99999999xEEEE for numbers outside country code &quot;1&quot;. Where &quot;C&quot; is country code, &quot;A&quot; is area code, &quot;9&quot; is the phone number and &quot;E&quot; is the extension number.</msg>
   <msg key="Textarea">Textarea</msg>
   <msg key="Textbox">Textbox</msg>
+  <msg key="Text_Date">Text Date - text box with pop up calendar</msg>
   <msg key="The_attribute_is_already">The attribute &lt;b&gt;#%attribute_id%&lt;/b&gt; is already mapped to another list. If you want to map it to the &lt;b&gt;default %object_type% &lt;/b&gt;list please unmap it from the other lists.</msg>
   <msg key="The_attribute_is_already_default">The attribute &lt;b&gt;#%attribute_id%&lt;/b&gt; is already mapped to the &lt;b&gt;default %object_type%&lt;/b&gt; list. You don't need to map this attribute to this list.</msg>
   <msg key="tran_visa">Transcript Visa</msg>

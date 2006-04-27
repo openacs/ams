@@ -725,12 +725,18 @@ ad_proc -private ams::widget::date {
 	    set value [::template::element::get_value ${form_name} ${attribute_name}]
 	    return [ams::util::time_save -time [template::util::date::get_property ansi $value]]
 	}
-	value_text - value_html {
+	value_text {
+	    return [lc_time_fmt $value %x]
+	}
+	value_html {
 	    return [lc_time_fmt $value %q]
-#	    return [ad_html_text_convert -from "text/plain" -to "text/html" [lc_time_fmt $value %q]]
 	}
         value_list_text - value_list_html {
-	    set date [lc_time_fmt $value %q]
+	    if { $request eq "value_list_text" } {
+		set date [lc_time_fmt $value %x]
+	    } else {
+		set date [lc_time_fmt $value %q]
+	    }
 	    set year [lc_time_fmt $value %Y]
 	    set month [lc_time_fmt $value "%m (%b)"]
 	    return [list date $date year $year month $month]
@@ -759,6 +765,100 @@ ad_proc -private ams::widget::date {
     }
 }
 
+ad_proc -private ams::widget::textdate {
+    -request:required
+    -attribute_name:required
+    -pretty_name:required
+    -form_name:required
+    -value:required
+    -optional_p:required
+    -options:required
+    -attribute_id:required
+    -html_options:required
+} {
+    This proc responds to the ams::widget procs.
+
+    @see ams::widget
+} {
+    if { $value ne "" } {
+	# we are fed a full date (with timestamp and time zone,
+        # so we set the value as only the yyyy-mm-dd part
+	regexp {^([0-9]{4}-[0-9]{2}-[0-9]{2})} $value match value
+    }
+
+    switch $request {
+        ad_form_widget  {
+	    set help_text [attribute::help_text -attribute_id $attribute_id] 
+	    if { [string is true $optional_p] } {
+		return "${attribute_name}:textdate(textdate),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
+	    } else {
+		return "${attribute_name}:textdate(textdate) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
+	    }
+	}
+        template_form_widget  {
+	    if { [string is true $optional_p] } {
+		::template::element::create ${form_name} ${attribute_name} \
+		    -label ${pretty_name} \
+		    -datatype textdate \
+		    -widget textdate \
+                    -html $html_options \
+		    -help \
+		    -optional
+	    } else {
+		::template::element::create ${form_name} ${attribute_name} \
+		    -label ${pretty_name} \
+		    -datatype textdate \
+		    -widget textdate \
+                    -html $html_options \
+		    -help
+	    }
+	}
+        form_set_value {
+	    ::template::element::set_value ${form_name} ${attribute_name} ${value}
+	}
+        form_save_value {
+	    set value [::template::element::get_value ${form_name} ${attribute_name}]
+	    return [ams::util::time_save -time ${value}]
+	}
+	value_text {
+	    return [lc_time_fmt $value %x]
+	}
+	value_html {
+	    return [lc_time_fmt $value %q]
+	}
+        value_list_text - value_list_html {
+	    if { $request eq "value_list_text" } {
+		set date [lc_time_fmt $value %x]
+	    } else {
+		set date [lc_time_fmt $value %q]
+	    }
+	    set year [lc_time_fmt $value %Y]
+	    set month [lc_time_fmt $value "%m (%b)"]
+	    return [list date $date year $year month $month]
+	}
+	value_list_headings {
+	    return [list date [_ ams.Date] month [_ acs-templating.Month] year [_ acs-templating.Year]]
+	}
+        csv_value {
+	    # not yet implemented
+	}
+        csv_headers {
+	    # not yet implemented
+	}
+        csv_save {
+	    # not yet implemented
+	}
+	widget_datatypes {
+	    return [list "textdate"]
+	}
+	widget_name {
+	    return [_ "ams.Text_Date"]
+	}
+	value_method {
+	    return "ams_value__time"
+	}
+    }
+}
 
 ad_proc -private ams::widget::select {
     -request:required
