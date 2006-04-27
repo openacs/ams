@@ -139,7 +139,10 @@ db_multirow -extend { sort_order sort_key delete_url edit_url default_p purge_ur
 
 set sort_order $sort_count
 set sort_key $sort_key_count
-template::multirow append options {new1} {} 1 $sort_count $sort_key
-template::multirow append options {new2} {} 1 [incr sort_count 10] [incr sort_key 1]
-template::multirow append options {new3} {} 1 [incr sort_count 10] [incr sort_key 1]
+if { [template::multirow size options] > 0 } {
+    # its an option widget and we need to allow for new options
+    template::multirow append options {new1} {} 1 $sort_count $sort_key
+    template::multirow append options {new2} {} 1 [incr sort_count 10] [incr sort_key 1]
+    template::multirow append options {new3} {} 1 [incr sort_count 10] [incr sort_key 1]
+}
 ad_return_template
