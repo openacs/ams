@@ -8,6 +8,7 @@ ad_page_contract {
     {attribute_id:notnull}
     {set_default_option_id:integer,optional}
     orderby:optional
+    {alpha_sort_p "0"}
 }
 
 
@@ -57,7 +58,7 @@ list::create \
             label {}
         }
         option {
-            label "[_ ams.Option]"
+            label "<a href=[export_vars -base [ad_return_url] -url {{alpha_sort_p 1}}]>[_ ams.Option]</a>"
             display_template {
                 <if @options.option@ not nil>
                   @options.pretty_name@
@@ -110,17 +111,22 @@ list::create \
         }
     }
 
+if {$alpha_sort_p} {
+    set orderby "option"
+} else {
+    set orderby "sort_order"
+}
 
 set sort_count 10
 set sort_key_count 10000
-db_multirow -extend { sort_order sort_key delete_url edit_url default_p purge_url default_url swa_p} options select_options {
+db_multirow -extend { sort_order sort_key delete_url edit_url default_p purge_url default_url swa_p} options select_options "
     select option_id, option, title as pretty_name,
       (select '1' from ams_options where ams_options.option_id = ams_option_types.option_id limit 1 ) as in_use_p
       from ams_option_types aot, acs_objects o
      where attribute_id = :attribute_id
      and aot.option_id = o.object_id
-     order by sort_order
-} {
+     order by $orderby
+" {
     set sort_order $sort_count
     set sort_key $sort_key_count
     incr sort_count 10
@@ -139,10 +145,12 @@ db_multirow -extend { sort_order sort_key delete_url edit_url default_p purge_ur
 
 set sort_order $sort_count
 set sort_key $sort_key_count
+
 if { [template::multirow size options] > 0 } {
     # its an option widget and we need to allow for new options
     template::multirow append options {new1} {} 1 $sort_count $sort_key
     template::multirow append options {new2} {} 1 [incr sort_count 10] [incr sort_key 1]
     template::multirow append options {new3} {} 1 [incr sort_count 10] [incr sort_key 1]
 }
+
 ad_return_template
