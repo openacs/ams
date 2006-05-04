@@ -1666,6 +1666,8 @@ ad_proc -private ams::util::text_save {
 } {
     return a value_id     
 } {
+    set text [string trim $text]
+    set text_format [string trim $text_format]
     if { [exists_and_not_null text] } {
 	return [db_string save_value {} -default {}]
     }
@@ -1680,6 +1682,7 @@ ad_proc -private ams::util::text_value {
 	return ""
     } else {
 	regexp -all "^\{(.*?)\} (.*)$" $value match format value
+	set value [string trim $value]
 	return $value
     }}
 
@@ -1692,6 +1695,7 @@ ad_proc -private ams::util::text_format {
 	return ""
     } else {
 	regexp -all "^\{(.*?)\} (.*)$" $value match format value
+	set format [string trim $format]
 	return $format
     }
 }
@@ -1701,6 +1705,7 @@ ad_proc -private ams::util::time_save {
 } {
     return a value_id     
 } {
+    set time [string trim $time]
     if { [exists_and_not_null time] } {
 	return [db_string save_value {} -default {}]
     }
@@ -1711,6 +1716,7 @@ ad_proc -private ams::util::number_save {
 } {
     return a value_id     
 } {
+    set number [string trim $number]
     if { [exists_and_not_null number] } {
     return [db_string save_value {} -default {}]
     }
@@ -1727,6 +1733,13 @@ ad_proc -private ams::util::postal_address_save {
 } {
     return a value_id     
 } {
+    set delivery_address [string trim $delivery_address]
+    set municipality [string trim $municipality]
+    set region [string trim $region]
+    set postal_code [string trim $postal_code]
+    set country_code [string trim $country_code]
+    set additional_text [string trim $additional_text]
+    set postal_type [string trim $postal_type]
     if { [exists_and_not_null delivery_address] } {
 	return [db_string save_value {} -default {}]
     }
@@ -1745,6 +1758,15 @@ ad_proc -private ams::util::telecom_number_save {
 } {
     return a value_id     
 } {
+    set itu_id [string trim $itu_id]
+    set national_number [string trim $national_number]
+    set area_city_code [string trim $area_city_code]
+    set subscriber_number [string trim $subscriber_number]
+    set extension [string trim $extension]
+    set sms_enabled_p [string trim $sms_enabled_p]
+    set best_contact_time [string trim $best_contact_time]
+    set location [string trim $location]
+    set phone_type_id [string trim $phone_type_id]
     if { [exists_and_not_null subscriber_number] } {
 	return [db_string save_value {} -default {}]
     }
