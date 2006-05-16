@@ -130,7 +130,7 @@ ad_proc -private ams::list::exists_p {
 
     @return 1 if the list exists for this object_type and package_key and 0 if the does not exist
 } {
-    set list_id [ams::list::get_list_id_not_cached -package_key $package_key -object_type $object_type -list_name $list_name]
+    set list_id [ams::list::get_list_id -package_key $package_key -object_type $object_type -list_name $list_name]
     if { [exists_and_not_null list_id] } {
         return 1
     } else {
