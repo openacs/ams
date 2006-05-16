@@ -155,6 +155,7 @@ create table ams_attribute_values (
 );
 
 create index ams_attribute_values_attribute_idx on ams_attribute_values(attribute_id);
+create index ams_attribute_values_attribute_object_idx on ams_attribute_values(object_id,attribute_id);
 
 ------ Options
 --------------------------------------------------------------------
