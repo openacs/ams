@@ -178,6 +178,31 @@ ad_proc -public template::util::address::country_options_not_cached {
     return $country_code
 }
 
+ad_proc -public template::util::address::ca_provinces {
+} {
+    Returns the list of Canadian (CA country code) provinces.
+} {
+    # this list of provinces was created on 2006-05-20
+
+    return [list \
+		Alberta AB \
+		{British Columbia} BC \
+		Manitoba MB \
+		{New Brunswick} NB \
+		{Newfoundland and Labrador} NL \
+		{Northwest Territories} NT \
+		{Nova Scotia} NS \
+		{Nunavut} NU \
+		{Ontario} ON \
+		{Prince Edward Island} PE \
+		Quebec QC \
+		Saskatchewan SK \
+		Yukon YT \
+	       ]
+
+
+}
+
 ad_proc -public template::data::validate::address { value_ref message_ref } {
 
     upvar 2 $message_ref message $value_ref address_list
@@ -211,9 +236,22 @@ ad_proc -public template::data::validate::address { value_ref message_ref } {
     switch $country_code {
         CA {
             # Canada
-            if { ![exists_and_not_null region] } {
+            if { [exists_and_not_null region] } {
+		# the template::data::transform::address proc will
+                # convert a fully spelled out province to its correct
+                # two character code, so if its not two characters its
+		# not a valid province
+		set valid_provinces ""
+		foreach {full_name province} [template::util::address::ca_provinces] {
+		    lappend valid_provinces $province
+		}
+		if { [lsearch $valid_provinces $region] < 0 } {
+		    set valid_provinces [join $valid_provinces ", "]
+		    lappend message "\"${region}\" [_ ams.is_not_a_valid_CA_province]."
+		}
+            } else {
                 lappend message "\"[_ ams.region]\" is required."
-            }
+	    }
             if { [exists_and_not_null postal_code] } {
                 if { ![regexp {^([A-Z][0-9][A-Z] [0-9][A-Z][0-9])$} $postal_code] } {
                     lappend message "\"$postal_code\" [_ ams.is_not_a_valid_Canadian_postal_code]."
@@ -284,6 +322,13 @@ ad_proc -public template::data::transform::address { element_ref } {
         return [list]
     } else {
         if { $country_code == "US" } {
+            # since we have reference data installed we can automatically get a standardized
+            # state code
+	    if { $region ne "" } {
+                if { [db_0or1row get_standardized_region { select abbrev from us_states where abbrev = upper(:region) or state_name = upper(:region) }] } {
+		    set region $abbrev
+		}
+	    }
             # since we have reference data installed we can automatically fill in these values for
             # US States and Cities
             if { [regexp {^([0-9]{5})(-([0-9]{4}))??$} $postal_code] } {
@@ -305,12 +350,22 @@ ad_proc -public template::data::transform::address { element_ref } {
                 }
             }
         }
-        if { $country_code == "CA" && [string length $postal_code] == "6" } {
-            set postal_list [split $postal_code {}]
-            set postal_code_temp [string toupper "[join [lrange $postal_list 0 2] {}] [join [lrange $postal_list 3 5] {}]"]
-            if { [regexp {^([A-Z][0-9][A-Z] [0-9][A-Z][0-9])$} $postal_code_temp] } {
-                set postal_code $postal_code_temp
-            }
+        if { $country_code == "CA" } {
+	    if { [string length $region] ne "2" } {
+		array set ca_provinces [string toupper [template::util::address::ca_provinces]]
+		if { [info exists ca_provinces([string toupper $region])] } {
+		    set region $ca_provinces([string toupper $region])
+		}
+	    } else {
+		set region [string toupper $region]
+	    }
+	    if { [string length $postal_code] == "6" } {
+		set postal_list [split $postal_code {}]
+		set postal_code_temp [string toupper "[join [lrange $postal_list 0 2] {}] [join [lrange $postal_list 3 5] {}]"]
+		if { [regexp {^([A-Z][0-9][A-Z] [0-9][A-Z][0-9])$} $postal_code_temp] } {
+		    set postal_code $postal_code_temp
+		}
+	    }
         }
         if { $country_code == "US" || $country_code == "CA" } {
             # make the city pretty
