@@ -171,9 +171,9 @@ ad_proc -public template::util::address::country_options_not_cached {
             set country [string toupper $country]
             lappend country_code [list [lang::message::lookup $locale "ref-countries.${country}"] $country]
         }
-        set country_code [concat $country_code [list "--" ""] $return_country_list]
+        set country_code [concat $country_code [list [list "--" ""]] $return_country_list]
     } else {
-        set country_code $return_country_list
+        set country_code [concat [list [list "" ""]] $return_country_list]
     }
     return $country_code
 }
@@ -231,6 +231,9 @@ ad_proc -public template::data::validate::address { value_ref message_ref } {
 	lappend message "[_ ams.Your_delivery_address_is_too_many_lines]"
     }
 
+    if { $country_code eq "" } {
+	lappend message "[_ ams.country] is required."
+    }
 
     # Country Specific Validation
     switch $country_code {
