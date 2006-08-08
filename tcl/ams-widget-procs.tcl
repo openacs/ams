@@ -12,6 +12,7 @@ namespace eval ams {}
 namespace eval ams::widget {}
 namespace eval ams::util {}
 namespace eval ams::attribute::save {}
+namespace eval ams::attributes::save {}
 
 ad_proc -public ams::widget {
     -widget:required
@@ -1740,9 +1741,7 @@ ad_proc -private ams::util::postal_address_save {
     set country_code [string trim $country_code]
     set additional_text [string trim $additional_text]
     set postal_type [string trim $postal_type]
-    if { [exists_and_not_null delivery_address] } {
-	return [db_string save_value {} -default {}]
-    }
+    return [db_string save_value {} -default {}]
 }
 
 ad_proc -private ams::util::telecom_number_save {
@@ -1795,6 +1794,133 @@ ad_proc -public ams::util::options_save {
 }
 
 
+##########################################
+# Quick Procs for Saving multiple values
+##########################################
+
+ad_proc -public ams::attributes::save::text {
+    -object_id:required
+    {-object_type ""}
+    -value_list
+} {
+    Save Multiple values for an object_id
+    
+    @author Malte Sussdorff (sussdorff@sussdorff.de)
+    @creation-date 2005-07-22
+    
+    @param object_id The object for which the value is stored
+    
+    @param value_list Pair List of attribute_id and value which will be inserted for the object_id
+
+    @return
+    
+    @error
+} {
+
+    if {[string eq $object_type ""]} {
+	set object_type [acs_object_type $object_id]
+    }
+    
+    # Set the text attributes
+    foreach pair $value_list {
+	set value [lindex $pair 1]
+	set attribute_name [lindex $pair 0]
+	if {[exists_and_not_null value]} {
+	    ams::attribute::save::text \
+		-object_id $object_id \
+		-attribute_name $attribute_name \
+		-object_type $object_type \
+		-value $value
+	}
+    }
+}
+
+ad_proc -public ams::attributes::save::phone {
+    -object_id:required
+    {-object_type ""}
+    -value_list
+} {
+    Save Multiple phone values for an object_id
+    
+    @author Malte Sussdorff (sussdorff@sussdorff.de)
+    @creation-date 2005-07-22
+    
+    @param object_id The object for which the value is stored
+    
+    @param value_list Pair List of attribute_id and value which will be inserted for the object_id
+
+    @return
+    
+    @error
+} {
+
+    if {[string eq $object_type ""]} {
+	set object_type [acs_object_type $object_id]
+    }
+    
+    # Set phone attributes    
+
+    foreach pair $value_list {
+	set value [lindex $pair 1]
+	set attribute_name [lindex $pair 0]
+	if {[exists_and_not_null value]} {
+	    set value_id [ams::util::telecom_number_save \
+			      -subscriber_number $value
+			 ]
+	    set attribute_id [attribute::id \
+				  -object_type $object_type \
+				  -attribute_name $attribute_name
+			     ]
+	    ams::attribute::value_save \
+		-attribute_id $attribute_id \
+		-value_id $value_id \
+		-object_id $object_id
+	}
+    }
+}
+
+ad_proc -public ams::attributes::save::number {
+    -object_id:required
+    {-object_type ""}
+    -value_list
+} {
+    Save Multiple number values for an object_id
+    
+    @author Malte Sussdorff (sussdorff@sussdorff.de)
+    @creation-date 2005-07-22
+    
+    @param object_id The object for which the value is stored
+    
+    @param value_list Pair List of attribute_id and value which will be inserted for the object_id
+
+    @return
+    
+    @error
+} {
+
+    if {[string eq $object_type ""]} {
+	set object_type [acs_object_type $object_id]
+    }
+    # Set phone attributes    
+
+    foreach pair $value_list {
+	set value [lindex $pair 1]
+	set attribute_name [lindex $pair 0]
+	if {[exists_and_not_null value]} {
+	    set value_id [ams::util::number_save \
+			      -number $value
+			 ]
+	    set attribute_id [attribute::id \
+				  -object_type $object_type \
+				  -attribute_name $attribute_name
+			     ]
+	    ams::attribute::value_save \
+		-attribute_id $attribute_id \
+		-value_id $value_id \
+		-object_id $object_id
+	}
+    }
+}
 
 #########################
 # Quick Procs for Saving

@@ -318,12 +318,11 @@ ad_proc -public template::data::transform::address { element_ref } {
     set postal_type      [ns_queryget $element_id.postal_type]
 
 
-
-    if { [empty_string_p $delivery_address] } {
-        # We need to return the empty list in order for form builder to think of it 
-        # as a non-value in case of a required element.
-        return [list]
-    } else {
+#    if { [empty_string_p $country_code]} {
+#        # We need to return the empty list in order for form builder to think of it 
+#        # as a non-value in case of a required element.
+#        return [list]
+#    } else {
         if { $country_code == "US" } {
             # since we have reference data installed we can automatically get a standardized
             # state code
@@ -389,7 +388,7 @@ ad_proc -public template::data::transform::address { element_ref } {
         set postal_code [string toupper $postal_code]
 
         return [list [list $delivery_address $municipality $region $postal_code $country_code $additional_text $postal_type]]
-    }
+#    }
 }
 
 ad_proc -public template::util::address::set_property { what address_list value } {

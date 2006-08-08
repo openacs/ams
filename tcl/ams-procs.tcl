@@ -126,6 +126,10 @@ ad_proc -public attribute::id_not_cached {
     return the attribute_id for the specified attribute, this proc checks
     all parent attributes as well
 } {
+    # Special case for emails
+    if {$attribute_name eq "email"} {
+	set object_type "party"
+    }
     return [db_string get_attribute_id {} -default {}]
 }
 
