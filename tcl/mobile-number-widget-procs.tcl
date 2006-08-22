@@ -94,7 +94,6 @@ ad_proc -public template::data::validate::mobile_number { value_ref message_ref 
         # we need to verify that the number does not contain invalid characters
         set mobile_number_temp "$itu_id$national_number$subscriber_number$best_contact_time"
         regsub -all " " $mobile_number_temp "" mobile_number_temp
-        ns_log Notice $mobile_number_temp
         if { ![regexp {^([0-9]|x|-|\+|\)|\(){1,}$} $mobile_number_temp match mobile_number_temp] } {
 	    set message [_ ams.lt_Mobile_numbers_must_only_contain]
         }
