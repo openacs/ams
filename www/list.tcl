@@ -34,7 +34,6 @@ if { ![ams::list::exists_p -package_key $package_key -object_type $object_type -
 }
 set list_id [ams::list::get_list_id -package_key $package_key -object_type $object_type -list_name $list_name]
 
-
 set create_attribute_url [export_vars -base "attribute-add" -url {object_type list_id return_url return_url_label}]
 
 
