@@ -4,7 +4,7 @@
 <fullquery name="attribute::pretty_name_not_cached.get_pretty_name">
   <querytext>
         select pretty_name
-          from ams_attributes
+          from acs_attributes
          where attribute_id = :attribute_id
   </querytext>
 </fullquery>
@@ -12,7 +12,7 @@
 <fullquery name="attribute::pretty_plural_not_cached.get_pretty_plural">
   <querytext>
         select pretty_plural
-          from ams_attributes
+          from acs_attributes
          where attribute_id = :attribute_id
   </querytext>
 </fullquery>
