@@ -15,11 +15,10 @@ declare
   p_object_id              alias for $2;  
   v_value                  text;
 begin
-  val := ams_attribute_value__value(p_attribute_id,( select aav.value_id from ams_attribute_values aav where aav.object_id = p_object_id and aav.attribute_id = p_attribute_id));
+  v_value := ams_attribute_value__value(p_attribute_id,( select aav.value_id from ams_attribute_values aav where aav.object_id = p_object_id and aav.attribute_id = p_attribute_id));
 
   return v_value;
 end;' language 'plpgsql' stable strict;
-
 
 create or replace function ams_value__postal_address_save (varchar,varchar,varchar,varchar,char(2),varchar,integer)
 returns integer as ' 

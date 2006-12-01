@@ -115,9 +115,9 @@ declare
         v_dynamic_p             boolean;
 begin
         select attribute_id, attribute_name, object_type, dynamic_p
-          info v_attribute_id, v_object_type, v_attribute_name, v_dynamic_p
+          into v_attribute_id, v_object_type, v_attribute_name, v_dynamic_p
           from ams_attributes
-         where ams_attribute_id = :ams_attribute_id;
+         where ams_attribute_id = p_ams_attribute_id;
 
         delete from ams_attribute_values where attribute_id = v_attribute_id;
 
@@ -208,11 +208,10 @@ declare
   p_object_id              alias for $2;  
   v_value                  text;
 begin
-  val := ams_attribute_value__value(p_attribute_id,( select aav.value_id from ams_attribute_values aav where aav.object_id = p_object_id and aav.attribute_id = p_attribute_id));
+  v_value := ams_attribute_value__value(p_attribute_id,( select aav.value_id from ams_attribute_values aav where aav.object_id = p_object_id and aav.attribute_id = p_attribute_id));
 
   return v_value;
 end;' language 'plpgsql' stable strict;
-
 
 
 ------ Options                                        
@@ -754,5 +753,4 @@ begin
 
     return v_next_instance;
 end;' language 'plpgsql';
-
 
