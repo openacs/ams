@@ -46,7 +46,7 @@ list::create \
         widget {
             label "[_ ams.Widget_1]"
             display_template {
-                <if @object_attributes.widget@ nil><a href="attribute-add?object_type=@object_type@&attribute_name=@object_attributes.attribute_name@" class="button">[_ ams.Define_Widget]</a></if><else><a href="widgets">@object_attributes.widget@</else>
+                <if @object_attributes.widget@ nil><a href="attribute-add?object_type=@object_type@&attribute_name=@object_attributes.attribute_name@" class="button">[_ ams.Define_Widget]</a></if><else>@object_attributes.widget@</else>
             }
         }
     } -filters {
