@@ -1741,7 +1741,11 @@ ad_proc -private ams::util::postal_address_save {
     set country_code [string trim $country_code]
     set additional_text [string trim $additional_text]
     set postal_type [string trim $postal_type]
-    return [db_string save_value {} -default {}]
+    if {$delivery_address eq "" && $country_code eq ""} {
+	return ""
+    } else {
+	return [db_string save_value {} -default {}]
+    }
 }
 
 ad_proc -private ams::util::telecom_number_save {

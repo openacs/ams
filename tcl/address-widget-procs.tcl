@@ -231,7 +231,7 @@ ad_proc -public template::data::validate::address { value_ref message_ref } {
 	lappend message "[_ ams.Your_delivery_address_is_too_many_lines]"
     }
 
-    if { $country_code eq "" } {
+    if { $country_code eq "" && $delivery_address ne ""} {
 	lappend message "[_ ams.country] is required."
     }
 
