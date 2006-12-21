@@ -392,7 +392,7 @@ ad_proc -private template::util::skype::status {
     }
 
     #To avoid ambiguity, escape the . in a username, then add it to the URI
-    regsub -all . $username %2E username
+    regsub -all {\.} $username {%2E} username
     set uri ${uri}/$username
 
     #If response_type is not an image, append it to the URI
@@ -429,7 +429,8 @@ ad_proc -private template::util::skype::status {
 	
 	#If char_set is specified append it to the URI
 	if { ![empty_string_p $char_set] } {
-	    string tolower $char_set {
+	    string tolower $char_set
+	    switch $char_set {
 		"utf"   {set char_set "utf8"}
 		"iso"   {set char_set "latin1"}
 		default {set char_set "utf8"}
