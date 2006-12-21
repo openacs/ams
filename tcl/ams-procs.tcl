@@ -422,7 +422,8 @@ ad_proc -public ams::ad_form::save {
 
 ad_proc -public ams::ad_form::elements {
     -package_key:required
-    -object_type:required
+    {-object_type ""}
+    {-object_types ""}
     {-list_name ""}
     {-list_names ""}
     {-key ""}
@@ -432,6 +433,7 @@ ad_proc -public ams::ad_form::elements {
 
     @param package_key      The package_key of the list_id.
     @param object_type      The object_type of the list_id.
+    @param object_types     A list of object_types for the list_ids. Either this or object_type must be provided
     @param list_name        The list_name to get the list_id. Either this or list_names must be provided.
     @param list_names       A list of list_names to get the list_ids from. Either this or list_name must be provided.
     @param key              The key element to use in the form.
@@ -446,13 +448,24 @@ ad_proc -public ams::ad_form::elements {
 	set list_names $list_name
     }
 
-    foreach l_name $list_names {
-	set list_id [ams::list::get_list_id -package_key $package_key -object_type $object_type -list_name $l_name]
-	if {![empty_string_p $list_id]} {
-	    lappend list_ids $list_id
+    if { [empty_string_p $object_types] && [empty_string_p $object_type] } {
+	ad_return_complaint 1 "[_ ams.you_must_provide_object_type]"
+	ad_script_abort
+    }
+
+    if { [empty_string_p $object_types] && ![empty_string_p $object_type] } {
+	set object_types $object_type
+    }
+
+    foreach object_type $object_types {
+	foreach l_name $list_names {
+	    set list_id [ams::list::get_list_id -package_key $package_key -object_type $object_type -list_name $l_name]
+	    if {![empty_string_p $list_id]} {
+		lappend list_ids $list_id
+	    }
 	}
     }
-    
+
     # To use in the query
     set orderby_clause [ams::util::orderby_clause -list_ids $list_ids]
     set list_ids [template::util::tcl_to_sql_list $list_ids]
