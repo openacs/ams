@@ -6,15 +6,9 @@ ad_library {
     @creation-date 2006-02-02
 }
 
-namespace eval template {}
-namespace eval template::data {}
-namespace eval template::data::transform {}
-namespace eval template::data::validate {}
-namespace eval template::util {}
 namespace eval template::util::mobile_number {}
 namespace eval template::util::aim {}
 namespace eval template::util::skype {}
-namespace eval template::widget {}
 
 ad_proc -public template::util::mobile_number { command args } {
     Dispatch procedure for the mobile_number object
@@ -47,13 +41,20 @@ ad_proc -public template::util::mobile_number::html_view {
         if { [exists_and_not_null mobile_number] } { append mobile_number "-" }
     }
     append mobile_number "$subscriber_number"
+
+    # Now prepare the returned html
+    set return_html ""
     set mobile_url [parameter::get_from_package_key -parameter "MobileURL" -package_key "ams" -default ""]
-    if {[empty_string_p $mobile_url]} {
-	return $mobile_number
+    set phone_url [parameter::get_from_package_key -parameter "PhoneURL" -package_key "ams" -default ""]
+    if {$phone_url ne ""} {
+	set return_html "<a href=\"[eval set foo $phone_url]\">$mobile_number</a>"
     } else {
-	set recipient_mobile_phone_number $mobile_number
-	set url [export_vars -base $mobile_url {recipient_mobile_phone_number}]
-	return "<a href=\"$url\">$mobile_number</a>"
+	set return_html "$mobile_number"
+    }
+
+    if {$mobile_url ne ""} {
+	set url [export_vars -base $mobile_url {mobile_number}]
+	append return_html " - <a href=\"$url\" class=button>SMS</a>"
     }
 }
 

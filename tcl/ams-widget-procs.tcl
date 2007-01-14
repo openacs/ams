@@ -467,7 +467,7 @@ ad_proc -private ams::widget::mobile_number {
 	}
         value_text {
 	    util_unlist $value itu_id national_number area_city_code subscriber_number extension sms_enabled_p best_contact_time location phone_type_id
-	    return [ad_html_to_text -showtags -no_format [template::util::mobile_number::html_view $itu_id $national_number $subscriber_number $best_contact_time]]
+	    return [ad_html_to_text -showtags -no_format "$subscriber_number"]
 	}
         value_html {
 	    util_unlist $value itu_id national_number area_city_code subscriber_number extension sms_enabled_p best_contact_time location phone_type_id
