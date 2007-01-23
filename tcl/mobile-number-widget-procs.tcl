@@ -68,6 +68,7 @@ ad_proc -public template::util::mobile_number::html_view {
 	set url [export_vars -base $mobile_url {mobile_number}]
 	append return_html " - <a href=\"$url\" class=button>SMS</a>"
     }
+    return $return_html
 }
 
 ad_proc -public template::util::mobile_number::text_view {
