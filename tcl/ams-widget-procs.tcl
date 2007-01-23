@@ -424,13 +424,10 @@ ad_proc -private ams::widget::mobile_number {
 	    set help_text [attribute::help_text -attribute_id $attribute_id] 
 	    set element [list]
 	    if { [string is true $optional_p] } {
-		lappend element ${attribute_name}:mobile_number(mobile_number),optional 
+		return "${attribute_name}:mobile_number(mobile_number),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    } else {
-		lappend element ${attribute_name}:mobile_number(mobile_number)
+		return "${attribute_name}:mobile_number(mobile_number) {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    }
-	    lappend element [list label ${pretty_name}]
-	    lappend element [list html $html_options]
-	    lappend element [list help_text $help_text]
 	    return $element
 	}
         template_form_widget  {
@@ -457,21 +454,21 @@ ad_proc -private ams::widget::mobile_number {
 	    return [ams::util::telecom_number_save \
 			-itu_id [template::util::mobile_number::get_property itu_id $value] \
 			-national_number [template::util::mobile_number::get_property national_number $value] \
-			-area_city_code "" \
+			-area_city_code [template::util::mobile_number::get_property area_city_code $value] \
 			-subscriber_number [template::util::mobile_number::get_property subscriber_number $value] \
-			-extension "" \
-			-sms_enabled_p "" \
+			-extension [template::util::mobile_number::get_property extension $value] \
+			-sms_enabled_p [template::util::mobile_number::get_property sms_enabled_p $value] \
 			-best_contact_time [template::util::mobile_number::get_property best_contact_time $value] \
-			-location "" \
-			-phone_type_id ""]
+			-location [template::util::mobile_number::get_property location $value] \
+			-phone_type_id [template::util::mobile_number::get_property phone_type_id $value]]
 	}
         value_text {
 	    util_unlist $value itu_id national_number area_city_code subscriber_number extension sms_enabled_p best_contact_time location phone_type_id
-	    return [ad_html_to_text -showtags -no_format "$subscriber_number"]
+	    return [template::util::mobile_number::text_view $itu_id $national_number $area_city_code $subscriber_number $extension $sms_enabled_p $best_contact_time $location $phone_type_id]]
 	}
         value_html {
 	    util_unlist $value itu_id national_number area_city_code subscriber_number extension sms_enabled_p best_contact_time location phone_type_id
-	    return [template::util::mobile_number::html_view $itu_id $national_number $subscriber_number $best_contact_time]
+	    return [template::util::mobile_number::html_view $itu_id $national_number $area_city_code $subscriber_number $extension $sms_enabled_p $best_contact_time $location $phone_type_id]
 	}
         csv_value {
 	    # not yet implemented
