@@ -302,7 +302,30 @@ ad_proc -public ams::object_flush {
      -attribute_id:required
      -array:required
  } {
-     Get the info on an ams_attribute
+     Get the info on an ams_attribute 
+
+     @param attribute_id ID of the attribute
+     @param array Name of the array to store the attribute in
+
+     @return Array with the following variable:<ul>
+     <li>attribute_id
+     <li>object_type     
+     <li>table_name
+     <li>attribute_name
+     <li>pretty_name
+     <li>pretty_plural
+     <li>sort_order   
+     <li>datatype     
+     <li>default_value
+     <li>min_n_values 
+     <li>max_n_values 
+     <li>storage      
+     <li>static_p
+     <li>column_name  
+     <li>ams_attribute_id
+     <li>widget
+     <li>dynamic_p       
+     <li>deprecated_p</ul>
  } {
      upvar 1 $array row
      db_1row select_attribute_info {} -column_array row
@@ -529,6 +552,32 @@ ad_proc -public ams::ad_form::values {
     db_foreach select_values {} {
         ams::widget -widget $widget -request "form_set_value" -attribute_name $attribute_name -pretty_name $pretty_name -form_name $form_name -attribute_id $attribute_id -value $value
     }
+}
+
+ad_proc -public ams::elements {
+    -list_ids:required
+    {-orderby_clause ""}
+} {
+    This returns a list of lists with the attribute information
+
+    @param list_ids Lists for which to get the elements
+    @param orderby_clause Clause for odering the lists.
+
+    @return list of lists where each attribute is made of <ol>
+    <li>attribute_id
+    <li>required_p  
+    <li>section_heading
+    <li>attribute_name 
+    <li>pretty_name    
+    <li>widget         
+    <li>html_options</ol>
+
+} {
+    if {$orderby_clause eq ""} {
+	set orderby_clause [ams::util::orderby_clause -list_ids $list_ids]
+    } 
+    set list_ids [template::util::tcl_to_sql_list $list_ids]
+    return [db_list_of_lists select_elements " "]
 }
 
 ad_proc -public ams::values {
