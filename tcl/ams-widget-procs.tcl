@@ -1721,15 +1721,18 @@ ad_proc -private ams::util::number_save {
 }
 
 ad_proc -private ams::util::postal_address_save {
-    -delivery_address:required
-    -municipality:required
-    -region:required
-    -postal_code:required
-    -country_code:required
+    {-delivery_address ""}
+    {-municipality ""}
+    {-region ""}
+    {-postal_code ""}
+    {-country_code ""}
     {-additional_text ""}
     {-postal_type ""}
 } {
-    return a value_id     
+    Save the postal address in the postal_addresses table.
+    If the country code is empty, do nothing
+
+    @return a value_id     
 } {
     set delivery_address [string trim $delivery_address]
     set municipality [string trim $municipality]
@@ -1738,7 +1741,7 @@ ad_proc -private ams::util::postal_address_save {
     set country_code [string trim $country_code]
     set additional_text [string trim $additional_text]
     set postal_type [string trim $postal_type]
-    if {$delivery_address eq "" && $country_code eq ""} {
+    if {$country_code eq ""} {
 	return ""
     } else {
 	return [db_string save_value {} -default {}]
