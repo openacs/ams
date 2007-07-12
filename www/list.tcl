@@ -80,7 +80,9 @@ list::create \
         }
         section_heading {
             label "[_ ams.Heading]"
-            display_col section_heading
+            display_template {
+		<if @mapped_attributes.section_heading@ eq "no_section"><em>\#ams.Heading_Stop\#</em></if><else>@mapped_attributes.section_heading@</else>
+	    }
         }
 	html_options {
 	    label "[_ ams.Html_options]"

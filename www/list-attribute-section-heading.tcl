@@ -32,13 +32,23 @@ set package_options " [db_list_of_lists select_packages { select package_key, pa
 ad_form -name list_form -form {
     list_id:integer(hidden)
     attribute_id:integer(hidden)
-    {section_heading:text {label "[_ ams.Heading]"} {html {size 40 maxlength 200}}}
+    {section_heading:text,optional {label "[_ ams.Heading]"} {html {size 40 maxlength 200}}}
+    {no_section:integer(checkbox),optional {label ""} {options {{{[_ ams.Heading_Stop]} 1}}}}
     {save:text(submit) {label "[_ acs-kernel.common_Save]"}}
     {delete:text(submit) {label "[_ ams.Delete_Heading]"}}
 } -on_request {
+    if { $section_heading eq "no_section" } {
+	set section_heading ""
+	set no_section "1"
+    }
 } -on_submit {
+    set section_heading [string trim $section_heading]
     if { [string is true [exists_and_not_null delete]] } {
 	set section_heading ""
+    } elseif { $no_section eq "1" } {
+	if { $section_heading eq "" } {
+	    set section_heading "no_section"
+	}
     }
     db_dml update_section_heading {
 	update ams_list_attribute_map

@@ -527,10 +527,14 @@ ad_proc -public ams::ad_form::elements {
 			     -html_options $html_options \
 			     -optional_p [string is false $required_p] -attribute_id $attribute_id]
 
-	    if { [exists_and_not_null section_heading] } {
-		lappend element [list section $section_heading]
-	    }
 	    if { [exists_and_not_null element]} {
+		if { [exists_and_not_null section_heading] } {
+		    if { $section_heading eq "no_section" } {
+			lappend element_list {-section ""}
+		    } else {
+			lappend element_list [list "-section" "sec$attribute_id" [list legendtext $section_heading]]
+		    }
+		}
 		lappend element_list $element
 	    }
 	}
