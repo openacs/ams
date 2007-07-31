@@ -50,7 +50,7 @@ if { [ams::widget_has_options_p -widget $widget] } {
 	    lappend element [list help_text "[_ ams.lt_If_you_need_to_add_mo]"]
 	}
         if { $i == 1 } {
-	    lappend element [list section "[_ ams.Predefined_Options]"]
+	    lappend elements [list -section "sec1" [list legendtext [_ ams.Predefined_Options]]]
 	}
 	lappend elements $element
         incr i
