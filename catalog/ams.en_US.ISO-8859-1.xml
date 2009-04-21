@@ -289,6 +289,7 @@
   <msg key="denomination_plural">Denominations</msg>
   <msg key="division">App Division</msg>
   <msg key="division_plural">App Divisions</msg>
+  <msg key="Documentation">Documention</msg>
   <msg key="EditDelete_Heading">Edit/Delete Section</msg>
   <msg key="EditDelete_Html">Edit/Delete Html Options</msg>
   <msg key="Email">Email</msg>
@@ -329,6 +330,7 @@
   <msg key="is_not_a_valid_US_zip_code">is not a valid U.S. zip code</msg>
   <msg key="List_Name">List Name</msg>
   <msg key="List_Name_1">List Name</msg>
+  <msg key="Lists">Lists</msg>
   <msg key="lt_Add_a_Heading_Above_a">Add a heading above the attribute</msg>
   <msg key="lt_AMS_Lists_associated_">AMS Lists associated with this Object</msg>
   <msg key="lt_An_answer_from_the_ch">An answer is required from the checked attributes</msg>
