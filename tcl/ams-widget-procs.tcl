@@ -2078,7 +2078,7 @@ ad_proc -public ams::attribute::save::postal_address {
     @param postal_code Postal / ZIP Code
     @param country_code Country Code of the address
     @param additional_text Additional text for the address
-    @param postal_type Addtional postal type information
+    @param postal_type Additional postal type information
     
     @return
     
