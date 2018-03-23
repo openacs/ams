@@ -30,7 +30,7 @@ if {[apm_package_installed_p "contacts"]} {
     set default_list_id [db_string get_default_list "" -default ""]
     if { [string equal $default_list_id $list_id] } {
 	# We are assigning values to the default list
-	# so we are going to get all the mapped atributes
+	# so we are going to get all the mapped attributes
 	# for the other lists
 	set name_first_part [lindex [split $list_name "__"] 0]
 	set mapped_attributes_list [db_list get_attributes_list { }]

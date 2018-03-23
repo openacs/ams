@@ -115,7 +115,7 @@ ad_proc -private template::util::skype::status {
     #If response_type is txt, check for language and character set.
     if { $response_type == "txt" } {
 
-	#If language is specified, check for its availablity and add it to the URI
+	#If language is specified, check for its availability and add it to the URI
 	if { ![empty_string_p $language] } {
 	    string tolower $language
 	    switch $language {
