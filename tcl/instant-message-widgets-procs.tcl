@@ -15,7 +15,7 @@ namespace eval template::util::skype {}
 ad_proc -public template::util::aim::status_img {
     -username:required
 } {
-# connecting to the server can be really slow, so we reutrn a url that will load in the broswer
+# connecting to the server can be really slow, so we reutrn a url that will load in the browser
 # but not slow the loading of a page overall
 
     # Connect to AOL server
