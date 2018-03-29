@@ -95,7 +95,7 @@ begin
 
     v_next_instance := p_date + (v_years::varchar || '' years'')::interval;
 
-    -- if this already happend we and one more year
+    -- if this already happened we and one more year
     if v_next_instance::date < now()::date then
         v_next_instance := v_next_instance + ''1 year''::interval;
     end if;
