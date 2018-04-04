@@ -305,7 +305,7 @@ ad_proc -public ams::list::attribute::get_mapped_attributes {
 } {
     if { [empty_string_p $list_id] && [empty_string_p $list_name] } {
 	ad_return_complaint 1 "[_ ams.you_must_provide_list_id]"
-	ad_scritp_abort
+	ad_script_abort
     }
     
     if { ![empty_string_p $list_name] && [empty_string_p $list_id]} {
