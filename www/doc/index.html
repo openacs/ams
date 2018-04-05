@@ -40,7 +40,7 @@ people can actually have a "widget" represent a series of widgets in ad_form or 
 ::widget::${widget}::value_text           - return the value formatted for text output, value is provided - this in the future will allow for search indexing of this data
 ::widget::${widget}::value_html           - return the value formatted for html output, value is provided
 ::widget::${widget}::csv_value            - return the value formatted for csv output, value and attribute are provided
-::widget::${widget}::csv_headers          - return the value formatted for csv output, attribute is provided, for example, if returning a postal address we woudl return ${attribute}__country and ${attribute}__city, etc. For something such as gender we would simply return ${attribute}
+::widget::${widget}::csv_headers          - return the value formatted for csv output, attribute is provided, for example, if returning a postal address we would return ${attribute}__country and ${attribute}__city, etc. For something such as gender we would simply return ${attribute}
 ::widget::${widget}::csv_save             - save the value provided by csv, the input into this proc will be ${attribute}__subitem $value ${attribute}__subitem $value, its assumed that the cvs_headers will all be provided and that if there is no input a blank field will be supplied.
 
 

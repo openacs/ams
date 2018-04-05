@@ -62,7 +62,7 @@ create or replace function ams_attribute__new (integer,integer,varchar,boolean,b
 returns integer as '
 declare
         p_attribute_id       alias for $1;
-        p_ams_attribute_id   alias for $2; -- the Permissable AMS Attribute ID
+        p_ams_attribute_id   alias for $2; -- the Permissible AMS Attribute ID
         p_widget             alias for $3;
         p_dynamic_p          alias for $4;
         p_deprecated_p       alias for $5;

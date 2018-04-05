@@ -122,7 +122,7 @@ ad_proc -public template::data::validate::telecom_number { value_ref message_ref
         }
     } else {
         # we have a number in country code one that must follow certain formatting guidelines
-        # the template::data::transform::telecom_number proc will have already seperated 
+        # the template::data::transform::telecom_number proc will have already separated 
         # the entry from a single entry field into the appropriate values if its formatted 
         # correctly. This means that if values exist for area_city_code and national_number
         # the number was formatted correctly. If not we need to reply with a message that lets
@@ -157,12 +157,12 @@ ad_proc -public template::data::transform::telecom_number { element_ref } {
     set location            [ns_queryget $element_id.location]
     set phone_type_id       [ns_queryget $element_id.phone_type_id]
 
-    # we need to seperate out the returned value into individual elements for a single box entry widget
+    # we need to separate out the returned value into individual elements for a single box entry widget
     set number              [string trim [ns_queryget $element_id.summary_number]]
 
     if { ![parameter::get_from_package_key -parameter "ForceCountryCodeOneFormatting" -package_key "ams" -default "0"] } {
         # we need to verify that the number is formatted correctly
-        # if yes we seperate the number into various elements
+        # if yes we separate the number into various elements
         set subscriber_number $number
     } else {
         # we need to verify that the number is a valid format. 

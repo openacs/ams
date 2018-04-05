@@ -223,7 +223,7 @@ ad_proc -public ams::util::localize_and_sort_list_of_lists {
 #     foreach item $list {
 #	 set sort_key [string toupper [lindex $item $position]]
 	 # we need to replace spaces because it prevents
-	 # multi word sort keys from recieving curly
+	 # multi word sort keys from receiving curly
 	 # brackets during the sort, which skews results
 #	 regsub -all " " $sort_key "_" sort_key
 #	 lappend sort_output [list $sort_key $item]
@@ -451,7 +451,7 @@ ad_proc -public ams::ad_form::elements {
     {-list_names ""}
     {-key ""}
 } {
-    This code saves retrieves ad_form elements, it recieves list_name or list_names switch, if both are provided
+    This code saves retrieves ad_form elements, it receives list_name or list_names switch, if both are provided
     then it would use list_names.
 
     @param package_key      The package_key of the list_id.
