@@ -59,7 +59,7 @@ ad_proc -private template::util::skype::status {
     {-language "en"}
     {-char_set "utf"}
 } {
-    This procedure would query the skypeweb database for the status of the provided username. For this procedure to retun the user status, the user should allow his status to be shown on the web in the privacy menu in thier Skype application. This procedure should not be called by the user, instead use the wrapper procedures status_txt, status_xml, status_num, and status_img, unless if you want the raw unprocessed result as it returns from the server. For more information consult the SkypeWeb Technical Whitepaper.
+    This procedure would query the skypeweb database for the status of the provided username. For this procedure to retun the user status, the user should allow his status to be shown on the web in the privacy menu in their Skype application. This procedure should not be called by the user, instead use the wrapper procedures status_txt, status_xml, status_num, and status_img, unless if you want the raw unprocessed result as it returns from the server. For more information consult the SkypeWeb Technical Whitepaper.
 
     @param username The username to check the status for.
     @param response_type
