@@ -156,7 +156,7 @@ ad_proc -public template::util::address::country_options_not_cached {
     Returns the country list.
 } {
     set country_code_list [db_list get_country_codes {}]
-    set return_country_list [list]
+    set return_country_list {}
     set reserved_country_codes [parameter::get_from_package_key -parameter "DefaultISOCountryCode" -package_key "ams" -default ""]
 
     foreach country $country_code_list {
@@ -165,7 +165,7 @@ ad_proc -public template::util::address::country_options_not_cached {
         }
     }
     set return_country_list [ams::util::sort_list_of_lists -list $return_country_list]
-    set country_code [list]
+    set country_code {}
     if { [exists_and_not_null reserved_country_codes] } {
         foreach country $reserved_country_codes {
             set country [string toupper $country]
@@ -215,7 +215,7 @@ ad_proc -public template::data::validate::address { value_ref message_ref } {
     set additional_text  [template::util::address::get_property additional_text $address_list]
     set postal_type      [template::util::address::get_property postal_type $address_list]
 
-    set message [list]
+    set message {}
     # this is used to make sure there are no invalid characters in the address
     set address_temp "$delivery_address $municipality $region $postal_code $country_code $additional_text $postal_type"
     if { [::string match "\{" $address_temp] || [::string match "\}" $address_temp] } {
@@ -371,7 +371,7 @@ ad_proc -public template::data::transform::address { element_ref } {
         }
         if { $country_code == "US" || $country_code == "CA" } {
             # make the city pretty
-            set municipality_temp [list]
+            set municipality_temp {}
             foreach word $municipality {
                 # I am sure there are more then "Mc" words when they come up add them here
                 if { [regexp {^MC([a-zA-Z]+?)} [string toupper $word]] } {

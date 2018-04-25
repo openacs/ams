@@ -41,7 +41,7 @@ if { [ams::widget_has_options_p -widget $widget] } {
     set default_number_of_options 5
     set option_fields_count $default_number_of_options
     set i 1
-    set elements [list]
+    set elements {}
     lappend elements [list option_fields_count:integer(hidden) [list value $option_fields_count]]
 #    lappend elements [list options_on_last_screen:integer(hidden),optional]
     while { $i <= $option_fields_count } {

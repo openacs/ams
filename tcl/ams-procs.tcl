@@ -202,9 +202,9 @@ ad_proc -public ams::util::localize_and_sort_list_of_lists {
  } {
      localize the elements of a list_of_lists
  } {
-     set list_output [list]
+     set list_output {}
      foreach item $list {
-	 set item_output [list]
+	 set item_output {}
 	 foreach part $item {
 	     lappend item_output [lang::util::localize $part]
 	 }
@@ -219,7 +219,7 @@ ad_proc -public ams::util::localize_and_sort_list_of_lists {
  } {
      sort a list_of_lists
  } {
-#     set sort_output [list]
+#     set sort_output {}
 #     foreach item $list {
 #	 set sort_key [string toupper [lindex $item $position]]
 	 # we need to replace spaces because it prevents
@@ -229,7 +229,7 @@ ad_proc -public ams::util::localize_and_sort_list_of_lists {
 #	 lappend sort_output [list $sort_key $item]
 #     }
 #     set sort_output [lsort $sort_output]
-#     set list_output [list]
+#     set list_output {}
 #     foreach item $sort_output {
 #	 lappend list_output [lindex $item 1]
 #     }
@@ -461,7 +461,7 @@ ad_proc -public ams::ad_form::elements {
     @param list_names       A list of list_names to get the list_ids from. Either this or list_name must be provided.
     @param key              The key element to use in the form.
 } {
-    set list_ids [list]
+    set list_ids {}
     if { [empty_string_p $list_names] && [empty_string_p $list_name] } {
 	ad_return_complaint 1 "[_ ams.you_must_provide_list_name]"
 	ad_script_abort
@@ -499,11 +499,11 @@ ad_proc -public ams::ad_form::elements {
 
     # Control list to know which attributes are already in the
     # elements list so we don't en up with duplicates
-    set control_list [list]
+    set control_list {}
     
     # If we do not have a list_id then don't bother to try and get any attributes...
     if {[string eq "" $list_ids]} {
-        set all_attributes [list]
+        set all_attributes {}
     } else {
         set all_attributes [db_list_of_lists select_elements " "]
     }
@@ -664,7 +664,7 @@ ad_proc -public ams::values_not_cached {
 	set list_names $list_name
     }
 
-    set list_ids [list]
+    set list_ids {}
     foreach l_name $list_names {
 	set list_id [ams::list::get_list_id -package_key $package_key -object_type $object_type -list_name $l_name]
 	if {![empty_string_p $list_id]} {
@@ -677,7 +677,7 @@ ad_proc -public ams::values_not_cached {
     set list_ids [template::util::tcl_to_sql_list $list_ids]
 
     if { [exists_and_not_null list_ids] } {
-        set values [list]
+        set values {}
         set heading ""
 	
 	# Control list to know which attributes are already in the
