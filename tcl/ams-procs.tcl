@@ -682,7 +682,7 @@ ad_proc -public ams::values_not_cached {
 	
 	# Control list to know which attributes are already in the
 	# elements list so we don't en up with duplicates
-	set control_list [list]
+	set control_list {}
 	
 	set all_attributes [db_list_of_lists select_values {}]
 	
@@ -696,7 +696,7 @@ ad_proc -public ams::values_not_cached {
 		set widget          [lindex $attribute 4]
 		set value           [lindex $attribute 5]
 		
-		set val [list]
+		set val {}
 		if { [regexp "\{text/.*\}" $value value_format] } {
 		    lappend val [lindex $value_format 0]
 		    lappend val [list [string range $value [expr [string length $value_format] + 1] [string length $value]]]
