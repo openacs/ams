@@ -91,7 +91,7 @@ ad_form -extend -name attribute_form -form {
 } -on_submit {
 
     set i 1
-    set options {}
+    set options [list]
     while { $i <= "9" } {
         set option_value [string trim [set option${i}]]
         ns_log notice $option_value

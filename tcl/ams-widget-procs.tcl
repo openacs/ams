@@ -67,7 +67,7 @@ ad_proc -public ams::widget {
             value_text - value_html {
                 if { [exists_and_not_null value] } {
                     if { [::ams::widget_has_options_p -widget $widget] } {
-                        set output {}
+                        set output [list]
                         foreach option [::ams::widget_options -attribute_id $attribute_id -locale $locale] {
                             if { [lsearch $value [lindex $option 1]] >= 0 } {
                                 lappend output [lindex $option 0]
@@ -106,7 +106,7 @@ ad_proc -private ams::widget_options_not_cached {
 } {
     Return all widget procs. Each list element is a list of the first then pretty_name then the widget
 } {
-    set return_list {}
+    set return_list [list]
     db_foreach get_options {} {
 	set pretty_name "[lang::util::localize $pretty_name $locale]"
 	lappend return_list [list $pretty_name $option_id]
@@ -126,7 +126,7 @@ ad_proc -private ams::widget_list {
 } {
     Return all widget procs. Each list element is a list of the first then pretty_name then the widget
 } {
-    set widgets {}
+    set widgets [list]
     set all_procs [::info procs "::ams::widget::*"]
     foreach widget $all_procs {
 			 if { [string is false [regsub {__arg_parser} $widget {} widget]] } {
@@ -141,7 +141,7 @@ ad_proc -private ams::widgets_init {
 } {
     Initialize all widgets. Deprecated widgets that no longer exist in the tcl api.
 } {
-    set proc_widgets {}
+    set proc_widgets [list]
     foreach widget [ams::widget_list] {
 	lappend proc_widgets [lindex $widget 1]
     }
@@ -422,7 +422,7 @@ ad_proc -private ams::widget::mobile_number {
     switch $request {
         ad_form_widget  {
 	    set help_text [attribute::help_text -attribute_id $attribute_id] 
-	    set element {}
+	    set element [list]
 	    if { [string is true $optional_p] } {
 		return "${attribute_name}:mobile_number(mobile_number),optional {help_text \"$help_text\"} {[list label ${pretty_name}]} {[list html ${html_options}]}"
 	    } else {
@@ -513,7 +513,7 @@ ad_proc -private ams::widget::aim {
     switch $request {
         ad_form_widget  {
 	    set help_text [attribute::help_text -attribute_id $attribute_id] 
-	    set element {}
+	    set element [list]
 	    if { [string is true $optional_p] } {
 		lappend element ${attribute_name}:text(text),optional 
 	    } else {
@@ -606,7 +606,7 @@ ad_proc -private ams::widget::skype {
     switch $request {
         ad_form_widget  {
 	    set help_text [attribute::help_text -attribute_id $attribute_id] 
-	    set element {}
+	    set element [list]
 	    if { [string is true $optional_p] } {
 		lappend element ${attribute_name}:text(text),optional 
 	    } else {
