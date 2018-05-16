@@ -127,7 +127,7 @@ ad_proc -private ams::widget_list {
     Return all widget procs. Each list element is a list of the first then pretty_name then the widget
 } {
     set widgets [list]
-    set all_procs [::info procs "::ams::widget::*"]
+    set all_procs [::info commands "::ams::widget::*"]
     foreach widget $all_procs {
 			 if { [string is false [regsub {__arg_parser} $widget {} widget]] } {
 			     regsub {::ams::widget::} $widget {} widget
