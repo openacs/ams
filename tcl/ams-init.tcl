@@ -8,7 +8,7 @@ ad_library {
 
 ams::widgets_init
 
-if { [empty_string_p [info procs "::lang::util::convert_to_i18n"]] } {
+if { [empty_string_p [info commands "::lang::util::convert_to_i18n"]] } {
 
     ns_log notice "proc ::lang::util::convert_to_i18n not provided by acs-lang because we are using an older version. the proc will be added via ams."
 

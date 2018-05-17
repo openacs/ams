@@ -168,7 +168,7 @@ ad_proc -private ams::widget_proc_exists_p {
 
     @return 0 if false 1 if true
 } {
-    return [string is false [empty_string_p [info procs "::ams::widget::${widget}"]]]
+    return [string is false [empty_string_p [info commands "::ams::widget::${widget}"]]]
 }
 
 ad_proc -private ams::widget_has_options_p {
@@ -2169,7 +2169,7 @@ ad_proc -public ams::attribute::save::mc {
 	
 	set proc "map_$attribute_name"
 	
-	if {[llength [info procs $proc]] == 1} {
+	if {[llength [info commands $proc]] == 1} {
 	    if {[exists_and_not_null value]} {
 		if {[catch {set value [eval $proc {$value}]} err]} {
 		    append error_string "Contact \#$contact_count ($first_names $last_name): $err<br>"
