@@ -139,7 +139,7 @@ ad_proc -private ams::widget_list {
 
 ad_proc -private ams::widgets_init {
 } {
-    Initialize all widgets. Deprecated widgets that no longer exist in the tcl api.
+    Initializes all widgets. Deprecates widgets that no longer exist in the Tcl API.
 } {
     set proc_widgets [list]
     foreach widget [ams::widget_list] {
