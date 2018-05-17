@@ -78,7 +78,7 @@ list::create \
 	    label "[_ ams.Default]"
 	    display_template {
                 <if @options.option@ not nil>
-		<a href="@options.default_url@"><img src="/resources/acs-subsite/checkbox<if @options.default_p@>checked</if>.gif" border="0" width="13" height="13" /></a>
+		<a href="@options.default_url@"><img src="/resources/acs-subsite/checkbox<if @options.default_p;literal@ true>checked</if>.gif" border="0" width="13" height="13" /></a>
 		</if>
 	    }
 	}
@@ -86,8 +86,8 @@ list::create \
             label ""
             display_template {
                 <if @options.edit_url@ not nil><a href="@options.edit_url@"><img src="/shared/images/Edit16.gif" height="16" width="16" alt="Edit" border="0"></a></if>
-                <if @options.in_use_p@></if><else><a href="@options.delete_url@"><img src="/shared/images/Delete16.gif" height="16" width="16" alt="Delete" border="0"></a></else>
-                <if @options.swa_p@> | <a href="@options.purge_url@" title="Delete option and purge the record from all users" class="button">Purge</a></if>
+                <if @options.in_use_p;literal@ true></if><else><a href="@options.delete_url@"><img src="/shared/images/Delete16.gif" height="16" width="16" alt="Delete" border="0"></a></else>
+                <if @options.swa_p;literal@ true> | <a href="@options.purge_url@" title="Delete option and purge the record from all users" class="button">Purge</a></if>
             }
         }
     } -filters {

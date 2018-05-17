@@ -217,7 +217,7 @@ end;' language 'plpgsql' stable strict;
 ------ Options                                        
 --------------------------------------------------------------------
 
-select define_function_args('ams_option__new','option_id,attribute_id,option,sort_order,depreacted_p;f,creation_date,creation_user,creation_ip,context_id,pretty_name');
+select define_function_args('ams_option__new','option_id,attribute_id,option,sort_order,deprecated_p;f,creation_date,creation_user,creation_ip,context_id,pretty_name');
 
 create or replace function ams_option__new (integer,integer,varchar,integer,boolean,timestamptz,integer,varchar,integer,varchar)
 returns integer as '

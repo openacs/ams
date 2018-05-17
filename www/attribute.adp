@@ -12,4 +12,4 @@
 <if @options:rowcount@ gt 0>
 <listtemplate name="options"></listtemplate>
 </if>
-<if @alpha_sort_p@ eq 1>You have to press "update" to save your changes</a></if>
+<if @alpha_sort_p;literal@ true>You have to press "update" to save your changes</a></if>

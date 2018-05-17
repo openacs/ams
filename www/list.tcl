@@ -99,7 +99,7 @@ list::create \
         answer {
             label "[_ ams.Required]"
             display_template {
-                <if @mapped_attributes.required_p@>
+                <if @mapped_attributes.required_p;literal@ true>
                 <a href="@mapped_attributes.optional_url@"><img src="/resources/acs-subsite/checkboxchecked.gif" title="[_ ams.Required]" border="0"></a>
                 </if>
                 <else>
