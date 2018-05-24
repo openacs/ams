@@ -67,8 +67,8 @@ db_multirow -extend { list_url object_url } lists select_lists {
     select list_id, package_key, object_type, list_name, pretty_name
       from ams_lists
 } {
-    set object_url "list?[export_vars -url {object_type}]"
-    set list_url "list?[export_vars -url {package_key object_type list_name}]"
+    set object_url [export_vars -base object -url {object_type}]
+    set list_url [export_vars -base list -url {package_key object_type list_name}]
     set pretty_name [_ $pretty_name]
 }
 
