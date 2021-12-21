@@ -24,7 +24,7 @@ ad_proc -public ams::install::after_upgrade {
 		db_transaction {
 		    db_foreach select_option_name {select option_id, option from ams_option_types} {
 			set pretty_name [lang::util::convert_to_i18n -message_key "ams_option_$option_id" -text "$option"]
-			ns_log Notice "prettry.::: $pretty_name"
+			#ns_log Notice "ams: pretty_name '$pretty_name'"
 			db_dml update_pretty_name  "update acs_objects set title = :pretty_name where object_id = :option_id"
 		    }
 		}
